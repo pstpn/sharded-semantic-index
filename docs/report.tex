@@ -1,0 +1,143 @@
+\documentclass[14pt, a4paper]{article}
+\usepackage[fontsize=14pt]{fontsize}
+
+\setcounter{page}{1}
+
+\usepackage{graphicx} % Required for inserting images
+
+% Для кириллицы и русского языка
+\usepackage[utf8]{inputenc}
+\usepackage[english,russian]{babel}
+
+% Полуторный интервал
+\usepackage{setspace}
+\onehalfspacing 
+
+% Поля
+\usepackage[left=30mm, right=15mm, top=20mm, bottom=20mm]{geometry}
+
+% Отступы в 1,25см
+\setlength{\parindent}{1.25cm}
+
+% Применять отступы на первом абзаце в разделах и подразделах
+\usepackage{indentfirst}
+
+% Нумерация в нижней части включена по умолчанию
+
+% Форматирование заголовков
+\usepackage{titlesec}
+
+% Разделы
+\titleformat{\section}
+{}
+{\hspace{1.25cm}\arabic{section}}
+{1ex}{}
+
+\titleformat{\subsection}
+{}
+{\hspace{1.25cm}\arabic{section}.\arabic{subsection}}
+{1ex}{}
+
+% Структурные элементы
+\titleformat{\paragraph}
+{\centering}
+{\hspace{1.25cm}\arabic{section}}
+{1ex}{}
+
+\newcommand{\structheader}[1]{%
+	\phantomsection%
+	\clearpage
+	\paragraph{{#1}}%
+	\addcontentsline{toc}{section}{#1}%
+}
+\usepackage{fontspec}
+\setmainfont{Times New Roman}
+
+
+% Возможность вставки изображений и таблиц в нужное место
+\usepackage{float}
+
+% Тире вместо двоеточия для подписей иллюстраций
+\usepackage[figurename=Рисунок]{caption}
+\DeclareCaptionLabelSeparator{tirer}{ -- }
+\captionsetup{labelsep=tirer}
+
+% Для форматирования списков (например, условных обозначений)
+\usepackage{enumitem}
+
+% Для форматирования содержания
+\usepackage{tocloft}
+
+\setlength{\cftbeforesecskip}{0pt}
+\renewcommand{\cfttoctitlefont}{\hspace{0.31\textwidth}\bfseries\MakeUppercase}
+\renewcommand{\cftbeforetoctitleskip}{-1em}
+\renewcommand{\cftsecpresnum}{}
+\newlength\mylength
+\settowidth\mylength{\cftsecpresnum}
+\addtolength\cftsecnumwidth{\mylength}
+
+\renewcommand{\cftbeforetoctitleskip}{-1em}
+\renewcommand{\cftsecfont}{\normalfont} 
+\renewcommand{\cftsubsecfont}{\normalfont}
+\renewcommand{\cftsubsubsecfont}{\normalfont}
+\renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}}
+\renewcommand{\cftsecpagefont}{\normalfont}
+
+\usepackage{listings}
+\usepackage{xcolor}
+
+\lstdefinestyle{mystyle}{
+	basicstyle=\ttfamily\small,
+	breaklines=true,                 % Enable line wrapping
+	frame=single,                     % Add a single frame around the code
+	framesep=5pt,                     % Padding between frame and code
+	rulecolor=\color{black},           % Frame color
+	backgroundcolor=\color{white},     % Background color
+	postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space}, % Mark line breaks
+	showstringspaces=false,           % Don't show spaces in strings
+	tabsize=2,                        % Set tab size
+	captionpos=b,                      % Caption position (bottom)
+	columns=flexible
+}
+
+\lstset{style=mystyle}
+
+\hyphenpenalty=10000
+\tolerance=99999
+\sloppy
+
+
+\begin{document}
+	
+	\structheader{СПИСОК ИСПОЛЬЗУЕМЫХ ИСТОЧНИКОВ}
+	
+		\begin{enumerate}[wide=0pt, leftmargin=0pt, labelindent=\parindent, listparindent=\parindent, nosep, label=\arabic*]
+			\bibitem{i1} Бова В. В., Кравченко Ю. А., Родзин С. И. Методы и алгоритмы кластеризации текстовых данных (обзор). // Известия ЮФУ. Технические науки. -- 2022. -- № 4 (228). -- С. 122--143.
+			\bibitem{i2} Черникова Д. А. Алгоритм кластеризации поисковых запросов. // Евразийский научный журнал. -- 2017. -- № 12.
+			\bibitem{i3} Миронов А. И., Мунерман В. И. Создание частичного индексирования таблицы для оптимизации поисковых запросов. // Современные информационные технологии и ИТ-образование. -- 2022. -- Т. 18, № 3. -- С. 558--565.
+			\bibitem{i4} Люнченко С. Применение методов кластеризации для управления запасами товарно-материальных ценностей. // Евразийский союз ученых. -- 2020. -- № 4-4 (73). -- С. 29--37.
+			\bibitem{i5} Курейчик В. В., Герасименко П. С. Основные подходы к извлечению текстовой информации (обзор). // Известия ЮФУ. Технические науки. -- 2024. -- № 4 (240). -- С. 6--14.
+			\bibitem{i6} Pitafi S., Anwar T., Sharif Z. A taxonomy of machine learning clustering algorithms, challenges, and future realms. // Applied Sciences. -- 2023. -- Т. 13, № 6. -- С. 3529.
+			\bibitem{i7} Wani A. A. Comprehensive analysis of clustering algorithms: exploring limitations and innovative solutions. // PeerJ Computer Science. -- 2024. -- Т. 10. -- e2286.
+			\bibitem{i8} Mahnoor, Shafi I., Chaudhry M., Caro Montero E., Silva Alvarado E., de la Torre Diez E., Abdus Samad M., Ashraf I. A Review of Approaches for Rapid Data Clustering: Challenges, Opportunities, and Future Directions. // IEEE Access. -- 2024. -- Т. 12. -- С. 138086--138120.
+			\bibitem{i9} Miraftabzadeh S. M., Colombo C. G., Longo M., Foiadelli F. K-Means and Alternative Clustering Methods in Modern Power Systems. // IEEE Access. -- 2023. -- Т. 11. -- С. 119596--119633.
+			\bibitem{i10} Alasalı T., Ortakcı Y. Clustering Techniques in Data Mining: A Survey of Methods, Challenges, and Applications. // Computer Science. -- 2024. -- Т. 9, № 1. -- С. 32--50.
+			\bibitem{i11} Oyelade J., Isewon I., Oladipupo O., Emebo O., Omogbadegun Z., Aromolaran O., Uwoghiren E., Olaniyan D., Olawole O. Data clustering: Algorithms and its applications. // Proceedings of the 2019 19th International Conference on Computational Science and Its Applications (ICCSA). -- 2019. -- С. 71--81.
+			\bibitem{i12} Xu D., Tian Y. A comprehensive survey of clustering algorithms. // Annals of Data Science. -- 2015. -- Т. 2, № 2. -- С. 165--193.
+			\bibitem{i13} Aggarwal C. C., Reddy C. K. Data clustering. // Algorithms and applications. Chapman\&Hall/CRC Data Mining and Knowledge Discovery Series. -- 2014.
+			\bibitem{i14} Ezugwu A. E., Shukla A. K., Agbaje M. B., Oyelade O. N., Jos{\'e}-Garc{\'\i}a A., Agushaka J. O. Automatic clustering algorithms: a systematic review and bibliometric analysis of relevant literature. // Neural Computing and Applications. -- 2021. -- Т. 33, № 11. -- С. 6247--6306.
+			\bibitem{i15} Ezugwu A. E. Nature-inspired metaheuristic techniques for automatic clustering: a survey and performance study. // SN Applied Sciences. -- 2020. -- Т. 2, № 2. -- С. 273.
+			\bibitem{i16} Shahid N. Comparison of hierarchical clustering and neural network clustering: an analysis on precision dominance. // Scientific Reports. -- 2023. -- Т. 13, № 1. -- С. 5661.
+			\bibitem{i17} Bushra A. A., Yi G. Comparative analysis review of pioneering DBSCAN and successive density-based clustering algorithms. // IEEE Access. -- 2021. -- Т. 9. -- С. 87918--87935.
+			\bibitem{i18} Nagpal A., Jatain A., Gaur D. Review based on data clustering algorithms. // In: 2013 IEEE Conference on Information \& Communication Technologies. -- 2013. -- С. 298--303.
+			\bibitem{i19} Guyeux C., Chr{\'e}tien S., Bou Tayeh G., Demerjian J., Bahi J. Introducing and comparing recent clustering methods for massive data management in the Internet of Things. // Journal of Sensor and Actuator Networks. -- 2019. -- Т. 8, № 4. -- С. 56.
+			\bibitem{i20} Ahmad A., Khan S. S. Survey of state-of-the-art mixed data clustering algorithms. // IEEE Access. -- 2019. -- Т. 7. -- С. 31883--31902.
+			\bibitem{i21} Fahad A., Alshatri N., Tari Z., Alamri A., Khalil I., Zomaya A. Y., Foufou S., Bouras A. A survey of clustering algorithms for big data: Taxonomy and empirical analysis. // IEEE Transactions on Emerging Topics in Computing. -- 2014. -- Т. 2, № 3. -- С. 267--279.
+			\bibitem{i22} Wegmann M., Zipperling D., Hillenbrand J., Fleischer J. A review of systematic selection of clustering algorithms and their evaluation. // arXiv preprint arXiv:2106.12792. -- 2021.
+			\bibitem{i23} Nasraoui O., N'Cir C-E Ben. Clustering methods for big data analytics. // Techniques, Toolboxes and Applications. -- 2019. -- Т. 1. -- С. 91--113.
+			\bibitem{i24} Reddy C. K., Vinzamuri B. A survey of partitional and hierarchical clustering algorithms. // In: Data clustering. -- 2018. -- С. 87--110.
+		\end{enumerate}
+		
+		
+		
+	\end{document}
