@@ -214,3 +214,15 @@ __marimo__/
 # Data and output
 *.txt
 *graphs
+
+# Tex files
+*.aux
+*.xml
+*.toc
+*.gz
+*.log
+*.bbl
+*.blg
+*.bcf
+*.out
+*.nlo
