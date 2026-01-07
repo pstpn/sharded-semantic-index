@@ -9,6 +9,9 @@
 \usepackage[utf8]{inputenc}
 \usepackage[english,russian]{babel}
 
+% Заголовок содержания по ГОСТ: заглавными (babel может переопределять captions)
+\addto\captionsrussian{\renewcommand{\contentsname}{СОДЕРЖАНИЕ}}
+
 % Полуторный интервал
 \usepackage{setspace}
 \onehalfspacing 
@@ -56,17 +59,40 @@
 	\addcontentsline{toc}{section}{#1}%
 }
 
-\newcommand{\structheadernotoc}[1]{%
+% Заголовок, который должен попасть в "содержание отчёта" (mtoc)
+\newcommand{\reportheader}[1]{%
 	\phantomsection%
 	\clearpage
 	\paragraph*{{#1}}%
+	\addcontentsline{mtoc}{section}{#1}%
 }
+
+% Содержание отчёта (без приложений): отдельный список mtoc
+\makeatletter
+\newcommand{\gosttoctitle}{%
+	\vspace*{-1em}%
+	\noindent\makebox[\textwidth][c]{\normalfont\fontsize{14pt}{14pt}\selectfont\contentsname}\par
+}
+\newcommand{\reporttableofcontents}{%
+	\phantomsection%
+	\gosttoctitle
+	\@starttoc{mtoc}%
+}
+\newcommand{\appendixtableofcontents}{%
+	\phantomsection%
+	\gosttoctitle
+	\@starttoc{toc}%
+}
+\makeatother
 \usepackage{fontspec}
 \setmainfont{Times New Roman}
 
 
 % Возможность вставки изображений и таблиц в нужное место
 \usepackage{float}
+
+% Для вставки PDF страниц
+\usepackage{pdfpages}
 
 % Таблицы с автоматическим выравниванием по ширине
 \usepackage{array}
@@ -90,7 +116,8 @@
 \usepackage{tocloft}
 
 \setlength{\cftbeforesecskip}{0pt}
-\renewcommand{\cfttoctitlefont}{\hspace{0.31\textwidth}\normalfont\MakeUppercase}
+\renewcommand{\cfttoctitlefont}{\normalfont\fontsize{14pt}{14pt}\selectfont}
+\renewcommand{\cftaftertoctitle}{}
 \renewcommand{\cftbeforetoctitleskip}{-1em}
 \renewcommand{\cftsecpresnum}{}
 \newlength\mylength
@@ -138,6 +165,10 @@
 \newcommand{\srcref}[1]{\hyperlink{src:i#1}{[#1]}}
 \newcommand{\srcrange}[2]{\srcref{#1}--\srcref{#2}}
 
+% Ссылки на список источников ОСНОВНОГО ОТЧЁТА (перед Приложением 1)
+\newcommand{\repsrcref}[1]{\hyperlink{rep:i#1}{[#1]}}
+\newcommand{\repsrcrange}[2]{\repsrcref{#1}--\repsrcref{#2}}
+
 % Многоэлементные ссылочные конструкции: \srcmulti{1,2,3} -> [1; 2; 3]
 \usepackage{xparse}
 \ExplSyntaxOn
@@ -149,36 +180,208 @@
 	\seq_map_inline:Nn \l_tmpa_seq { \seq_put_right:Nn \l__src_items_seq { \hyperlink{src:i##1}{##1} } }
 	[\seq_use:Nn \l__src_items_seq {;~}]
 }
+
+\seq_new:N \l__repsrc_items_seq
+\NewDocumentCommand{\repsrcmulti}{m}
+{
+	\seq_set_split:Nnn \l_tmpa_seq { , } { #1 }
+	\seq_clear:N \l__repsrc_items_seq
+	\seq_map_inline:Nn \l_tmpa_seq { \seq_put_right:Nn \l__repsrc_items_seq { \hyperlink{rep:i##1}{##1} } }
+	[\seq_use:Nn \l__repsrc_items_seq {;~}]
+}
 \ExplSyntaxOff
 
 
 \begin{document}
 
 	% 1) Титульный лист
+	\includepdf[pages=1]{title.pdf}
 
-	% 2) Введение (цель и задачи практики)
-	% \structheader{ВВЕДЕНИЕ}
-		
-
-	% 3) Метод поиска источников (0.5-1 стр.)
-		% - Использованные базы данных (IEEE Xplore, Google Patents и др.)
-		% - Ключевые слова и фильтры (например: "real-time image processing 2020-2024")
-		% - Критерии отбора (не старше 5 лет, наличие экспериментальных результатов и др)
-		% - Также необходимо описать источники, которые не были включены в итоговый список
-
-	% 4) Описание процесса написания обзора:
-		% - выбор варианта обзора
-		% - составление плана
-		% - описание сложностей и изменений
-		% - описание почему какие-то источники были исключены
-
-	% 5) Методология систематического обзора (1 стр.)
-		% Протокол PRISMA (если используется)
-		% Диаграмма потока отбора источников
+	\reporttableofcontents
+	\clearpage
+	\reportheader{ВВЕДЕНИЕ}
 	
-	% 6) Список использованных источников в отчёте
+	Целью проведения практики является выполнение систематического обзора предметной области, связанной с методами кластеризации для определения семантической близости и совстречаемости слов в поисковых запросах.
+	В ходе практики предполагается провести анализ научных работ за период с 2010 по 2025 год, выявить ключевые подходы, выделить актуальные проблемы и перспективные направления исследований.
+	Результаты обзора будут использованы для обоснования выбора методологии и определения фокуса дальнейшей выпускной квалификационной работы.
 
-	\structheadernotoc{ПРИЛОЖЕНИЕ 1: СПИСОК ИСТОЧНИКОВ ДЛЯ АНАЛИТИЧЕСКОГО ОБЗОРА}
+	Данный отчёт описывает выполнение всех этапов практики в соответствии с индивидуальным заданием, представленным в таблице~\ref{tab:individual_task}.
+
+	\begin{table}[H]
+	\centering
+	\caption{Индивидуальное задание на практику}
+	\label{tab:individual_task}
+	\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{0.9cm}|>{\raggedright\arraybackslash}p{3cm}|>{\raggedright\arraybackslash}X|}
+	\hline
+	\textbf{№ этапа} & \textbf{Название этапа} & \textbf{Задание} \\
+	\hline
+	1 & Инструктаж обучающегося & Инструктаж обучающегося по ознакомлению с требованиями охраны труда, техники безопасности, пожарной безопасности, а также правилами внутреннего трудового распорядка. \\
+	\hline
+	2 & Заполнение и утверждение задания & Заполнить в разделе Практика задание на НИР и отправить на согласование руководителю практики. \\
+	\hline
+	3 & Составить список источников для аналитического обзора & Источники должны быть не старше 5 лет. Допускаются источники старше 5 лет, но они должны быть в меньшем количестве. В качестве источников могут быть статьи, тезисы, книги, учебные пособия и др. Минимальное количество источников: 7. Должен быть оформлен в соответствии с ГОСТ 7.32-2017. \\
+	\hline
+	\end{tabularx}
+	\end{table}
+
+	\begin{table}[H]
+	\centering
+	\caption*{Продолжение таблицы~\ref{tab:individual_task}}
+	\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{0.9cm}|>{\raggedright\arraybackslash}p{3cm}|>{\raggedright\arraybackslash}X|}
+	\hline
+	\textbf{№ этапа} & \textbf{Название этапа} & \textbf{Задание} \\
+	\hline
+	4 & Написать аналитический обзор по тематике ВКР & Провести анализ научных работ по методам кластеризации за период с 2010 по 2025 год с целью систематизации существующих знаний, выявления актуальных проблем и перспективных направлений исследований. Систематизировать информацию из не менее 20 научных статей. Выделить не менее 3 ключевых актуальных проблем в области применения алгоритмов кластеризации с целью определения семантической близости и совстречаемости слов в поисковых запросах. Определить не менее 3 перспективных направлений исследований, подкрепленных обоснованием и ссылками на релевантные работы. Оформить результаты анализа в виде обзора литературы объемом 15 страниц. Анализ будет проведен с использованием доступных научных баз данных (PubMed, Scopus, Web of Science, Google Scholar, Wikipedia, Arxiv, eLibrary, РИНЦ и документаций open-source проектов) и ресурсов библиотеки университета. Результаты анализа позволят нашей исследовательской группе определить наиболее перспективные направления для дальнейших исследований в области кластеризации с целью определения семантической близости и совстречаемости слов в поисковых запросах, что приведет к разработке новых алгоритмов для распределенных систем, которые позволят ускорить обработку поисковых запросов. \\
+	\hline
+	\end{tabularx}
+	\end{table}
+
+	\begin{table}[H]
+	\centering
+	\caption*{Продолжение таблицы~\ref{tab:individual_task}}
+	\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{0.9cm}|>{\raggedright\arraybackslash}p{3cm}|>{\raggedright\arraybackslash}X|}
+	\hline
+	\textbf{№ этапа} & \textbf{Название этапа} & \textbf{Задание} \\
+	\hline
+	 &  & Анализ должен быть завершен к 11 января 2026 года. Требования к аналитическому обзору: - Обзор не менее 20–30 научных источников (Scopus, WoS, РИНЦ, патенты, arxiv.org). - Классификация подходов (таблица или схема). - Сравнительная таблица (методы, преимущества, недостатки). - Выявление тенденций и "белых пятен" (что уже изучено, а что требует исследований). - Критический анализ (противоречия в литературе, применимость к тематике). - Описание актуальности, включающая в себя обоснование выбора темы ВКР (почему эта проблема важна) или почему не стоит этим заниматься. - Выводы (на чем следует сосредоточиться в работе). Структура аналитического обзора (научно-исследовательский вариант): 1) Введение в тему (2-4 стр.) - Определение области исследования. - Исторический контекст (учесть необходимую глубину исследования, текущее состояние решения проблемы не обязательно state of the art). - Актуальные вызовы. 2) Таксономия подходов (4-8 стр.) - Систематизированная классификация существующих методов, технологий и теорий по заданным критериям, позволяющая наглядно представить структуру исследуемой области. - Хронологическая таблица развития методов. - Сравнительная таблица (методы, преимущества, недостатки). - Классификационная схема. \\
+	\hline
+	\end{tabularx}
+	\end{table}
+
+	\begin{table}[H]
+	\centering
+	\caption*{Продолжение таблицы~\ref{tab:individual_task}}
+	\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{0.9cm}|>{\raggedright\arraybackslash}p{3cm}|>{\raggedright\arraybackslash}X|}
+	\hline
+	\textbf{№ этапа} & \textbf{Название этапа} & \textbf{Задание} \\
+	\hline
+	 &  & 3) Критический анализ (2-4 стр.) - Противоречия в литературе. - Выявление тенденций и "белых пятен". - Методологические ограничения. - Неисследованные аспекты. - Применимость к тематике. 4) Описание актуальности (2-4 стр.) - Обоснование выбора темы ВКР (почему эта проблема важна) или почему не стоит этим заниматься. 5) Перспективные направления (1-2 стр.) - Тренды последних 2 лет. - Рекомендации для будущих исследований. 6) Выводы (на чем следует сосредоточиться в работе). (1-2 стр.) 7) Список использованных источников \\
+	\hline
+	5 & Оформление отчёта, получение отзыва с оценкой от руководителя & Написание отчёта, оформление в соответствии с требованиями, получение отзыва от руководителей. Оформление отчётных документов в соответствии с требованиями: 1. Оформление отчёта должно быть выполнено в соответствии с методическим пособием (https://books.ifmo.ru/file/pdf/2622.pdf, разделы "Набор текста", "Нумерация страниц и разделов", "Заголовки разделов", "Оформление рисунков", "Оформление таблиц", "Оформление формул", "Оформление ссылок на источники", "Оформление списка использованных источников", "Оформление приложений"). 2. Структура документа: титульный лист, введение, основная часть, заключение, приложения. 3. В основной части подробно описывается выполнение задач всех этапов. Получить отзыв с оценкой у руководителя практики в модуле Практика. \\
+	\hline
+	\end{tabularx}
+	\end{table}
+
+	\reportheader{МЕТОД ПОИСКА ИСТОЧНИКОВ}
+	
+	В ходе выполнения работы я сформировал список источников на основе систематического поиска в научных базах данных и репозиториях.
+	Поиск проводился итеративно, так как в первую очередь я собрал базовые обзорные работы по алгоритмам кластеризации и их применению, затем расширил выборку специализированными публикациями по кластеризации текстов/запросов и графовым подходам, а в конце проверил, что итоговый набор покрывает период 2010--2025 гг. и содержит достаточное число современных источников.
+	В силу того, что методы кластеризации впервые были описаны достаточно давно, некоторые ранние источники пришлось оставить в силу их полноты и фундаментальности. 
+
+	Основными поисковыми ресурсами и базами данных выступали:
+	\begin{itemize}
+		\item Google Scholar --- как основной инструмент для подбора статей и использования умного поиска (сайт поддерживает поиск с использованием нейронных сетей);
+		\item arXiv --- для поиска свежих обзоров и препринтов по кластеризации и масштабируемым алгоритмам;
+		\item eLibrary/РИНЦ --- для русскоязычных публикаций по кластеризации и применению в информационном поиске;
+		\item IEEE Xplore --- для инженерно-ориентированных обзоров и прикладных работ;
+		\item Deepseek --- для поиска релевантных научных статей с использованием ИИ.
+	\end{itemize}
+
+	Я использовал как русские, так и английские запросы, чтобы не потерять релевантные источники и терминологические варианты.
+	Используемые запросы и их результаты:
+	\begin{itemize}
+		\item eLibrary: \textit{<<алгоритмы кластеризации поисковых запросов (последние 10 лет)>>}, \textit{<<обзор методов кластеризации>>}, \textit{<<индекс поисковых запросов на основе кластеризации>>} (найденные источники: \repsrcmulti{1,2,3,4});
+		\item Google Scholar: \textit{<<community detection>>}, \textit{<<overview of clustering algorithms>>}, \textit{<<k-means and other clustering algorithms>>} (найденные источники: \repsrcmulti{5,6,7,8,9,10,11,12,13,14,23,24});
+		\item Deepseek: \textit{<<semantic search clustering articles>>}, \textit{<<clustering scientific articles>>} (найденные источники: \repsrcmulti{18,19,20,22}).
+	\end{itemize}
+	Также от научного руководителя были получены следующие источники, которые были добавлены в работу --- \repsrcmulti{15,16,17,21}.
+
+	На этапе первичного отбора я задавал временной фильтр 2010--2025 гг., а также отдельно просматривал последние 2--5 лет, чтобы обеспечить актуальность обзора.
+	В итоговый список я включал источники, которые удовлетворяют следующим условиям:
+	\begin{itemize}
+		\item соответствие теме (кластеризация, детектирование сообществ, масштабирование алгоритмов, кластеризация текстов/запросов, графовые методы, семантический индекс);
+		\item наличие чётко описанного метода/таксономии/ограничений (для обзорных работ) либо экспериментальной части и метрик оценки (для прикладных работ);
+		\item авторитетность и возможность корректно идентифицировать библиографические данные.
+	\end{itemize}
+
+	В процессе поиска и написания отчета мной были исключены следующие источники:
+	\begin{enumerate}
+		\item Jain A. K., Murty M. N., Flynn P. J. Data clustering: a review. // ACM Computing Surveys. -- 1999. --- не отражает современные протоколы оценки и масштабируемые сценарии коротких текстов (до 2010 г.) \repsrcref{30}.
+		\item Shi J., Malik J. Normalized cuts and image segmentation. // IEEE Transactions on Pattern Analysis and Machine Intelligence. -- 2000. --- ориентирована на сегментацию изображений; методологически значима, но не содержит валидации на коротких текстах/поисковых запросах (до 2010 г.) \repsrcref{31}.
+		\item Ng A. Y., Jordan M. I., Weiss Y. On spectral clustering: Analysis and an algorithm. // Advances in Neural Information Processing Systems (NIPS). -- 2002. --- отсутствует прикладная проверка на задачах кластеризации поисковых запросов (до 2010 г.) \repsrcref{32}.
+		\item Girvan M., Newman M. E. J. Community structure in social and biological networks. // Proceedings of the National Academy of Sciences (PNAS). -- 2002. --- не рассматривает текстовые представления и совстречаемость терминов в запросах \repsrcref{33}.
+		\item Newman M. E. J. Fast algorithm for community detection in networks. // Physical Review E. -- 2004. --- отсутствуют эксперименты для коротких текстов (до 2010 г.) \repsrcref{34}.
+		\item Lloyd S. Least squares quantization in PCM. // IEEE Transactions on Information Theory. -- 1982. --- историческая основа $k$-means; устарела для целей обзора и не отражает современные ограничения для разреженных текстов (до 2010 г.) \repsrcref{35}.
+		\item MacQueen J. Some methods for classification and analysis of multivariate observations. // Proceedings of the Fifth Berkeley Symposium on Mathematical Statistics and Probability. -- 1967. --- исторический ввод $k$-means; значительно старше целевого периода, отсутствуют релевантные метрики для коротких текстов (до 2010 г.) \repsrcref{36}.
+		\item Shi H., Liang Y., Wang J. Spectral clustering for community detection: A review. // IEEE Access. -- 2018. --- обзор сосредоточен на графах социальной сети; не содержит протоколов для семантической кластеризации поисковых запросов \repsrcref{37}.
+		\item Ding C., He X. K-means clustering via principal component analysis. // Proceedings of ICML. -- 2004. --- отсутствует проверка на коротких запросах/разреженных признаках (до 2010 г.) \repsrcref{38}.
+		\item Salton G., Buckley C. Term-weighting approaches in automatic text retrieval. // Information Processing \& Management. -- 1988. --- классическая работа по взвешиванию термов; существенно вне целевого периода, не фокусируется на кластеризации запросов (до 2010 г.) \repsrcref{39}.
+	\end{enumerate}
+
+	\reportheader{НАПИСАНИЕ АНАЛИТИЧЕСКОГО ОБЗОРА}
+
+	На основе рекомендаций научного руководителя и предварительного анализа темы работы, в качестве типа обзора был выбран научно-исследовательский обзор.
+	Данный формат ориентирован на систематизацию существующих методов, выявление ограничений и перспективных направлений исследований, что наиболее полно соответствует задачам выпускной квалификационной работы.
+
+	Структура обзора формировалась на основе анализа требований индивидуального задания и рекомендаций по оформлению научно-исследовательских обзоров.
+	Данная структура позволяет последовательно перейти от общего описания проблематики к частным вопросам применения методов кластеризации в распределённых системах поиска.
+	
+	В процессе подготовки обзора возникали следующие методические и содержательные сложности: в литературе по кластеризации и по информационному поиску используются различные термины для близких понятий (например, «similarity», «proximity», «co-occurrence»), часть базовых алгоритмов (например, $k$-means, иерархическая кластеризация) описана в классических работах вне целевого периода, первоначально отбор литературы дал более 40 потенциально релевантных публикаций, что превышало требуемый объём.
+	На завершающем этапе подготовки обзора был проведён дополнительный поиск специализированных публикаций, которые позволили усилить обоснование выбора графовых методов и уточнить метрики оценки.
+	В список были включены следующие источники:
+	\begin{itemize}
+		\item Обзорная статья по детектированию сообществ в графах, которая систематизирует семейство алгоритмов на основе оптимизации модульности и близких критериев.
+		Работа детально описывает концепцию сообществ как плотных подграфов с минимальным числом внешних связей, что напрямую применимо к задаче выделения семантических групп терминов \repsrcref{25}.
+
+		\item Публикация, описывающая алгоритм Leiden, который устраняет известные недостатки метода Louvain (в частности, проблему образования несвязных сообществ).
+		Leiden обеспечивает гарантии связности выделяемых кластеров и демонстрирует высокую масштабируемость на разреженных графах с миллионами вершин \repsrcref{26}.
+
+		\item Методологическая работа, посвящённая нормализованной попарной взаимной информации (NPMI) в задаче извлечения коллокаций \repsrcref{27}.
+
+		\item Научная работа, вводящая метрику силуэта (silhouette) для оценки качества кластеризации \repsrcref{28}.
+
+		\item Публикация, фокусирующаяся на эмбеддингах, а не на кластеризации, которая необходима для определения векторных подходов \repsrcref{29}.
+	\end{itemize}
+	Включение данных источников позволило усилить методологическую базу обзора, обосновать центральную роль графовых методов и заложить основу для дальнейшего исследования гибридных подходов.
+
+	В результате написания обзора была сформирована целостная картина методов кластеризации (применительно к поисковым запросам), выделены актуальные проблемы (разреженность, шум, масштабируемость), проведён критический анализ ограничений и предложены конкретные направления для дальнейшей работы.
+	Итоговый отчет включает 29 основных источников (в том числе обзорные статьи последних 2--5 лет) и 10 исключённых источников.
+	Структура обзора соответствует требованиям научно-исследовательского формата и позволяет обосновать выбор алгоритма Leiden для реализации в рамках выпускной квалификационной работы.
+
+	\reportheader{СПИСОК ИСПОЛЬЗОВАННЫХ ИСТОЧНИКОВ}
+	\begin{enumerate}[wide=0pt, leftmargin=0pt, labelindent=\parindent, listparindent=\parindent, nosep, label=\arabic*]
+		\item \hypertarget{rep:i1}{} Бова В. В., Кравченко Ю. А., Родзин С. И. Методы и алгоритмы кластеризации текстовых данных (обзор). // Известия ЮФУ. Технические науки. -- 2022. -- № 4 (228). -- С. 122--143.
+		\item \hypertarget{rep:i2}{} Черникова Д. А. Алгоритм кластеризации поисковых запросов. // Евразийский научный журнал. -- 2017. -- № 12.
+		\item \hypertarget{rep:i3}{} Миронов А. И., Мунерман В. И. Создание частичного индексирования таблицы для оптимизации поисковых запросов. // Современные информационные технологии и ИТ-образование. -- 2022. -- Т. 18, № 3. -- С. 558--565.
+		\item \hypertarget{rep:i4}{} Люнченко С. Применение методов кластеризации для управления запасами товарно-материальных ценностей. // Евразийский союз ученых. -- 2020. -- № 4-4 (73). -- С. 29--37.
+		\item \hypertarget{rep:i5}{} Курейчик В. В., Герасименко П. С. Основные подходы к извлечению текстовой информации (обзор). // Известия ЮФУ. Технические науки. -- 2024. -- № 4 (240). -- С. 6--14.
+		\item \hypertarget{rep:i6}{} Pitafi S., Anwar T., Sharif Z. A taxonomy of machine learning clustering algorithms, challenges, and future realms. // Applied Sciences. -- 2023. -- Т. 13, № 6. -- С. 3529.
+		\item \hypertarget{rep:i7}{} Wani A. A. Comprehensive analysis of clustering algorithms: exploring limitations and innovative solutions. // PeerJ Computer Science. -- 2024. -- Т. 10. -- e2286.
+		\item \hypertarget{rep:i8}{} Mahnoor, Shafi I., Chaudhry M., Caro Montero E., Silva Alvarado E., de la Torre Diez E., Abdus Samad M., Ashraf I. A Review of Approaches for Rapid Data Clustering: Challenges, Opportunities, and Future Directions. // IEEE Access. -- 2024. -- Т. 12. -- С. 138086--138120.
+		\item \hypertarget{rep:i9}{} Miraftabzadeh S. M., Colombo C. G., Longo M., Foiadelli F. K-Means and Alternative Clustering Methods in Modern Power Systems. // IEEE Access. -- 2023. -- Т. 11. -- С. 119596--119633.
+		\item \hypertarget{rep:i10}{} Alasalı T., Ortakcı Y. Clustering Techniques in Data Mining: A Survey of Methods, Challenges, and Applications. // Computer Science. -- 2024. -- Т. 9, № 1. -- С. 32--50.
+		\item \hypertarget{rep:i11}{} Oyelade J., Isewon I., Oladipupo O., Emebo O., Omogbadegun Z., Aromolaran O., Uwoghiren E., Olaniyan D., Olawole O. Data clustering: Algorithms and its applications. // Proceedings of the 2019 19th International Conference on Computational Science and Its Applications (ICCSA). -- 2019. -- С. 71--81.
+		\item \hypertarget{rep:i12}{} Xu D., Tian Y. A comprehensive survey of clustering algorithms. // Annals of Data Science. -- 2015. -- Т. 2, № 2. -- С. 165--193.
+		\item \hypertarget{rep:i13}{} Aggarwal C. C., Reddy C. K. Data clustering. // Algorithms and applications. Chapman\&Hall/CRC Data Mining and Knowledge Discovery Series. -- 2014.
+		\item \hypertarget{rep:i14}{} Ezugwu A. E., Shukla A. K., Agbaje M. B., Oyelade O. N., Jos{\'e}-Garc{\'\i}a A., Agushaka J. O. Automatic clustering algorithms: a systematic review and bibliometric analysis of relevant literature. // Neural Computing and Applications. -- 2021. -- Т. 33, № 11. -- С. 6247--6306.
+		\item \hypertarget{rep:i15}{} Ezugwu A. E. Nature-inspired metaheuristic techniques for automatic clustering: a survey and performance study. // SN Applied Sciences. -- 2020. -- Т. 2, № 2. -- С. 273.
+		\item \hypertarget{rep:i16}{} Shahid N. Comparison of hierarchical clustering and neural network clustering: an analysis on precision dominance. // Scientific Reports. -- 2023. -- Т. 13, № 1. -- С. 5661.
+		\item \hypertarget{rep:i17}{} Bushra A. A., Yi G. Comparative analysis review of pioneering DBSCAN and successive density-based clustering algorithms. // IEEE Access. -- 2021. -- Т. 9. -- С. 87918--87935.
+		\item \hypertarget{rep:i18}{} Nagpal A., Jatain A., Gaur D. Review based on data clustering algorithms. // In: 2013 IEEE Conference on Information \& Communication Technologies. -- 2013. -- С. 298--303.
+		\item \hypertarget{rep:i19}{} Guyeux C., Chr{\'e}tien S., Bou Tayeh G., Demerjian J., Bahi J. Introducing and comparing recent clustering methods for massive data management in the Internet of Things. // Journal of Sensor and Actuator Networks. -- 2019. -- Т. 8, № 4. -- С. 56.
+		\item \hypertarget{rep:i20}{} Ahmad A., Khan S. S. Survey of state-of-the-art mixed data clustering algorithms. // IEEE Access. -- 2019. -- Т. 7. -- С. 31883--31902.
+		\item \hypertarget{rep:i21}{} Fahad A., Alshatri N., Tari Z., Alamri A., Khalil I., Zomaya A. Y., Foufou S., Bouras A. A survey of clustering algorithms for big data: Taxonomy and empirical analysis. // IEEE Transactions on Emerging Topics in Computing. -- 2014. -- Т. 2, № 3. -- С. 267--279.
+		\item \hypertarget{rep:i22}{} Wegmann M., Zipperling D., Hillenbrand J., Fleischer J. A review of systematic selection of clustering algorithms and their evaluation. // arXiv preprint arXiv:2106.12792. -- 2021.
+		\item \hypertarget{rep:i23}{} Nasraoui O., N'Cir C-E Ben. Clustering methods for big data analytics. // Techniques, Toolboxes and Applications. -- 2019. -- Т. 1. -- С. 91--113.
+		\item \hypertarget{rep:i24}{} Reddy C. K., Vinzamuri B. A survey of partitional and hierarchical clustering algorithms. // In: Data clustering. -- 2018. -- С. 87--110.
+		\item \hypertarget{rep:i25}{} Fortunato S. Community detection in graphs. // Physics Reports. -- 2010. -- Т. 486, № 3--5. -- P. 75--174.
+		\item \hypertarget{rep:i26}{} Traag V. A., Waltman L., van Eck N. J. From Louvain to Leiden: guaranteeing well-connected communities. // Scientific Reports. -- 2019. -- Т. 9. -- Article 5233.
+		\item \hypertarget{rep:i27}{} Bouma G. Normalized (pointwise) mutual information in collocation extraction. // Proceedings of GSCL. -- 2009.
+		\item \hypertarget{rep:i28}{} Rousseeuw P. J. Silhouettes: a graphical aid to the interpretation and validation of cluster analysis. // Journal of Computational and Applied Mathematics. -- 1987. -- Т. 20. -- P. 53--65.
+		\item \hypertarget{rep:i29}{} Mikolov T., Chen K., Corrado G., Dean J. Efficient Estimation of Word Representations in Vector Space. // arXiv preprint arXiv:1301.3781. -- 2013.
+		\item \hypertarget{rep:i30}{} Jain A. K., Murty M. N., Flynn P. J. Data clustering: a review. // ACM Computing Surveys. -- 1999.
+		\item \hypertarget{rep:i31}{} Shi J., Malik J. Normalized cuts and image segmentation. // IEEE Transactions on Pattern Analysis and Machine Intelligence. -- 2000.
+		\item \hypertarget{rep:i32}{} Ng A. Y., Jordan M. I., Weiss Y. On spectral clustering: Analysis and an algorithm. // Advances in Neural Information Processing Systems. -- 2002.
+		\item \hypertarget{rep:i33}{} Girvan M., Newman M. E. J. Community structure in social and biological networks. // Proceedings of the National Academy of Sciences. -- 2002.
+		\item \hypertarget{rep:i34}{} Newman M. E. J. Fast algorithm for community detection in networks. // Physical Review E. -- 2004.
+		\item \hypertarget{rep:i35}{} Lloyd S. Least squares quantization in PCM. // IEEE Transactions on Information Theory. -- 1982.
+		\item \hypertarget{rep:i36}{} MacQueen J. Some methods for classification and analysis of multivariate observations. // Proc. Fifth Berkeley Symposium on Mathematical Statistics and Probability. -- 1967.
+		\item \hypertarget{rep:i37}{} Shi H., Liang Y., Wang J. Spectral clustering for community detection: A review. // IEEE Access. -- 2018.
+		\item \hypertarget{rep:i38}{} Ding C., He X. K-means clustering via principal component analysis. // Proceedings of the 21st International Conference on Machine Learning (ICML). -- 2004.
+		\item \hypertarget{rep:i39}{} Salton G., Buckley C. Term-weighting approaches in automatic text retrieval. // Information Processing \& Management. -- 1988.
+	\end{enumerate}
+
+	\reportheader{ПРИЛОЖЕНИЕ 1: СПИСОК ИСТОЧНИКОВ ДЛЯ АНАЛИТИЧЕСКОГО ОБЗОРА}
 
 	\begin{enumerate}[wide=0pt, leftmargin=0pt, labelindent=\parindent, listparindent=\parindent, nosep, label=\arabic*]
 		\item Бова В. В., Кравченко Ю. А., Родзин С. И. Методы и алгоритмы кластеризации текстовых данных (обзор). // Известия ЮФУ. Технические науки. -- 2022. -- № 4 (228). -- С. 122--143.
@@ -207,9 +410,9 @@
 		\item Reddy C. K., Vinzamuri B. A survey of partitional and hierarchical clustering algorithms. // In: Data clustering. -- 2018. -- С. 87--110.
 	\end{enumerate}
 		
-	\structheadernotoc{ПРИЛОЖЕНИЕ 2. АНАЛИТИЧЕСКИЙ ОБЗОР}
+	\reportheader{ПРИЛОЖЕНИЕ 2. АНАЛИТИЧЕСКИЙ ОБЗОР}
 	
-	\tableofcontents
+	\appendixtableofcontents
 	\clearpage
 	
 	\section{Введение в тему}

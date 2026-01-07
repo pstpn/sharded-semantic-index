@@ -226,3 +226,5 @@ __marimo__/
 *.bcf
 *.out
 *.nlo
+*.mtoc
+*.atoc
