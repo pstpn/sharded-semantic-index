@@ -201,7 +201,9 @@
 	\clearpage
 	\reportheader{ВВЕДЕНИЕ}
 	
-	Целью проведения практики является выполнение систематического обзора предметной области, связанной с методами кластеризации для определения семантической близости и совстречаемости слов в поисковых запросах.
+	Целью проведения практики является формирование у обучающегося навыков поиска, анализа и структурирования научных работ для написания аналитических обзоров.
+	Практический опыт позволит четко выявить проблемы, тенденции и перспективные направления для выбранной темы выпускной квалификационной работы.
+
 	В ходе практики предполагается провести анализ научных работ за период с 2010 по 2025 год, выявить ключевые подходы, выделить актуальные проблемы и перспективные направления исследований.
 	Результаты обзора будут использованы для обоснования выбора методологии и определения фокуса дальнейшей выпускной квалификационной работы.
 
@@ -308,6 +310,17 @@
 		\item Salton G., Buckley C. Term-weighting approaches in automatic text retrieval. // Information Processing \& Management. -- 1988. --- классическая работа по взвешиванию термов; существенно вне целевого периода, не фокусируется на кластеризации запросов (до 2010 г.) \repsrcref{39}.
 	\end{enumerate}
 
+	После финальной проверки списка источников, было выявлено, что большинство источников старше 5 лет, что нарушает требование работы.
+	Исходя из этого, некоторые источники были заменены смежными современными публикациями:
+	\begin{itemize}
+		\item обзор по алгоритмам кластеризации \repsrcref{40} был заменен на \repsrcref{24};
+		\item обзор по детектированию сообществ \repsrcref{41} был заменен на \repsrcref{25};
+		\item публикация про Leiden и сравнение вариантов кластеризации \repsrcref{42} была заменена на \repsrcref{26}, где обсуждаются решения, связанные с Leiden, и сравниваются альтернативы;
+		\item методологическая работа по PMI/NPMI \repsrcref{43} была заменена на статью про интерпретацию PMI \repsrcref{27};
+		\item источник про валидацию кластеризации (силуэт и близкие индексы) \repsrcref{44} был заменен на \repsrcref{28};
+		\item источник про эмбеддинги \repsrcref{45} был заменен на \repsrcref{29}.
+	\end{itemize}
+
 	\reportheader{НАПИСАНИЕ АНАЛИТИЧЕСКОГО ОБЗОРА}
 
 	На основе рекомендаций научного руководителя и предварительного анализа темы работы, в качестве типа обзора был выбран научно-исследовательский обзор.
@@ -323,14 +336,13 @@
 		\item Обзорная статья по детектированию сообществ в графах, которая систематизирует семейство алгоритмов на основе оптимизации модульности и близких критериев.
 		Работа детально описывает концепцию сообществ как плотных подграфов с минимальным числом внешних связей, что напрямую применимо к задаче выделения семантических групп терминов \repsrcref{25}.
 
-		\item Публикация, описывающая алгоритм Leiden, который устраняет известные недостатки метода Louvain (в частности, проблему образования несвязных сообществ).
-		Leiden обеспечивает гарантии связности выделяемых кластеров и демонстрирует высокую масштабируемость на разреженных графах с миллионами вершин \repsrcref{26}.
+		\item Публикация, рассматривающая варианты построения кластеризационных решений на графах и сравнивающая альтернативы (в том числе Leiden и близкие подходы), что полезно при обосновании выбора алгоритма для задач масштабной кластеризации \repsrcref{26}.
 
-		\item Методологическая работа, посвящённая нормализованной попарной взаимной информации (NPMI) в задаче извлечения коллокаций \repsrcref{27}.
+		\item Методологическая работа, обсуждающая pointwise mutual information (PMI) и его интерпретацию при анализе совстречаемости (включая нормированные варианты вроде NPMI) \repsrcref{27}.
 
-		\item Научная работа, вводящая метрику силуэта (silhouette) для оценки качества кластеризации \repsrcref{28}.
+		\item Обзор индексов валидации кластеризации, включающий метрику силуэта (silhouette) и практику её применения \repsrcref{28}.
 
-		\item Публикация, фокусирующаяся на эмбеддингах, а не на кластеризации, которая необходима для определения векторных подходов \repsrcref{29}.
+		\item Обзор по эмбеддингам, необходимый для описания векторных представлений запросов и терминов \repsrcref{29}.
 	\end{itemize}
 	Включение данных источников позволило усилить методологическую базу обзора, обосновать центральную роль графовых методов и заложить основу для дальнейшего исследования гибридных подходов.
 
@@ -363,12 +375,12 @@
 		\item \hypertarget{rep:i21}{} Fahad A., Alshatri N., Tari Z., Alamri A., Khalil I., Zomaya A. Y., Foufou S., Bouras A. A survey of clustering algorithms for big data: Taxonomy and empirical analysis. // IEEE Transactions on Emerging Topics in Computing. -- 2014. -- Т. 2, № 3. -- С. 267--279.
 		\item \hypertarget{rep:i22}{} Wegmann M., Zipperling D., Hillenbrand J., Fleischer J. A review of systematic selection of clustering algorithms and their evaluation. // arXiv preprint arXiv:2106.12792. -- 2021.
 		\item \hypertarget{rep:i23}{} Nasraoui O., N'Cir C-E Ben. Clustering methods for big data analytics. // Techniques, Toolboxes and Applications. -- 2019. -- Т. 1. -- С. 91--113.
-		\item \hypertarget{rep:i24}{} Reddy C. K., Vinzamuri B. A survey of partitional and hierarchical clustering algorithms. // In: Data clustering. -- 2018. -- С. 87--110.
-		\item \hypertarget{rep:i25}{} Fortunato S. Community detection in graphs. // Physics Reports. -- 2010. -- Т. 486, № 3--5. -- P. 75--174.
-		\item \hypertarget{rep:i26}{} Traag V. A., Waltman L., van Eck N. J. From Louvain to Leiden: guaranteeing well-connected communities. // Scientific Reports. -- 2019. -- Т. 9. -- Article 5233.
-		\item \hypertarget{rep:i27}{} Bouma G. Normalized (pointwise) mutual information in collocation extraction. // Proceedings of GSCL. -- 2009.
-		\item \hypertarget{rep:i28}{} Rousseeuw P. J. Silhouettes: a graphical aid to the interpretation and validation of cluster analysis. // Journal of Computational and Applied Mathematics. -- 1987. -- Т. 20. -- P. 53--65.
-		\item \hypertarget{rep:i29}{} Mikolov T., Chen K., Corrado G., Dean J. Efficient Estimation of Word Representations in Vector Space. // arXiv preprint arXiv:1301.3781. -- 2013.
+		\item \hypertarget{rep:i24}{} Ezugwu A. E., Ikotun A. M., Oyelade O. O., Abualigah L., Agushaka J. O., Eke C. I., Akinyelu A. A. A comprehensive survey of clustering algorithms: State-of-the-art machine learning applications, taxonomy, challenges, and future research prospects. // Engineering Applications of Artificial Intelligence. -- 2022. -- Т. 110. -- Article 104743. DOI: 10.1016/j.engappai.2022.104743.
+		\item \hypertarget{rep:i25}{} Chunaev P. Community detection in node-attributed social networks: A survey. // Computer Science Review. -- 2020. -- Т. 37. -- Article 100286. DOI: 10.1016/j.cosrev.2020.100286.
+		\item \hypertarget{rep:i26}{} Gilad G., Sharan R. From Leiden to Tel-Aviv University (TAU): exploring clustering solutions via a genetic algorithm. // PNAS Nexus. -- 2023. -- Т. 2, № 6. -- Article pgad180. DOI: 10.1093/pnasnexus/pgad180.
+		\item \hypertarget{rep:i27}{} Williams C. K. I. On Suspicious Coincidences and Pointwise Mutual Information. // Neural Computation. -- 2022. -- Т. 34, № 10. -- С. 2037--2046. DOI: 10.1162/neco\_a\_01533.
+		\item \hypertarget{rep:i28}{} Hassan B. A., Tayfor N. B., Hassan A. A., Ahmed A. M., Rashid T. A., Abdalla N. N. From A-to-Z review of clustering validation indices. // Neurocomputing. -- 2024. -- Т. 601. -- Article 128198. DOI: 10.1016/j.neucom.2024.128198.
+		\item \hypertarget{rep:i29}{} Incitti F., Urli F., Snidaro L. Beyond word embeddings: A survey. // Information Fusion. -- 2023. -- Т. 89. -- С. 418--436. DOI: 10.1016/j.inffus.2022.08.024.
 		\item \hypertarget{rep:i30}{} Jain A. K., Murty M. N., Flynn P. J. Data clustering: a review. // ACM Computing Surveys. -- 1999.
 		\item \hypertarget{rep:i31}{} Shi J., Malik J. Normalized cuts and image segmentation. // IEEE Transactions on Pattern Analysis and Machine Intelligence. -- 2000.
 		\item \hypertarget{rep:i32}{} Ng A. Y., Jordan M. I., Weiss Y. On spectral clustering: Analysis and an algorithm. // Advances in Neural Information Processing Systems. -- 2002.
@@ -379,6 +391,12 @@
 		\item \hypertarget{rep:i37}{} Shi H., Liang Y., Wang J. Spectral clustering for community detection: A review. // IEEE Access. -- 2018.
 		\item \hypertarget{rep:i38}{} Ding C., He X. K-means clustering via principal component analysis. // Proceedings of the 21st International Conference on Machine Learning (ICML). -- 2004.
 		\item \hypertarget{rep:i39}{} Salton G., Buckley C. Term-weighting approaches in automatic text retrieval. // Information Processing \& Management. -- 1988.
+		\item \hypertarget{rep:i40}{} Reddy C. K., Vinzamuri B. A survey of partitional and hierarchical clustering algorithms. // In: Data clustering. -- 2018. -- С. 87--110.
+		\item \hypertarget{rep:i41}{} Fortunato S. Community detection in graphs. // Physics Reports. -- 2010. -- Т. 486, № 3--5. -- P. 75--174.
+		\item \hypertarget{rep:i42}{} Traag V. A., Waltman L., van Eck N. J. From Louvain to Leiden: guaranteeing well-connected communities. // Scientific Reports. -- 2019. -- Т. 9. -- Article 5233.
+		\item \hypertarget{rep:i43}{} Bouma G. Normalized (pointwise) mutual information in collocation extraction. // Proceedings of GSCL. -- 2009.
+		\item \hypertarget{rep:i44}{} Rousseeuw P. J. Silhouettes: a graphical aid to the interpretation and validation of cluster analysis. // Journal of Computational and Applied Mathematics. -- 1987. -- Т. 20. -- P. 53--65.
+		\item \hypertarget{rep:i45}{} Mikolov T., Chen K., Corrado G., Dean J. Efficient Estimation of Word Representations in Vector Space. // arXiv preprint arXiv:1301.3781. -- 2013.
 	\end{enumerate}
 
 	\reportheader{ПРИЛОЖЕНИЕ 1: СПИСОК ИСТОЧНИКОВ ДЛЯ АНАЛИТИЧЕСКОГО ОБЗОРА}
@@ -452,7 +470,7 @@
 	Объектом исследования в рамках данного обзора является кластеризация поисковых запросов для целей определения семантической близости и совстречаемости.
 	Под семантической близостью в данном контексте понимается практическая близость слов/запросов, проявляющаяся через их совместное употребление в одном и том же пользовательском контексте (в пределах запроса, сессии или локального временного окна).
 	Под совстречаемостью понимается статистически значимая совместная встречаемость слов, которая не может быть объяснена только высокой частотностью каждого слова отдельно (для чего используются меры типа NPMI, PPMI, PPMI$^2$).
-	Мера NPMI рассматривается как нормированная модификация PMI, удобная для сравнения связей разной частотности \srcref{27}.
+	PMI и его нормированные варианты (в том числе NPMI) удобны для сравнения ассоциаций разной частотности при анализе совстречаемости \srcref{27}.
 	
 	\subsection{Рабочая гипотеза исследования}
 
@@ -575,7 +593,7 @@
 	В отличие от векторных методов, мера близости задаётся явно через вес ребра и может быть построена как по совстречаемости, так и по сходству эмбеддингов.
 	Для исследуемой постановки (совстречаемость терминов в запросах) графовая модель является естественной, так как статистически значимые совместные появления образуют структуру связей.
 	На таких графах применяются алгоритмы детектирования сообществ (семейство Louvain/Leiden, label propagation и др.).
-	Классические алгоритмы детектирования сообществ Louvain и Leiden подробно описаны в \srcmulti{25,26}.
+	Классические алгоритмы детектирования сообществ Louvain и Leiden и их практическое применение в задачах кластеризации обсуждаются в \srcmulti{25,26}.
 	Сильные стороны --- масштабируемость на разреженных графах и интерпретируемость сообществ как групп взаимосвязанных терминов \srcref{21}.
 	Основные риски --- зависимость результата от построения графа, нормирования весов и фильтрации слабых рёбер \srcmulti{6,22}.
 	
@@ -773,7 +791,7 @@
 			\end{itemize}
 	\end{enumerate}
 	
-	С учётом рассмотренной постановки и требований к масштабу итоговый выбор алгоритма кластеризации в работе предлагается сделать в пользу \textbf{Leiden} как метода детектирования сообществ на взвешенных графах \srcref{26}.
+	С учётом рассмотренной постановки и требований к масштабу итоговый выбор алгоритма кластеризации в работе предлагается сделать в пользу \textbf{Leiden} как метода детектирования сообществ на взвешенных графах \srcmulti{25,26}.
 	Решение обосновано следующими основными преимуществами:
 	\begin{enumerate}
 		\item Представление совстречаемости как графа и поиск сообществ напрямую соответствуют задаче выделения семантических групп.
@@ -812,12 +830,12 @@
 		\item \hypertarget{src:i21}{} Fahad A., Alshatri N., Tari Z., Alamri A., Khalil I., Zomaya A. Y., Foufou S., Bouras A. A survey of clustering algorithms for big data: Taxonomy and empirical analysis. // IEEE Transactions on Emerging Topics in Computing. -- 2014. -- Т. 2, № 3. -- С. 267--279.
 		\item \hypertarget{src:i22}{} Wegmann M., Zipperling D., Hillenbrand J., Fleischer J. A review of systematic selection of clustering algorithms and their evaluation. // arXiv preprint arXiv:2106.12792. -- 2021.
 		\item \hypertarget{src:i23}{} Nasraoui O., N'Cir C-E Ben. Clustering methods for big data analytics. // Techniques, Toolboxes and Applications. -- 2019. -- Т. 1. -- С. 91--113.
-		\item \hypertarget{src:i24}{} Reddy C. K., Vinzamuri B. A survey of partitional and hierarchical clustering algorithms. // In: Data clustering. -- 2018. -- С. 87--110.
-		\item \hypertarget{src:i25}{} Fortunato S. Community detection in graphs. // Physics Reports. -- 2010. -- Т. 486, № 3--5. -- P. 75--174.
-		\item \hypertarget{src:i26}{} Traag V. A., Waltman L., van Eck N. J. From Louvain to Leiden: guaranteeing well-connected communities. // Scientific Reports. -- 2019. -- Т. 9. -- Article 5233.
-		\item \hypertarget{src:i27}{} Bouma G. Normalized (pointwise) mutual information in collocation extraction. // Proceedings of GSCL. -- 2009.
-		\item \hypertarget{src:i28}{} Rousseeuw P. J. Silhouettes: a graphical aid to the interpretation and validation of cluster analysis. // Journal of Computational and Applied Mathematics. -- 1987. -- Т. 20. -- P. 53--65.
-		\item \hypertarget{src:i29}{} Mikolov T., Chen K., Corrado G., Dean J. Efficient Estimation of Word Representations in Vector Space. // arXiv preprint arXiv:1301.3781. -- 2013.
+		\item \hypertarget{src:i24}{} Ezugwu A. E., Ikotun A. M., Oyelade O. O., Abualigah L., Agushaka J. O., Eke C. I., Akinyelu A. A. A comprehensive survey of clustering algorithms: State-of-the-art machine learning applications, taxonomy, challenges, and future research prospects. // Engineering Applications of Artificial Intelligence. -- 2022. -- Т. 110. -- Article 104743. DOI: 10.1016/j.engappai.2022.104743.
+		\item \hypertarget{src:i25}{} Chunaev P. Community detection in node-attributed social networks: A survey. // Computer Science Review. -- 2020. -- Т. 37. -- Article 100286. DOI: 10.1016/j.cosrev.2020.100286.
+		\item \hypertarget{src:i26}{} Gilad G., Sharan R. From Leiden to Tel-Aviv University (TAU): exploring clustering solutions via a genetic algorithm. // PNAS Nexus. -- 2023. -- Т. 2, № 6. -- Article pgad180. DOI: 10.1093/pnasnexus/pgad180.
+		\item \hypertarget{src:i27}{} Williams C. K. I. On Suspicious Coincidences and Pointwise Mutual Information. // Neural Computation. -- 2022. -- Т. 34, № 10. -- С. 2037--2046. DOI: 10.1162/neco\_a\_01533.
+		\item \hypertarget{src:i28}{} Hassan B. A., Tayfor N. B., Hassan A. A., Ahmed A. M., Rashid T. A., Abdalla N. N. From A-to-Z review of clustering validation indices. // Neurocomputing. -- 2024. -- Т. 601. -- Article 128198. DOI: 10.1016/j.neucom.2024.128198.
+		\item \hypertarget{src:i29}{} Incitti F., Urli F., Snidaro L. Beyond word embeddings: A survey. // Information Fusion. -- 2023. -- Т. 89. -- С. 418--436. DOI: 10.1016/j.inffus.2022.08.024.
 	\end{enumerate}
 
 	\end{document}
