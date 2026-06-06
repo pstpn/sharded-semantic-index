@@ -210,10 +210,12 @@ __marimo__/
 .DS_Store
 .idea
 .vscode
+*.docx
 
 # Data and output
 *.txt
 *graphs
+data
 
 # Tex files
 *.aux
