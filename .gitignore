@@ -216,6 +216,7 @@ __marimo__/
 *.txt
 *graphs
 data
+assets
 
 # Tex files
 *.aux
