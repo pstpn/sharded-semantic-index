@@ -214,6 +214,7 @@ __marimo__/
 
 # Data and output
 *.txt
+models/
 *graphs
 data
 assets

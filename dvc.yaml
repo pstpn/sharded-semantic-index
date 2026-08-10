@@ -1,0 +1,154 @@
+stages:
+  extract_pairs:
+    cmd: python -m sharded_index.pipeline.extract_pairs
+    deps:
+      - sharded_index/pipeline/extract_pairs.py
+      - sharded_index/config.py
+      - sharded_index/dataset.py
+      - sharded_index/text.py
+    params:
+      - dataset
+    outs:
+      - data/processed/pairs.parquet
+
+  build_partitions:
+    cmd: python -m sharded_index.pipeline.build_partitions
+    deps:
+      - sharded_index/pipeline/build_partitions.py
+      - sharded_index/config.py
+      - sharded_index/dataset.py
+      - sharded_index/text.py
+      - sharded_index/graph.py
+      - sharded_index/clustering.py
+      - sharded_index/partition.py
+      - data/processed/pairs.parquet
+    params:
+      - partition
+      - split
+    outs:
+      - models/partitions
+      - data/interim/term_df.parquet
+
+  build_indices:
+    cmd: python -m sharded_index.pipeline.build_indices
+    deps:
+      - sharded_index/pipeline/build_indices.py
+      - sharded_index/config.py
+      - sharded_index/dataset.py
+      - sharded_index/text.py
+      - sharded_index/partition.py
+      - sharded_index/indexing.py
+      - data/processed/pairs.parquet
+      - models/partitions
+    outs:
+      - data/interim/assignments
+      # Индексы большие (гигабайты): не копируем в DVC-кэш и не удаляем между
+      # прогонами (persist) — стадия сама пересобирает только те индексы, чей
+      # контентный отпечаток назначений изменился (ASSIGNMENT_FINGERPRINT).
+      # Побочный эффект persist: каталоги стратегий, убранных из params,
+      # остаются на диске — удалять вручную.
+      - data/interim/indices:
+          cache: false
+          persist: true
+
+  evaluate:
+    cmd: python -m sharded_index.pipeline.evaluate
+    deps:
+      - sharded_index/pipeline/evaluate.py
+      - sharded_index/config.py
+      - sharded_index/dataset.py
+      - sharded_index/text.py
+      - sharded_index/partition.py
+      - sharded_index/indexing.py
+      - sharded_index/evaluation.py
+      - data/processed/pairs.parquet
+      - models/partitions
+      - data/interim/term_df.parquet
+      - data/interim/assignments
+      - data/interim/indices
+    params:
+      - evaluate
+      - split
+    outs:
+      - data/interim/eval
+      - metrics/recall_by_fanout.json:
+          cache: false
+    metrics:
+      - metrics/metrics.json:
+          cache: false
+
+  analyze_load:
+    cmd: python -m sharded_index.pipeline.analyze_load
+    deps:
+      - sharded_index/pipeline/analyze_load.py
+      - sharded_index/config.py
+      - sharded_index/dataset.py
+      - sharded_index/text.py
+      - sharded_index/partition.py
+      - sharded_index/clustering.py
+      - data/processed/pairs.parquet
+      - models/partitions
+      - data/interim/assignments
+    params:
+      - split
+      - partition
+      - evaluate.n_eval
+      - analyze_load
+    outs:
+      - metrics/load_metrics.json:
+          cache: false
+
+  analyze_topical:
+    cmd: python -m sharded_index.pipeline.analyze_topical
+    deps:
+      - sharded_index/pipeline/analyze_topical.py
+      - sharded_index/config.py
+      - sharded_index/dataset.py
+      - sharded_index/text.py
+      - sharded_index/partition.py
+      - data/processed/pairs.parquet
+      - models/partitions
+      - data/interim/assignments
+    params:
+      - split
+      - partition
+      - evaluate.n_eval
+      - analyze_topical
+    outs:
+      - metrics/topical_metrics.json:
+          cache: false
+
+  figures:
+    cmd: python -m sharded_index.pipeline.figures
+    deps:
+      - sharded_index/pipeline/figures.py
+      - sharded_index/config.py
+      - sharded_index/partition.py
+      - sharded_index/clusters.py
+      - sharded_index/plots.py
+      - models/partitions
+      - data/interim/eval
+      - metrics/metrics.json
+      - metrics/recall_by_fanout.json
+    params:
+      - figures
+    outs:
+      # Фигуры остаются в git (используются в отчётах) — cache: false.
+      - reports/figures/fanout_distribution.pdf:
+          cache: false
+      - reports/figures/recall_vs_fanout.pdf:
+          cache: false
+      - reports/figures/duplication_vs_fanout.pdf:
+          cache: false
+      - reports/figures/fanout_by_split.pdf:
+          cache: false
+      - reports/figures/cluster_size_distribution.pdf:
+          cache: false
+      - reports/figures/word_clouds_top25.pdf:
+          cache: false
+      - reports/figures/npmi_graph_clusters.pdf:
+          cache: false
+      - reports/figures/tsne_2d_projection.pdf:
+          cache: false
+      - reports/figures/inter_cluster_heatmap.pdf:
+          cache: false

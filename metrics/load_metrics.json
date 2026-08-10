@@ -1,0 +1,546 @@
+{
+  "split": "holdout",
+  "n_queries": 24125,
+  "n_docs": 129020,
+  "bootstrap_samples": 1000,
+  "lexical_ceiling_qrels": 0.9724,
+  "strategies": {
+    "hash": {
+      "mean_fanout": 3.1274,
+      "share_covered_by_1": 0.0766,
+      "qrels_recall_at_1": 0.7462,
+      "probed_volume_at1_mean": 0.0725,
+      "probed_volume_at1_median": 0.0705,
+      "probed_volume_full_mean": 0.2241,
+      "top1_doc_share": 0.152,
+      "top10_doc_equiv": 1.2848,
+      "probe_share_top1_at1": 0.0348,
+      "probe_share_top10_at1": 0.1437,
+      "probe_share_top1_full": 0.03,
+      "probe_share_top10_full": 0.1296,
+      "ci95": {
+        "mean_fanout": [
+          3.1113,
+          3.1433
+        ],
+        "share_covered_by_1": [
+          0.0732,
+          0.0799
+        ],
+        "qrels_recall_at_1": [
+          0.7405,
+          0.7514
+        ],
+        "probed_volume_at1_mean": [
+          0.0722,
+          0.0728
+        ]
+      },
+      "duplication": 23.7
+    },
+    "leiden": {
+      "mean_fanout": 2.6145,
+      "share_covered_by_1": 0.1371,
+      "qrels_recall_at_1": 0.905,
+      "probed_volume_at1_mean": 0.4231,
+      "probed_volume_at1_median": 0.4691,
+      "probed_volume_full_mean": 0.7822,
+      "top1_doc_share": 0.6683,
+      "top10_doc_equiv": 5.2775,
+      "probe_share_top1_at1": 0.1288,
+      "probe_share_top10_at1": 0.6703,
+      "probe_share_top1_full": 0.0746,
+      "probe_share_top10_full": 0.4525,
+      "ci95": {
+        "mean_fanout": [
+          2.6006,
+          2.6286
+        ],
+        "share_covered_by_1": [
+          0.1328,
+          0.1414
+        ],
+        "qrels_recall_at_1": [
+          0.9014,
+          0.909
+        ],
+        "probed_volume_at1_mean": [
+          0.4204,
+          0.4258
+        ]
+      },
+      "duplication": 16.62
+    },
+    "leiden_r2": {
+      "mean_fanout": 2.3375,
+      "share_covered_by_1": 0.1919,
+      "qrels_recall_at_1": 0.9495,
+      "probed_volume_at1_mean": 0.6778,
+      "probed_volume_at1_median": 0.8435,
+      "probed_volume_full_mean": 1.0496,
+      "top1_doc_share": 0.9082,
+      "top10_doc_equiv": 7.5158,
+      "probe_share_top1_at1": 0.2269,
+      "probe_share_top10_at1": 0.7867,
+      "probe_share_top1_full": 0.1254,
+      "probe_share_top10_full": 0.5385,
+      "ci95": {
+        "mean_fanout": [
+          2.3252,
+          2.3501
+        ],
+        "share_covered_by_1": [
+          0.1871,
+          0.1968
+        ],
+        "qrels_recall_at_1": [
+          0.9467,
+          0.9521
+        ],
+        "probed_volume_at1_mean": [
+          0.6743,
+          0.6816
+        ]
+      },
+      "duplication": 20.32
+    },
+    "leiden_r3": {
+      "mean_fanout": 2.2242,
+      "share_covered_by_1": 0.2216,
+      "qrels_recall_at_1": 0.9599,
+      "probed_volume_at1_mean": 0.7583,
+      "probed_volume_at1_median": 0.9258,
+      "probed_volume_full_mean": 1.0813,
+      "top1_doc_share": 0.9569,
+      "top10_doc_equiv": 8.458,
+      "probe_share_top1_at1": 0.2435,
+      "probe_share_top10_at1": 0.8028,
+      "probe_share_top1_full": 0.1365,
+      "probe_share_top10_full": 0.5417,
+      "ci95": {
+        "mean_fanout": [
+          2.2121,
+          2.2356
+        ],
+        "share_covered_by_1": [
+          0.2164,
+          0.2266
+        ],
+        "qrels_recall_at_1": [
+          0.9573,
+          0.9621
+        ],
+        "probed_volume_at1_mean": [
+          0.7545,
+          0.7622
+        ]
+      },
+      "duplication": 22.89
+    },
+    "leiden_aff": {
+      "mean_fanout": 2.2799,
+      "share_covered_by_1": 0.2293,
+      "qrels_recall_at_1": 0.9402,
+      "probed_volume_at1_mean": 0.5942,
+      "probed_volume_at1_median": 0.65,
+      "probed_volume_full_mean": 1.3586,
+      "top1_doc_share": 0.8656,
+      "top10_doc_equiv": 6.057,
+      "probe_share_top1_at1": 0.1779,
+      "probe_share_top10_at1": 0.8011,
+      "probe_share_top1_full": 0.1796,
+      "probe_share_top10_full": 0.7818,
+      "ci95": {
+        "mean_fanout": [
+          2.2673,
+          2.2929
+        ],
+        "share_covered_by_1": [
+          0.2242,
+          0.2346
+        ],
+        "qrels_recall_at_1": [
+          0.9374,
+          0.9431
+        ],
+        "probed_volume_at1_mean": [
+          0.5915,
+          0.5971
+        ]
+      },
+      "duplication": 9.72
+    },
+    "leiden_aff_r2": {
+      "mean_fanout": 1.9755,
+      "share_covered_by_1": 0.3172,
+      "qrels_recall_at_1": 0.9799,
+      "probed_volume_at1_mean": 0.8267,
+      "probed_volume_at1_median": 0.8731,
+      "probed_volume_full_mean": 1.6108,
+      "top1_doc_share": 0.9567,
+      "top10_doc_equiv": 7.7882,
+      "probe_share_top1_at1": 0.2759,
+      "probe_share_top10_at1": 0.9181,
+      "probe_share_top1_full": 0.241,
+      "probe_share_top10_full": 0.9013,
+      "ci95": {
+        "mean_fanout": [
+          1.9651,
+          1.986
+        ],
+        "share_covered_by_1": [
+          0.3115,
+          0.3228
+        ],
+        "qrels_recall_at_1": [
+          0.9783,
+          0.9816
+        ],
+        "probed_volume_at1_mean": [
+          0.8246,
+          0.829
+        ]
+      },
+      "duplication": 12.91
+    },
+    "leiden_aff_r3": {
+      "mean_fanout": 1.8666,
+      "share_covered_by_1": 0.3593,
+      "qrels_recall_at_1": 0.9892,
+      "probed_volume_at1_mean": 0.8969,
+      "probed_volume_at1_median": 0.9439,
+      "probed_volume_full_mean": 1.6539,
+      "top1_doc_share": 0.9778,
+      "top10_doc_equiv": 8.5932,
+      "probe_share_top1_at1": 0.2925,
+      "probe_share_top10_at1": 0.9341,
+      "probe_share_top1_full": 0.2597,
+      "probe_share_top10_full": 0.9142,
+      "ci95": {
+        "mean_fanout": [
+          1.8573,
+          1.8764
+        ],
+        "share_covered_by_1": [
+          0.3534,
+          0.365
+        ],
+        "qrels_recall_at_1": [
+          0.9879,
+          0.9904
+        ],
+        "probed_volume_at1_mean": [
+          0.8951,
+          0.8988
+        ]
+      },
+      "duplication": 15.34
+    },
+    "leiden_bal": {
+      "mean_fanout": 2.9728,
+      "share_covered_by_1": 0.084,
+      "qrels_recall_at_1": 0.7727,
+      "probed_volume_at1_mean": 0.0571,
+      "probed_volume_at1_median": 0.0569,
+      "probed_volume_full_mean": 0.1778,
+      "top1_doc_share": 0.1363,
+      "top10_doc_equiv": 1.1329,
+      "probe_share_top1_at1": 0.0344,
+      "probe_share_top10_at1": 0.1431,
+      "probe_share_top1_full": 0.0315,
+      "probe_share_top10_full": 0.1345,
+      "ci95": {
+        "mean_fanout": [
+          2.9586,
+          2.9879
+        ],
+        "share_covered_by_1": [
+          0.0806,
+          0.0876
+        ],
+        "qrels_recall_at_1": [
+          0.7677,
+          0.7777
+        ],
+        "probed_volume_at1_mean": [
+          0.0568,
+          0.0575
+        ]
+      },
+      "duplication": 22.04
+    },
+    "leiden_bal_r2": {
+      "mean_fanout": 2.871,
+      "share_covered_by_1": 0.0897,
+      "qrels_recall_at_1": 0.7982,
+      "probed_volume_at1_mean": 0.0933,
+      "probed_volume_at1_median": 0.0987,
+      "probed_volume_full_mean": 0.2639,
+      "top1_doc_share": 0.1452,
+      "top10_doc_equiv": 1.3997,
+      "probe_share_top1_at1": 0.0334,
+      "probe_share_top10_at1": 0.1583,
+      "probe_share_top1_full": 0.033,
+      "probe_share_top10_full": 0.1452,
+      "ci95": {
+        "mean_fanout": [
+          2.8572,
+          2.8858
+        ],
+        "share_covered_by_1": [
+          0.0862,
+          0.0932
+        ],
+        "qrels_recall_at_1": [
+          0.7932,
+          0.8027
+        ],
+        "probed_volume_at1_mean": [
+          0.0928,
+          0.0938
+        ]
+      },
+      "duplication": 33.06
+    },
+    "leiden_bal_r3": {
+      "mean_fanout": 2.8309,
+      "share_covered_by_1": 0.0931,
+      "qrels_recall_at_1": 0.8102,
+      "probed_volume_at1_mean": 0.1084,
+      "probed_volume_at1_median": 0.1207,
+      "probed_volume_full_mean": 0.3002,
+      "top1_doc_share": 0.1451,
+      "top10_doc_equiv": 1.4107,
+      "probe_share_top1_at1": 0.0318,
+      "probe_share_top10_at1": 0.1523,
+      "probe_share_top1_full": 0.0335,
+      "probe_share_top10_full": 0.1482,
+      "ci95": {
+        "mean_fanout": [
+          2.8165,
+          2.8452
+        ],
+        "share_covered_by_1": [
+          0.0896,
+          0.0968
+        ],
+        "qrels_recall_at_1": [
+          0.8051,
+          0.8148
+        ],
+        "probed_volume_at1_mean": [
+          0.108,
+          0.1088
+        ]
+      },
+      "duplication": 40.5
+    }
+  },
+  "paired_deltas": {
+    "leiden_aff_r3_minus_leiden_r3": {
+      "fanout": {
+        "mean_delta": -0.3576,
+        "ci95": [
+          -0.3652,
+          -0.3504
+        ]
+      },
+      "share1": {
+        "mean_delta": 0.1377,
+        "ci95": [
+          0.1336,
+          0.1421
+        ]
+      },
+      "q1": {
+        "mean_delta": 0.0293,
+        "ci95": [
+          0.0272,
+          0.0314
+        ]
+      },
+      "vol1": {
+        "mean_delta": 0.1386,
+        "ci95": [
+          0.1351,
+          0.1422
+        ]
+      }
+    },
+    "leiden_aff_r3_minus_hash": {
+      "fanout": {
+        "mean_delta": -1.2608,
+        "ci95": [
+          -1.2749,
+          -1.2464
+        ]
+      },
+      "share1": {
+        "mean_delta": 0.2827,
+        "ci95": [
+          0.2773,
+          0.2882
+        ]
+      },
+      "q1": {
+        "mean_delta": 0.243,
+        "ci95": [
+          0.2374,
+          0.2484
+        ]
+      },
+      "vol1": {
+        "mean_delta": 0.8244,
+        "ci95": [
+          0.8226,
+          0.8263
+        ]
+      }
+    }
+  },
+  "seed_sensitivity": {
+    "seeds": [
+      42,
+      1,
+      2,
+      3
+    ],
+    "n_clusters": [
+      376,
+      381,
+      379,
+      385
+    ],
+    "strategies": {
+      "leiden": {
+        "duplication": [
+          16.62,
+          16.59,
+          16.58,
+          16.51
+        ],
+        "mean_fanout": [
+          2.6145,
+          2.6104,
+          2.6148,
+          2.6082
+        ],
+        "share_covered_by_1": [
+          0.1371,
+          0.14,
+          0.1377,
+          0.1386
+        ],
+        "qrels_recall_at_1": [
+          0.905,
+          0.907,
+          0.906,
+          0.9073
+        ],
+        "top1_doc_share": [
+          0.6683,
+          0.6948,
+          0.6642,
+          0.7716
+        ]
+      },
+      "leiden_aff_r3": {
+        "duplication": [
+          15.34,
+          15.29,
+          15.28,
+          15.27
+        ],
+        "mean_fanout": [
+          1.8666,
+          1.8102,
+          1.8569,
+          1.7664
+        ],
+        "share_covered_by_1": [
+          0.3593,
+          0.3832,
+          0.3637,
+          0.4051
+        ],
+        "qrels_recall_at_1": [
+          0.9892,
+          0.99,
+          0.9891,
+          0.9901
+        ],
+        "top1_doc_share": [
+          0.9778,
+          0.9853,
+          0.9805,
+          0.9938
+        ]
+      }
+    }
+  },
+  "gamma_sweep": {
+    "strategy": "leiden_aff_r3",
+    "rows": [
+      {
+        "gamma": 1.0,
+        "n_clusters": 376,
+        "duplication": 15.34,
+        "mean_fanout": 1.8666,
+        "share_covered_by_1": 0.3593,
+        "qrels_recall_at_1": 0.9892,
+        "top1_doc_share": 0.9778,
+        "probed_volume_at1_mean": 0.8969
+      },
+      {
+        "gamma": 2,
+        "n_clusters": 408,
+        "duplication": 25.69,
+        "mean_fanout": 2.1834,
+        "share_covered_by_1": 0.2392,
+        "qrels_recall_at_1": 0.9603,
+        "top1_doc_share": 0.9137,
+        "probed_volume_at1_mean": 0.6696
+      },
+      {
+        "gamma": 5,
+        "n_clusters": 505,
+        "duplication": 34.79,
+        "mean_fanout": 2.4549,
+        "share_covered_by_1": 0.1632,
+        "qrels_recall_at_1": 0.9027,
+        "top1_doc_share": 0.8108,
+        "probed_volume_at1_mean": 0.3806
+      },
+      {
+        "gamma": 10,
+        "n_clusters": 620,
+        "duplication": 38.93,
+        "mean_fanout": 2.594,
+        "share_covered_by_1": 0.1343,
+        "qrels_recall_at_1": 0.8689,
+        "top1_doc_share": 0.5741,
+        "probed_volume_at1_mean": 0.2426
+      },
+      {
+        "gamma": 20,
+        "n_clusters": 789,
+        "duplication": 41.77,
+        "mean_fanout": 2.6971,
+        "share_covered_by_1": 0.1146,
+        "qrels_recall_at_1": 0.8429,
+        "top1_doc_share": 0.4221,
+        "probed_volume_at1_mean": 0.1598
+      },
+      {
+        "gamma": 50,
+        "n_clusters": 1156,
+        "duplication": 43.99,
+        "mean_fanout": 2.7761,
+        "share_covered_by_1": 0.1044,
+        "qrels_recall_at_1": 0.8189,
+        "top1_doc_share": 0.378,
+        "probed_volume_at1_mean": 0.0958
+      }
+    ]
+  }
+}

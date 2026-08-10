@@ -1,0 +1,62 @@
+dataset:
+  hf_name: microsoft/ms_marco
+  hf_config: v2.1
+  max_rows: 200000            # строк train-сплита
+  max_passages_per_query: 3
+  selected_only: true         # только пассажи, отмеченные асессорами
+
+split:
+  train_ratio: 0.8            # доля запросов для построения графа; хвост — holdout для оценки
+
+partition:
+  min_df: 2                   # мин. документная частота терма для графа
+  max_df_ratio: 0.5           # термы чаще, чем в 50% документов, отбрасываются
+  min_pair_count: 2           # мин. со-встречаемость для ребра
+  min_npmi: 0.0               # мин. NPMI ребра (фильтр топологии при любых весах)
+  edge_weight: npmi           # веса ребер: npmi | llr | chi2
+  graph_stop_words:           # доп. стоп-слова ТОЛЬКО для графа: слова-рамки вопросов
+                              # (data-driven отбор по qdf/ddf-ratio + позиции в запросе,
+                              # шутаут proto9; глобальный стоп-лист не трогать - doc_id).
+    [does, did, mean, meaning, define, definition, stand, happens, used, long,
+     good, number, types, average, difference, largest, old, different, common,
+     normal, considered, worth, word, means, cost, price, age]
+  cluster_method: leiden      # leiden | cpm | infomap | metis (нужен pymetis)
+  leiden_resolution: 1.0      # выше -> больше мелких кластеров (для metis = число частей)
+  leiden_seed: 42
+  term_replicas: [2, 3]       # стратегии leiden_r{k}: терм в top-k кластеров по affinity
+  replica_affinity_quantile: null  # null = реплицировать всех кандидатов; напр. 0.5 =
+                                   # только связи с affinity выше медианы (контроль дупликации)
+  doc_affinity_fallback: true # семейство leiden_aff{,_r{k}}: терм вне графа -> кластер,
+                              # с которым он чаще всего со-встречается в документах
+                              # (лечит структурный fanout>=2 смешанных запросов)
+  volume_cap_ratio: 0.15      # семейство leiden_bal{,_r{k}}: рекурсивное расщепление
+                              # кластеров с документным объёмом выше доли корпуса
+                              # (лечит вырожденный мега-шард; null - семейство выключено)
+
+evaluate:
+  fast_gt: false              # true: эталон в памяти (>=1 общий терм) вместо небюджетного
+                              # BM25 по физическому индексу; эквивалентность закреплена
+                              # smoke-тестом. Для быстрых итераций; финальные числа - false
+  n_eval: 100000              # holdout-запросов (основной ярус; самая долгая часть — gt)
+  n_eval_train: 10000         # ярус in-train: запросы, на которых строился граф
+  n_eval_ood: 10000           # ярус out-of-distribution: чужие запросы
+  max_fanout_sweep: 5         # top-k шардов в развёртке recall-vs-fanout
+  ood:                        # источник OOD-запросов; убрать блок (null) — ярус пропускается
+    hf_name: google-research-datasets/nq_open
+    hf_config: null
+    split: train
+    text_field: question
+
+analyze_topical:
+  n_probes: 2000              # синтетических зондов каждого типа (пары/тройки/случайные)
+  probe_seed: 42
+
+analyze_load:
+  leiden_seeds: [1, 2, 3]     # доп. seed кластеризации (первый в отчёте — leiden_seed)
+  gamma_sweep: [2, 5, 10, 20, 50]  # разрешения Leiden для кривой «баланс <-> fanout»
+  bootstrap_samples: 1000     # ресемплов bootstrap для 95% CI
+
+figures:
+  top_n_clusters: 25
+  graph_max_nodes: 1000
+  layout_seed: 42

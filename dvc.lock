@@ -1,0 +1,539 @@
+schema: '2.0'
+stages:
+  extract_pairs:
+    cmd: python -m sharded_index.pipeline.extract_pairs
+    deps:
+    - path: sharded_index/config.py
+      hash: md5
+      md5: 40bdfc0285ff44d5256a938e49c90bf3
+      size: 5240
+    - path: sharded_index/dataset.py
+      hash: md5
+      md5: 1be04c9d17af223ab48ac5b1a231b93b
+      size: 3531
+    - path: sharded_index/pipeline/extract_pairs.py
+      hash: md5
+      md5: 89e8d2780bf50475cd17d4a21e245005
+      size: 960
+    - path: sharded_index/text.py
+      hash: md5
+      md5: 79be531a29f0e55a90b751d10fc6f061
+      size: 1916
+    params:
+      params.yaml:
+        dataset:
+          hf_name: microsoft/ms_marco
+          hf_config: v2.1
+          max_rows: 200000
+          max_passages_per_query: 3
+          selected_only: true
+    outs:
+    - path: data/processed/pairs.parquet
+      hash: md5
+      md5: c2d6dfdffa698cf5872c00d84e842df7
+      size: 25624247
+  build_partitions:
+    cmd: python -m sharded_index.pipeline.build_partitions
+    deps:
+    - path: data/processed/pairs.parquet
+      hash: md5
+      md5: c2d6dfdffa698cf5872c00d84e842df7
+      size: 25624247
+    - path: sharded_index/clustering.py
+      hash: md5
+      md5: e49400a5b5583ee6b281644d4887ec5e
+      size: 3438
+    - path: sharded_index/config.py
+      hash: md5
+      md5: 40bdfc0285ff44d5256a938e49c90bf3
+      size: 5240
+    - path: sharded_index/dataset.py
+      hash: md5
+      md5: 1be04c9d17af223ab48ac5b1a231b93b
+      size: 3531
+    - path: sharded_index/graph.py
+      hash: md5
+      md5: 901dfb8735de374ba9e2958898f68905
+      size: 5658
+    - path: sharded_index/partition.py
+      hash: md5
+      md5: 882e5b3ae8e1dfe97461effff87c1bfd
+      size: 32012
+    - path: sharded_index/pipeline/build_partitions.py
+      hash: md5
+      md5: 35906bd6383ffa019dce7c9cabb71cf5
+      size: 6540
+    - path: sharded_index/text.py
+      hash: md5
+      md5: 79be531a29f0e55a90b751d10fc6f061
+      size: 1916
+    params:
+      params.yaml:
+        partition:
+          min_df: 2
+          max_df_ratio: 0.5
+          min_pair_count: 2
+          min_npmi: 0.0
+          edge_weight: npmi
+          graph_stop_words:
+          - does
+          - did
+          - mean
+          - meaning
+          - define
+          - definition
+          - stand
+          - happens
+          - used
+          - long
+          - good
+          - number
+          - types
+          - average
+          - difference
+          - largest
+          - old
+          - different
+          - common
+          - normal
+          - considered
+          - worth
+          - word
+          - means
+          - cost
+          - price
+          - age
+          cluster_method: leiden
+          leiden_resolution: 1.0
+          leiden_seed: 42
+          term_replicas:
+          - 2
+          - 3
+          replica_affinity_quantile:
+          doc_affinity_fallback: true
+          volume_cap_ratio: 0.15
+        split:
+          train_ratio: 0.8
+    outs:
+    - path: data/interim/term_df.parquet
+      hash: md5
+      md5: ba8e7de68734fa78838643f5c42a3dde
+      size: 1480225
+    - path: models/partitions
+      hash: md5
+      md5: 765152f3956e7789e84bc3934cbca4ed.dir
+      size: 19735774
+      nfiles: 45
+  build_indices:
+    cmd: python -m sharded_index.pipeline.build_indices
+    deps:
+    - path: data/processed/pairs.parquet
+      hash: md5
+      md5: c2d6dfdffa698cf5872c00d84e842df7
+      size: 25624247
+    - path: models/partitions
+      hash: md5
+      md5: 765152f3956e7789e84bc3934cbca4ed.dir
+      size: 19735774
+      nfiles: 45
+    - path: sharded_index/config.py
+      hash: md5
+      md5: 40bdfc0285ff44d5256a938e49c90bf3
+      size: 5240
+    - path: sharded_index/dataset.py
+      hash: md5
+      md5: 1be04c9d17af223ab48ac5b1a231b93b
+      size: 3531
+    - path: sharded_index/indexing.py
+      hash: md5
+      md5: 41d1d3c370519c0044c04d07994981c1
+      size: 3473
+    - path: sharded_index/partition.py
+      hash: md5
+      md5: 882e5b3ae8e1dfe97461effff87c1bfd
+      size: 32012
+    - path: sharded_index/pipeline/build_indices.py
+      hash: md5
+      md5: 3b75aaf88889addd9cc2e26c61eb27d1
+      size: 2838
+    - path: sharded_index/text.py
+      hash: md5
+      md5: 79be531a29f0e55a90b751d10fc6f061
+      size: 1916
+    outs:
+    - path: data/interim/assignments
+      hash: md5
+      md5: 6a9eb8ad65cbf608ea06584b025380fa.dir
+      size: 89391832
+      nfiles: 10
+    - path: data/interim/indices
+      hash: md5
+      md5: 4690d4b35d12bbeab8ab7b09bdb42b06.dir
+      size: 39654132161
+      nfiles: 20132
+  evaluate:
+    cmd: python -m sharded_index.pipeline.evaluate
+    deps:
+    - path: data/interim/assignments
+      hash: md5
+      md5: 6a9eb8ad65cbf608ea06584b025380fa.dir
+      size: 89391832
+      nfiles: 10
+    - path: data/interim/indices
+      hash: md5
+      md5: 4690d4b35d12bbeab8ab7b09bdb42b06.dir
+      size: 39654132161
+      nfiles: 20132
+    - path: data/interim/term_df.parquet
+      hash: md5
+      md5: ba8e7de68734fa78838643f5c42a3dde
+      size: 1480225
+    - path: data/processed/pairs.parquet
+      hash: md5
+      md5: c2d6dfdffa698cf5872c00d84e842df7
+      size: 25624247
+    - path: models/partitions
+      hash: md5
+      md5: 765152f3956e7789e84bc3934cbca4ed.dir
+      size: 19735774
+      nfiles: 45
+    - path: sharded_index/config.py
+      hash: md5
+      md5: 40bdfc0285ff44d5256a938e49c90bf3
+      size: 5240
+    - path: sharded_index/dataset.py
+      hash: md5
+      md5: 1be04c9d17af223ab48ac5b1a231b93b
+      size: 3531
+    - path: sharded_index/evaluation.py
+      hash: md5
+      md5: f41ca59f19a3c9216f191802f05db9e0
+      size: 6101
+    - path: sharded_index/indexing.py
+      hash: md5
+      md5: 41d1d3c370519c0044c04d07994981c1
+      size: 3473
+    - path: sharded_index/partition.py
+      hash: md5
+      md5: 882e5b3ae8e1dfe97461effff87c1bfd
+      size: 32012
+    - path: sharded_index/pipeline/evaluate.py
+      hash: md5
+      md5: 0157ce2bbc6b48dab95155b1d91a087e
+      size: 12237
+    - path: sharded_index/text.py
+      hash: md5
+      md5: 79be531a29f0e55a90b751d10fc6f061
+      size: 1916
+    params:
+      params.yaml:
+        evaluate:
+          fast_gt: false
+          n_eval: 100000
+          n_eval_train: 10000
+          n_eval_ood: 10000
+          max_fanout_sweep: 5
+          ood:
+            hf_name: google-research-datasets/nq_open
+            hf_config:
+            split: train
+            text_field: question
+        split:
+          train_ratio: 0.8
+    outs:
+    - path: data/interim/eval
+      hash: md5
+      md5: b156c12099a6754ff5d34a15b8a248b2.dir
+      size: 224154
+      nfiles: 1
+    - path: metrics/metrics.json
+      hash: md5
+      md5: dcfb7095571d4fc0e0905b4c08d745be
+      size: 22757
+    - path: metrics/recall_by_fanout.json
+      hash: md5
+      md5: bb9a8961682d2926c4df2f2eda2dee13
+      size: 5436
+  figures:
+    cmd: python -m sharded_index.pipeline.figures
+    deps:
+    - path: data/interim/eval
+      hash: md5
+      md5: b156c12099a6754ff5d34a15b8a248b2.dir
+      size: 224154
+      nfiles: 1
+    - path: metrics/metrics.json
+      hash: md5
+      md5: dcfb7095571d4fc0e0905b4c08d745be
+      size: 22757
+    - path: metrics/recall_by_fanout.json
+      hash: md5
+      md5: bb9a8961682d2926c4df2f2eda2dee13
+      size: 5436
+    - path: models/partitions
+      hash: md5
+      md5: 765152f3956e7789e84bc3934cbca4ed.dir
+      size: 19735774
+      nfiles: 45
+    - path: sharded_index/clusters.py
+      hash: md5
+      md5: 4f1d7daad58c6ad5e3e0f7f1fb9d6a15
+      size: 3219
+    - path: sharded_index/config.py
+      hash: md5
+      md5: 40bdfc0285ff44d5256a938e49c90bf3
+      size: 5240
+    - path: sharded_index/partition.py
+      hash: md5
+      md5: 882e5b3ae8e1dfe97461effff87c1bfd
+      size: 32012
+    - path: sharded_index/pipeline/figures.py
+      hash: md5
+      md5: 0261b9bbe1c0bb03cad8e548073b8686
+      size: 4135
+    - path: sharded_index/plots.py
+      hash: md5
+      md5: 80ecce3aad3d42f09f827a421cab672e
+      size: 15714
+    params:
+      params.yaml:
+        figures:
+          top_n_clusters: 25
+          graph_max_nodes: 1000
+          layout_seed: 42
+    outs:
+    - path: reports/figures/cluster_size_distribution.pdf
+      hash: md5
+      md5: 4a1777047848a49c7f341caf50e6ff77
+      size: 19295
+    - path: reports/figures/duplication_vs_fanout.pdf
+      hash: md5
+      md5: 0423642491a58bc577fafad36ead5afa
+      size: 21096
+    - path: reports/figures/fanout_by_split.pdf
+      hash: md5
+      md5: eb864f6be49a2355dee74681944cb738
+      size: 16721
+    - path: reports/figures/fanout_distribution.pdf
+      hash: md5
+      md5: 8bb34374fe17dcc92f460b4e9c09edc5
+      size: 19010
+    - path: reports/figures/inter_cluster_heatmap.pdf
+      hash: md5
+      md5: 50207fb75b134d7ead0afbe77985b2a7
+      size: 31145
+    - path: reports/figures/npmi_graph_clusters.pdf
+      hash: md5
+      md5: ff48a3be73b7eaac36664f8d66903b90
+      size: 304042
+    - path: reports/figures/recall_vs_fanout.pdf
+      hash: md5
+      md5: a578cb3c1c8428f038221b443b570815
+      size: 20703
+    - path: reports/figures/tsne_2d_projection.pdf
+      hash: md5
+      md5: 9616df055cfc633371e90fad5d8d37fe
+      size: 1893274
+    - path: reports/figures/word_clouds_top25.pdf
+      hash: md5
+      md5: 71e6978e9fff4efbd00efab4d65a9ec8
+      size: 2275379
+  analyze_load:
+    cmd: python -m sharded_index.pipeline.analyze_load
+    deps:
+    - path: data/interim/assignments
+      hash: md5
+      md5: 6a9eb8ad65cbf608ea06584b025380fa.dir
+      size: 89391832
+      nfiles: 10
+    - path: data/processed/pairs.parquet
+      hash: md5
+      md5: c2d6dfdffa698cf5872c00d84e842df7
+      size: 25624247
+    - path: models/partitions
+      hash: md5
+      md5: 765152f3956e7789e84bc3934cbca4ed.dir
+      size: 19735774
+      nfiles: 45
+    - path: sharded_index/clustering.py
+      hash: md5
+      md5: e49400a5b5583ee6b281644d4887ec5e
+      size: 3438
+    - path: sharded_index/config.py
+      hash: md5
+      md5: 40bdfc0285ff44d5256a938e49c90bf3
+      size: 5240
+    - path: sharded_index/dataset.py
+      hash: md5
+      md5: 1be04c9d17af223ab48ac5b1a231b93b
+      size: 3531
+    - path: sharded_index/partition.py
+      hash: md5
+      md5: 882e5b3ae8e1dfe97461effff87c1bfd
+      size: 32012
+    - path: sharded_index/pipeline/analyze_load.py
+      hash: md5
+      md5: 3594da64257431caec0291d831c66fa4
+      size: 13125
+    - path: sharded_index/text.py
+      hash: md5
+      md5: 79be531a29f0e55a90b751d10fc6f061
+      size: 1916
+    params:
+      params.yaml:
+        analyze_load:
+          leiden_seeds:
+          - 1
+          - 2
+          - 3
+          gamma_sweep:
+          - 2
+          - 5
+          - 10
+          - 20
+          - 50
+          bootstrap_samples: 1000
+        evaluate.n_eval: 100000
+        partition:
+          min_df: 2
+          max_df_ratio: 0.5
+          min_pair_count: 2
+          min_npmi: 0.0
+          edge_weight: npmi
+          graph_stop_words:
+          - does
+          - did
+          - mean
+          - meaning
+          - define
+          - definition
+          - stand
+          - happens
+          - used
+          - long
+          - good
+          - number
+          - types
+          - average
+          - difference
+          - largest
+          - old
+          - different
+          - common
+          - normal
+          - considered
+          - worth
+          - word
+          - means
+          - cost
+          - price
+          - age
+          cluster_method: leiden
+          leiden_resolution: 1.0
+          leiden_seed: 42
+          term_replicas:
+          - 2
+          - 3
+          replica_affinity_quantile:
+          doc_affinity_fallback: true
+          volume_cap_ratio: 0.15
+        split:
+          train_ratio: 0.8
+    outs:
+    - path: metrics/load_metrics.json
+      hash: md5
+      md5: e5aa857fa3a2a6204fabe0d941d75650
+      size: 12554
+  analyze_topical:
+    cmd: python -m sharded_index.pipeline.analyze_topical
+    deps:
+    - path: data/interim/assignments
+      hash: md5
+      md5: 6a9eb8ad65cbf608ea06584b025380fa.dir
+      size: 89391832
+      nfiles: 10
+    - path: data/processed/pairs.parquet
+      hash: md5
+      md5: c2d6dfdffa698cf5872c00d84e842df7
+      size: 25624247
+    - path: models/partitions
+      hash: md5
+      md5: 765152f3956e7789e84bc3934cbca4ed.dir
+      size: 19735774
+      nfiles: 45
+    - path: sharded_index/config.py
+      hash: md5
+      md5: 40bdfc0285ff44d5256a938e49c90bf3
+      size: 5240
+    - path: sharded_index/dataset.py
+      hash: md5
+      md5: 1be04c9d17af223ab48ac5b1a231b93b
+      size: 3531
+    - path: sharded_index/partition.py
+      hash: md5
+      md5: 882e5b3ae8e1dfe97461effff87c1bfd
+      size: 32012
+    - path: sharded_index/pipeline/analyze_topical.py
+      hash: md5
+      md5: 4b72ffcb8b5ce88cc4e01dd99e080ada
+      size: 7369
+    - path: sharded_index/text.py
+      hash: md5
+      md5: 79be531a29f0e55a90b751d10fc6f061
+      size: 1916
+    params:
+      params.yaml:
+        analyze_topical:
+          n_probes: 2000
+          probe_seed: 42
+        evaluate.n_eval: 100000
+        partition:
+          min_df: 2
+          max_df_ratio: 0.5
+          min_pair_count: 2
+          min_npmi: 0.0
+          edge_weight: npmi
+          graph_stop_words:
+          - does
+          - did
+          - mean
+          - meaning
+          - define
+          - definition
+          - stand
+          - happens
+          - used
+          - long
+          - good
+          - number
+          - types
+          - average
+          - difference
+          - largest
+          - old
+          - different
+          - common
+          - normal
+          - considered
+          - worth
+          - word
+          - means
+          - cost
+          - price
+          - age
+          cluster_method: leiden
+          leiden_resolution: 1.0
+          leiden_seed: 42
+          term_replicas:
+          - 2
+          - 3
+          replica_affinity_quantile:
+          doc_affinity_fallback: true
+          volume_cap_ratio: 0.15
+        split:
+          train_ratio: 0.8
+    outs:
+    - path: metrics/topical_metrics.json
+      hash: md5
+      md5: 832814a1745d8fd56f4939a55fc9c08c
+      size: 17046

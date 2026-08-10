@@ -1,0 +1,47 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sharded-index"
+version = "0.1.0"
+description = "Semantic term sharding for full-text search: Leiden clustering of an NPMI co-occurrence graph vs hash partitioning, with term replication for low-fanout routing"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    # Пайплайн
+    "numpy>=2.0",
+    "pandas>=2.2",
+    "scipy>=1.14",
+    "scikit-learn>=1.5",
+    "igraph>=1.0",
+    "leidenalg>=0.10",
+    "Whoosh>=2.7",
+    "datasets>=4.0",
+    "tqdm>=4.66",
+    "PyYAML>=6.0",
+    # Фигуры (sharded_index.plots)
+    "matplotlib>=3.8",
+    "seaborn>=0.13",
+    "networkx>=3.3",
+    "wordcloud>=1.9",
+]
+
+[project.optional-dependencies]
+dev = [
+    "dvc>=3.60",       # воспроизводимый пайплайн (dvc repro)
+    "ruff>=0.6",       # линтер (make lint)
+    "ipykernel",       # запуск ноутбука
+]
+# Точный срез рабочего окружения — requirements.lock (make freeze);
+# для воспроизведения ставьте его: make setup.
+
+[tool.setuptools.packages.find]
+include = ["sharded_index*"]
+
+[tool.ruff]
+line-length = 100
+src = ["sharded_index", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W"]

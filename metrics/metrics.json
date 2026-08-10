@@ -1,0 +1,933 @@
+{
+  "eval_splits": {
+    "train": 10000,
+    "holdout": 24125,
+    "ood": 10000
+  },
+  "gt_mode": "bm25",
+  "semantic_shards": 376,
+  "full_index_mb": 115.1,
+  "hash": {
+    "n_shards": 376,
+    "shards_used": 376,
+    "replication_factor": 1.0,
+    "duplication": 23.7,
+    "index_mb": 4415.8,
+    "storage_overhead": 38.38,
+    "by_split": {
+      "train": {
+        "n_queries": 10000,
+        "empty_gt_share": 0.0029,
+        "cover_fanout": {
+          "mean": 3.17,
+          "median": 3.0,
+          "p95": 5.0,
+          "share_covered_by_1": 0.0664
+        },
+        "union_fanout_mean": 3.17,
+        "routing_recall_full": 1.0,
+        "recall_at": {
+          "1": 0.5539,
+          "2": 0.7841,
+          "3": 0.9141,
+          "4": 0.9748,
+          "5": 0.994
+        },
+        "qrels_recall_full": 0.9737,
+        "qrels_recall_at": {
+          "1": 0.745,
+          "2": 0.9217,
+          "3": 0.9644,
+          "4": 0.9726,
+          "5": 0.9735
+        }
+      },
+      "holdout": {
+        "n_queries": 24125,
+        "empty_gt_share": 0.0032,
+        "cover_fanout": {
+          "mean": 3.13,
+          "median": 3.0,
+          "p95": 5.0,
+          "share_covered_by_1": 0.0766
+        },
+        "union_fanout_mean": 3.13,
+        "routing_recall_full": 1.0,
+        "recall_at": {
+          "1": 0.5855,
+          "2": 0.7992,
+          "3": 0.9204,
+          "4": 0.9762,
+          "5": 0.9943
+        },
+        "qrels_recall_full": 0.9746,
+        "qrels_recall_at": {
+          "1": 0.7462,
+          "2": 0.9253,
+          "3": 0.9656,
+          "4": 0.9732,
+          "5": 0.9744
+        }
+      },
+      "ood": {
+        "n_queries": 10000,
+        "empty_gt_share": 0.0002,
+        "cover_fanout": {
+          "mean": 4.44,
+          "median": 4.0,
+          "p95": 7.0,
+          "share_covered_by_1": 0.0036
+        },
+        "union_fanout_mean": 4.44,
+        "routing_recall_full": 1.0,
+        "recall_at": {
+          "1": 0.53,
+          "2": 0.7493,
+          "3": 0.8707,
+          "4": 0.9454,
+          "5": 0.9845
+        }
+      }
+    }
+  },
+  "leiden": {
+    "n_shards": 752,
+    "shards_used": 752,
+    "replication_factor": 1.0,
+    "duplication": 16.62,
+    "index_mb": 3212.4,
+    "storage_overhead": 27.92,
+    "fallback_term_share": 0.9165,
+    "by_split": {
+      "train": {
+        "n_queries": 10000,
+        "empty_gt_share": 0.0029,
+        "cover_fanout": {
+          "mean": 2.52,
+          "median": 2.0,
+          "p95": 4.0,
+          "share_covered_by_1": 0.1668
+        },
+        "union_fanout_mean": 2.52,
+        "routing_recall_full": 1.0,
+        "recall_at": {
+          "1": 0.767,
+          "2": 0.9388,
+          "3": 0.9888,
+          "4": 0.9986,
+          "5": 0.9999
+        },
+        "qrels_recall_full": 0.9822,
+        "qrels_recall_at": {
+          "1": 0.9134,
+          "2": 0.9722,
+          "3": 0.981,
+          "4": 0.9822,
+          "5": 0.9822
+        },
+        "fallback_probe_share": 0.3795,
+        "mixed_query_share": 0.5055
+      },
+      "holdout": {
+        "n_queries": 24125,
+        "empty_gt_share": 0.0032,
+        "cover_fanout": {
+          "mean": 2.61,
+          "median": 3.0,
+          "p95": 4.0,
+          "share_covered_by_1": 0.1371
+        },
+        "union_fanout_mean": 2.61,
+        "routing_recall_full": 1.0,
+        "recall_at": {
+          "1": 0.7879,
+          "2": 0.9376,
+          "3": 0.9882,
+          "4": 0.9985,
+          "5": 0.9998
+        },
+        "qrels_recall_full": 0.9849,
+        "qrels_recall_at": {
+          "1": 0.905,
+          "2": 0.9733,
+          "3": 0.9836,
+          "4": 0.9848,
+          "5": 0.9849
+        },
+        "fallback_probe_share": 0.379,
+        "mixed_query_share": 0.5444
+      },
+      "ood": {
+        "n_queries": 10000,
+        "empty_gt_share": 0.0002,
+        "cover_fanout": {
+          "mean": 3.88,
+          "median": 4.0,
+          "p95": 6.0,
+          "share_covered_by_1": 0.0157
+        },
+        "union_fanout_mean": 3.88,
+        "routing_recall_full": 1.0,
+        "recall_at": {
+          "1": 0.7442,
+          "2": 0.9145,
+          "3": 0.971,
+          "4": 0.9921,
+          "5": 0.9987
+        },
+        "fallback_probe_share": 0.3042,
+        "mixed_query_share": 0.7178
+      }
+    }
+  },
+  "leiden_r2": {
+    "n_shards": 752,
+    "shards_used": 752,
+    "replication_factor": 1.04,
+    "duplication": 20.32,
+    "index_mb": 3622.3,
+    "storage_overhead": 31.48,
+    "fallback_term_share": 0.9165,
+    "replication": {
+      "replicated_terms": 5214,
+      "df_weighted_cost_share_top1pct": 0.7027,
+      "df_weighted_cost_share_top10pct": 0.9961
+    },
+    "by_split": {
+      "train": {
+        "n_queries": 10000,
+        "empty_gt_share": 0.0029,
+        "cover_fanout": {
+          "mean": 2.25,
+          "median": 2.0,
+          "p95": 4.0,
+          "share_covered_by_1": 0.2288
+        },
+        "union_fanout_mean": 3.83,
+        "routing_recall_full": 1.0,
+        "recall_at": {
+          "1": 0.8673,
+          "2": 0.9758,
+          "3": 0.9969,
+          "4": 0.9996,
+          "5": 1.0
+        },
+        "qrels_recall_full": 0.9849,
+        "qrels_recall_at": {
+          "1": 0.951,
+          "2": 0.9779,
+          "3": 0.9835,
+          "4": 0.9838,
+          "5": 0.9838
+        },
+        "fallback_probe_share": 0.2493,
+        "mixed_query_share": 0.5055
+      },
+      "holdout": {
+        "n_queries": 24125,
+        "empty_gt_share": 0.0032,
+        "cover_fanout": {
+          "mean": 2.34,
+          "median": 2.0,
+          "p95": 4.0,
+          "share_covered_by_1": 0.1919
+        },
+        "union_fanout_mean": 3.93,
+        "routing_recall_full": 1.0,
+        "recall_at": {
+          "1": 0.8899,
+          "2": 0.977,
+          "3": 0.9975,
+          "4": 0.9998,
+          "5": 1.0
+        },
+        "qrels_recall_full": 0.9877,
+        "qrels_recall_at": {
+          "1": 0.9495,
+          "2": 0.9796,
+          "3": 0.9862,
+          "4": 0.9871,
+          "5": 0.9871
+        },
+        "fallback_probe_share": 0.252,
+        "mixed_query_share": 0.5444
+      },
+      "ood": {
+        "n_queries": 10000,
+        "empty_gt_share": 0.0002,
+        "cover_fanout": {
+          "mean": 3.46,
+          "median": 3.0,
+          "p95": 5.0,
+          "share_covered_by_1": 0.0288
+        },
+        "union_fanout_mean": 5.95,
+        "routing_recall_full": 1.0,
+        "recall_at": {
+          "1": 0.8904,
+          "2": 0.9783,
+          "3": 0.9949,
+          "4": 0.999,
+          "5": 0.9999
+        },
+        "fallback_probe_share": 0.1984,
+        "mixed_query_share": 0.7178
+      }
+    }
+  },
+  "leiden_r3": {
+    "n_shards": 752,
+    "shards_used": 752,
+    "replication_factor": 1.06,
+    "duplication": 22.89,
+    "index_mb": 3904.1,
+    "storage_overhead": 33.93,
+    "fallback_term_share": 0.9165,
+    "replication": {
+      "replicated_terms": 5214,
+      "df_weighted_cost_share_top1pct": 0.7322,
+      "df_weighted_cost_share_top10pct": 0.9975
+    },
+    "by_split": {
+      "train": {
+        "n_queries": 10000,
+        "empty_gt_share": 0.0029,
+        "cover_fanout": {
+          "mean": 2.13,
+          "median": 2.0,
+          "p95": 4.0,
+          "share_covered_by_1": 0.2617
+        },
+        "union_fanout_mean": 4.98,
+        "routing_recall_full": 1.0,
+        "recall_at": {
+          "1": 0.8947,
+          "2": 0.9828,
+          "3": 0.9979,
+          "4": 0.9997,
+          "5": 1.0
+        },
+        "qrels_recall_full": 0.9854,
+        "qrels_recall_at": {
+          "1": 0.9582,
+          "2": 0.9795,
+          "3": 0.9847,
+          "4": 0.9849,
+          "5": 0.9849
+        },
+        "fallback_probe_share": 0.192,
+        "mixed_query_share": 0.5055
+      },
+      "holdout": {
+        "n_queries": 24125,
+        "empty_gt_share": 0.0032,
+        "cover_fanout": {
+          "mean": 2.22,
+          "median": 2.0,
+          "p95": 4.0,
+          "share_covered_by_1": 0.2216
+        },
+        "union_fanout_mean": 5.08,
+        "routing_recall_full": 1.0,
+        "recall_at": {
+          "1": 0.9172,
+          "2": 0.9843,
+          "3": 0.9987,
+          "4": 0.9999,
+          "5": 1.0
+        },
+        "qrels_recall_full": 0.9881,
+        "qrels_recall_at": {
+          "1": 0.9599,
+          "2": 0.9808,
+          "3": 0.987,
+          "4": 0.9876,
+          "5": 0.9877
+        },
+        "fallback_probe_share": 0.195,
+        "mixed_query_share": 0.5444
+      },
+      "ood": {
+        "n_queries": 10000,
+        "empty_gt_share": 0.0002,
+        "cover_fanout": {
+          "mean": 3.24,
+          "median": 3.0,
+          "p95": 5.0,
+          "share_covered_by_1": 0.0411
+        },
+        "union_fanout_mean": 7.61,
+        "routing_recall_full": 1.0,
+        "recall_at": {
+          "1": 0.9384,
+          "2": 0.9886,
+          "3": 0.9976,
+          "4": 0.9995,
+          "5": 1.0
+        },
+        "fallback_probe_share": 0.1552,
+        "mixed_query_share": 0.7178
+      }
+    }
+  },
+  "leiden_aff": {
+    "n_shards": 750,
+    "shards_used": 390,
+    "replication_factor": 1.0,
+    "duplication": 9.72,
+    "index_mb": 1343.2,
+    "storage_overhead": 11.67,
+    "fallback_term_share": 0.0001,
+    "by_split": {
+      "train": {
+        "n_queries": 10000,
+        "empty_gt_share": 0.0029,
+        "cover_fanout": {
+          "mean": 2.22,
+          "median": 2.0,
+          "p95": 4.0,
+          "share_covered_by_1": 0.2505
+        },
+        "union_fanout_mean": 2.22,
+        "routing_recall_full": 1.0,
+        "recall_at": {
+          "1": 0.856,
+          "2": 0.9758,
+          "3": 0.9975,
+          "4": 0.9998,
+          "5": 1.0
+        },
+        "qrels_recall_full": 0.9948,
+        "qrels_recall_at": {
+          "1": 0.9486,
+          "2": 0.9923,
+          "3": 0.9946,
+          "4": 0.9948,
+          "5": 0.9948
+        },
+        "fallback_probe_share": 0.0001,
+        "mixed_query_share": 0.0001
+      },
+      "holdout": {
+        "n_queries": 24125,
+        "empty_gt_share": 0.0032,
+        "cover_fanout": {
+          "mean": 2.28,
+          "median": 2.0,
+          "p95": 4.0,
+          "share_covered_by_1": 0.2293
+        },
+        "union_fanout_mean": 2.28,
+        "routing_recall_full": 1.0,
+        "recall_at": {
+          "1": 0.8597,
+          "2": 0.9749,
+          "3": 0.997,
+          "4": 0.9998,
+          "5": 1.0
+        },
+        "qrels_recall_full": 0.9948,
+        "qrels_recall_at": {
+          "1": 0.9402,
+          "2": 0.9918,
+          "3": 0.9946,
+          "4": 0.9948,
+          "5": 0.9948
+        },
+        "fallback_probe_share": 0.0,
+        "mixed_query_share": 0.0
+      },
+      "ood": {
+        "n_queries": 10000,
+        "empty_gt_share": 0.0002,
+        "cover_fanout": {
+          "mean": 3.51,
+          "median": 3.0,
+          "p95": 5.0,
+          "share_covered_by_1": 0.0259
+        },
+        "union_fanout_mean": 3.51,
+        "routing_recall_full": 1.0,
+        "recall_at": {
+          "1": 0.7744,
+          "2": 0.9373,
+          "3": 0.9845,
+          "4": 0.9976,
+          "5": 0.9998
+        },
+        "fallback_probe_share": 0.0,
+        "mixed_query_share": 0.0
+      }
+    }
+  },
+  "leiden_aff_r2": {
+    "n_shards": 750,
+    "shards_used": 390,
+    "replication_factor": 1.04,
+    "duplication": 12.91,
+    "index_mb": 1695.8,
+    "storage_overhead": 14.74,
+    "fallback_term_share": 0.0001,
+    "replication": {
+      "replicated_terms": 5214,
+      "df_weighted_cost_share_top1pct": 0.7027,
+      "df_weighted_cost_share_top10pct": 0.9961
+    },
+    "by_split": {
+      "train": {
+        "n_queries": 10000,
+        "empty_gt_share": 0.0029,
+        "cover_fanout": {
+          "mean": 1.92,
+          "median": 2.0,
+          "p95": 3.0,
+          "share_covered_by_1": 0.3394
+        },
+        "union_fanout_mean": 3.42,
+        "routing_recall_full": 1.0,
+        "recall_at": {
+          "1": 0.9434,
+          "2": 0.9966,
+          "3": 0.9999,
+          "4": 1.0,
+          "5": 1.0
+        },
+        "qrels_recall_full": 0.9958,
+        "qrels_recall_at": {
+          "1": 0.9835,
+          "2": 0.995,
+          "3": 0.9953,
+          "4": 0.9953,
+          "5": 0.9953
+        },
+        "fallback_probe_share": 0.0001,
+        "mixed_query_share": 0.0001
+      },
+      "holdout": {
+        "n_queries": 24125,
+        "empty_gt_share": 0.0032,
+        "cover_fanout": {
+          "mean": 1.98,
+          "median": 2.0,
+          "p95": 3.0,
+          "share_covered_by_1": 0.3172
+        },
+        "union_fanout_mean": 3.49,
+        "routing_recall_full": 1.0,
+        "recall_at": {
+          "1": 0.9489,
+          "2": 0.9962,
+          "3": 0.9999,
+          "4": 1.0,
+          "5": 1.0
+        },
+        "qrels_recall_full": 0.996,
+        "qrels_recall_at": {
+          "1": 0.9799,
+          "2": 0.9957,
+          "3": 0.9959,
+          "4": 0.9959,
+          "5": 0.9959
+        },
+        "fallback_probe_share": 0.0,
+        "mixed_query_share": 0.0
+      },
+      "ood": {
+        "n_queries": 10000,
+        "empty_gt_share": 0.0002,
+        "cover_fanout": {
+          "mean": 3.0,
+          "median": 3.0,
+          "p95": 5.0,
+          "share_covered_by_1": 0.0498
+        },
+        "union_fanout_mean": 5.37,
+        "routing_recall_full": 1.0,
+        "recall_at": {
+          "1": 0.9089,
+          "2": 0.989,
+          "3": 0.9989,
+          "4": 0.9999,
+          "5": 1.0
+        },
+        "fallback_probe_share": 0.0,
+        "mixed_query_share": 0.0
+      }
+    }
+  },
+  "leiden_aff_r3": {
+    "n_shards": 750,
+    "shards_used": 390,
+    "replication_factor": 1.06,
+    "duplication": 15.34,
+    "index_mb": 1962.6,
+    "storage_overhead": 17.06,
+    "fallback_term_share": 0.0001,
+    "replication": {
+      "replicated_terms": 5214,
+      "df_weighted_cost_share_top1pct": 0.7322,
+      "df_weighted_cost_share_top10pct": 0.9975
+    },
+    "by_split": {
+      "train": {
+        "n_queries": 10000,
+        "empty_gt_share": 0.0029,
+        "cover_fanout": {
+          "mean": 1.81,
+          "median": 2.0,
+          "p95": 3.0,
+          "share_covered_by_1": 0.3834
+        },
+        "union_fanout_mean": 4.51,
+        "routing_recall_full": 1.0,
+        "recall_at": {
+          "1": 0.9654,
+          "2": 0.9988,
+          "3": 1.0,
+          "4": 1.0,
+          "5": 1.0
+        },
+        "qrels_recall_full": 0.9965,
+        "qrels_recall_at": {
+          "1": 0.9886,
+          "2": 0.9963,
+          "3": 0.9963,
+          "4": 0.9963,
+          "5": 0.9963
+        },
+        "fallback_probe_share": 0.0,
+        "mixed_query_share": 0.0001
+      },
+      "holdout": {
+        "n_queries": 24125,
+        "empty_gt_share": 0.0032,
+        "cover_fanout": {
+          "mean": 1.87,
+          "median": 2.0,
+          "p95": 3.0,
+          "share_covered_by_1": 0.3593
+        },
+        "union_fanout_mean": 4.58,
+        "routing_recall_full": 1.0,
+        "recall_at": {
+          "1": 0.9708,
+          "2": 0.9986,
+          "3": 1.0,
+          "4": 1.0,
+          "5": 1.0
+        },
+        "qrels_recall_full": 0.9965,
+        "qrels_recall_at": {
+          "1": 0.9892,
+          "2": 0.9965,
+          "3": 0.9965,
+          "4": 0.9965,
+          "5": 0.9965
+        },
+        "fallback_probe_share": 0.0,
+        "mixed_query_share": 0.0
+      },
+      "ood": {
+        "n_queries": 10000,
+        "empty_gt_share": 0.0002,
+        "cover_fanout": {
+          "mean": 2.78,
+          "median": 3.0,
+          "p95": 4.0,
+          "share_covered_by_1": 0.0696
+        },
+        "union_fanout_mean": 6.9,
+        "routing_recall_full": 1.0,
+        "recall_at": {
+          "1": 0.9484,
+          "2": 0.9954,
+          "3": 0.9997,
+          "4": 1.0,
+          "5": 1.0
+        },
+        "fallback_probe_share": 0.0,
+        "mixed_query_share": 0.0
+      }
+    }
+  },
+  "leiden_bal": {
+    "n_shards": 968,
+    "shards_used": 968,
+    "replication_factor": 1.0,
+    "duplication": 22.04,
+    "index_mb": 4392.9,
+    "storage_overhead": 38.18,
+    "fallback_term_share": 0.0001,
+    "by_split": {
+      "train": {
+        "n_queries": 10000,
+        "empty_gt_share": 0.0029,
+        "cover_fanout": {
+          "mean": 2.87,
+          "median": 3.0,
+          "p95": 5.0,
+          "share_covered_by_1": 0.0958
+        },
+        "union_fanout_mean": 2.87,
+        "routing_recall_full": 1.0,
+        "recall_at": {
+          "1": 0.5835,
+          "2": 0.821,
+          "3": 0.9411,
+          "4": 0.9853,
+          "5": 0.9975
+        },
+        "qrels_recall_full": 0.9763,
+        "qrels_recall_at": {
+          "1": 0.7831,
+          "2": 0.9405,
+          "3": 0.9706,
+          "4": 0.9754,
+          "5": 0.9758
+        },
+        "fallback_probe_share": 0.0001,
+        "mixed_query_share": 0.0001
+      },
+      "holdout": {
+        "n_queries": 24125,
+        "empty_gt_share": 0.0032,
+        "cover_fanout": {
+          "mean": 2.97,
+          "median": 3.0,
+          "p95": 5.0,
+          "share_covered_by_1": 0.084
+        },
+        "union_fanout_mean": 2.97,
+        "routing_recall_full": 1.0,
+        "recall_at": {
+          "1": 0.6017,
+          "2": 0.8205,
+          "3": 0.9368,
+          "4": 0.9839,
+          "5": 0.9964
+        },
+        "qrels_recall_full": 0.9791,
+        "qrels_recall_at": {
+          "1": 0.7727,
+          "2": 0.9392,
+          "3": 0.973,
+          "4": 0.9783,
+          "5": 0.9789
+        },
+        "fallback_probe_share": 0.0,
+        "mixed_query_share": 0.0
+      },
+      "ood": {
+        "n_queries": 10000,
+        "empty_gt_share": 0.0002,
+        "cover_fanout": {
+          "mean": 4.22,
+          "median": 4.0,
+          "p95": 6.0,
+          "share_covered_by_1": 0.0065
+        },
+        "union_fanout_mean": 4.22,
+        "routing_recall_full": 1.0,
+        "recall_at": {
+          "1": 0.5255,
+          "2": 0.748,
+          "3": 0.8704,
+          "4": 0.9465,
+          "5": 0.9853
+        },
+        "fallback_probe_share": 0.0,
+        "mixed_query_share": 0.0
+      }
+    }
+  },
+  "leiden_bal_r2": {
+    "n_shards": 968,
+    "shards_used": 968,
+    "replication_factor": 1.04,
+    "duplication": 33.06,
+    "index_mb": 6041.2,
+    "storage_overhead": 52.5,
+    "fallback_term_share": 0.0001,
+    "replication": {
+      "replicated_terms": 6167,
+      "df_weighted_cost_share_top1pct": 0.6621,
+      "df_weighted_cost_share_top10pct": 0.9926
+    },
+    "by_split": {
+      "train": {
+        "n_queries": 10000,
+        "empty_gt_share": 0.0029,
+        "cover_fanout": {
+          "mean": 2.74,
+          "median": 3.0,
+          "p95": 5.0,
+          "share_covered_by_1": 0.1111
+        },
+        "union_fanout_mean": 4.43,
+        "routing_recall_full": 1.0,
+        "recall_at": {
+          "1": 0.6159,
+          "2": 0.8502,
+          "3": 0.9572,
+          "4": 0.991,
+          "5": 0.9986
+        },
+        "qrels_recall_full": 0.9799,
+        "qrels_recall_at": {
+          "1": 0.812,
+          "2": 0.9511,
+          "3": 0.9743,
+          "4": 0.9778,
+          "5": 0.9782
+        },
+        "fallback_probe_share": 0.0,
+        "mixed_query_share": 0.0001
+      },
+      "holdout": {
+        "n_queries": 24125,
+        "empty_gt_share": 0.0032,
+        "cover_fanout": {
+          "mean": 2.87,
+          "median": 3.0,
+          "p95": 5.0,
+          "share_covered_by_1": 0.0897
+        },
+        "union_fanout_mean": 4.56,
+        "routing_recall_full": 1.0,
+        "recall_at": {
+          "1": 0.6308,
+          "2": 0.8466,
+          "3": 0.9526,
+          "4": 0.9895,
+          "5": 0.9978
+        },
+        "qrels_recall_full": 0.9827,
+        "qrels_recall_at": {
+          "1": 0.7982,
+          "2": 0.9497,
+          "3": 0.9765,
+          "4": 0.9804,
+          "5": 0.9809
+        },
+        "fallback_probe_share": 0.0,
+        "mixed_query_share": 0.0
+      },
+      "ood": {
+        "n_queries": 10000,
+        "empty_gt_share": 0.0002,
+        "cover_fanout": {
+          "mean": 4.11,
+          "median": 4.0,
+          "p95": 6.0,
+          "share_covered_by_1": 0.0087
+        },
+        "union_fanout_mean": 6.68,
+        "routing_recall_full": 1.0,
+        "recall_at": {
+          "1": 0.5551,
+          "2": 0.7785,
+          "3": 0.8925,
+          "4": 0.9588,
+          "5": 0.9889
+        },
+        "fallback_probe_share": 0.0,
+        "mixed_query_share": 0.0
+      }
+    }
+  },
+  "leiden_bal_r3": {
+    "n_shards": 968,
+    "shards_used": 968,
+    "replication_factor": 1.07,
+    "duplication": 40.5,
+    "index_mb": 7111.7,
+    "storage_overhead": 61.81,
+    "fallback_term_share": 0.0001,
+    "replication": {
+      "replicated_terms": 6034,
+      "df_weighted_cost_share_top1pct": 0.6782,
+      "df_weighted_cost_share_top10pct": 0.9948
+    },
+    "by_split": {
+      "train": {
+        "n_queries": 10000,
+        "empty_gt_share": 0.0029,
+        "cover_fanout": {
+          "mean": 2.68,
+          "median": 3.0,
+          "p95": 5.0,
+          "share_covered_by_1": 0.1174
+        },
+        "union_fanout_mean": 5.57,
+        "routing_recall_full": 1.0,
+        "recall_at": {
+          "1": 0.6289,
+          "2": 0.8616,
+          "3": 0.9625,
+          "4": 0.9926,
+          "5": 0.9989
+        },
+        "qrels_recall_full": 0.9815,
+        "qrels_recall_at": {
+          "1": 0.8242,
+          "2": 0.9545,
+          "3": 0.9758,
+          "4": 0.9792,
+          "5": 0.9794
+        },
+        "fallback_probe_share": 0.0,
+        "mixed_query_share": 0.0001
+      },
+      "holdout": {
+        "n_queries": 24125,
+        "empty_gt_share": 0.0032,
+        "cover_fanout": {
+          "mean": 2.83,
+          "median": 3.0,
+          "p95": 5.0,
+          "share_covered_by_1": 0.0931
+        },
+        "union_fanout_mean": 5.73,
+        "routing_recall_full": 1.0,
+        "recall_at": {
+          "1": 0.6422,
+          "2": 0.8555,
+          "3": 0.9577,
+          "4": 0.991,
+          "5": 0.9982
+        },
+        "qrels_recall_full": 0.9843,
+        "qrels_recall_at": {
+          "1": 0.8102,
+          "2": 0.9529,
+          "3": 0.9768,
+          "4": 0.981,
+          "5": 0.9814
+        },
+        "fallback_probe_share": 0.0,
+        "mixed_query_share": 0.0
+      },
+      "ood": {
+        "n_queries": 10000,
+        "empty_gt_share": 0.0002,
+        "cover_fanout": {
+          "mean": 4.05,
+          "median": 4.0,
+          "p95": 6.0,
+          "share_covered_by_1": 0.0096
+        },
+        "union_fanout_mean": 8.55,
+        "routing_recall_full": 1.0,
+        "recall_at": {
+          "1": 0.5712,
+          "2": 0.794,
+          "3": 0.903,
+          "4": 0.9645,
+          "5": 0.9909
+        },
+        "fallback_probe_share": 0.0,
+        "mixed_query_share": 0.0
+      }
+    }
+  }
+}

@@ -1,0 +1,526 @@
+\documentclass[14pt, a4paper]{article}
+\usepackage[fontsize=14pt]{fontsize}
+
+\setcounter{page}{1}
+
+\usepackage{graphicx} % Required for inserting images
+\graphicspath{{../../results/}}
+
+% Для кириллицы и русского языка
+\usepackage[utf8]{inputenc}
+\usepackage[english,russian]{babel}
+
+% Заголовок содержания по ГОСТ: заглавными (babel может переопределять captions)
+\addto\captionsrussian{\renewcommand{\contentsname}{СОДЕРЖАНИЕ}}
+
+% Полуторный интервал
+\usepackage{setspace}
+\onehalfspacing
+
+% Поля
+\usepackage[left=30mm, right=15mm, top=20mm, bottom=20mm]{geometry}
+
+% Отступы в 1,25см
+\setlength{\parindent}{1.25cm}
+
+% Применять отступы на первом абзаце в разделах и подразделах
+\usepackage{indentfirst}
+
+% Нумерация в нижней части включена по умолчанию
+
+% Форматирование заголовков
+\usepackage{titlesec}
+
+% Разделы
+\titleformat{\section}
+{}
+{\hspace{1.25cm}\arabic{section}}
+{1ex}{}
+
+\titleformat{\subsection}
+{}
+{\hspace{1.25cm}\arabic{section}.\arabic{subsection}}
+{1ex}{}
+
+\titleformat{\subsubsection}
+{}
+{\hspace{1.25cm}\arabic{section}.\arabic{subsection}.\arabic{subsubsection}}
+{1ex}{}
+
+% Структурные элементы
+\titleformat{\paragraph}
+{\centering}
+{\hspace{1.25cm}\arabic{section}}
+{1ex}{}
+
+\newcommand{\structheader}[1]{%
+	\phantomsection%
+	\clearpage
+	\paragraph*{{#1}}%
+	\addcontentsline{toc}{section}{#1}%
+}
+
+% Заголовок, который должен попасть в содержание отчёта
+\newcommand{\reportheader}[1]{%
+	\phantomsection%
+	\clearpage
+	\paragraph*{{#1}}%
+	\addcontentsline{toc}{section}{#1}%
+}
+
+\usepackage{fontspec}
+\setmainfont{Times New Roman}
+
+
+% Возможность вставки изображений и таблиц в нужное место
+\usepackage{float}
+
+% Для вставки PDF страниц
+\usepackage{pdfpages}
+
+% Таблицы с автоматическим выравниванием по ширине
+\usepackage{array}
+\usepackage{tabularx}
+
+% Тире вместо двоеточия для подписей иллюстраций
+\usepackage[figurename=Рисунок]{caption}
+\DeclareCaptionLabelSeparator{tirer}{ -- }
+\captionsetup{labelsep=tirer}
+
+% Для форматирования списков (например, условных обозначений)
+\usepackage{enumitem}
+
+% ГОСТ-подобные абзацные отступы в списках:
+% сам список начинается с абзацного отступа (\parindent).
+% Для itemize используем маркер в виде «палки» (тире), а не точки.
+\setlist[itemize]{leftmargin=\parindent, labelindent=0pt, listparindent=\parindent, label=--}
+\setlist[enumerate]{leftmargin=\parindent, labelindent=0pt, listparindent=\parindent, label=\arabic*)}
+
+% Для форматирования содержания
+\usepackage{tocloft}
+
+\setlength{\cftbeforesecskip}{0pt}
+\renewcommand{\cfttoctitlefont}{\normalfont\fontsize{14pt}{14pt}\selectfont}
+\renewcommand{\cftaftertoctitle}{}
+\renewcommand{\cftbeforetoctitleskip}{-1em}
+\renewcommand{\cftsecpresnum}{}
+\newlength\mylength
+\settowidth\mylength{\cftsecpresnum}
+\addtolength\cftsecnumwidth{\mylength}
+
+\renewcommand{\cftbeforetoctitleskip}{-1em}
+\renewcommand{\cftsecfont}{\normalfont}
+\renewcommand{\cftsubsecfont}{\normalfont}
+\renewcommand{\cftsubsubsecfont}{\normalfont}
+\renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}}
+\renewcommand{\cftsecpagefont}{\normalfont}
+
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{ragged2e}
+\usepackage{amssymb}
+
+\lstdefinestyle{mystyle}{
+	basicstyle=\ttfamily\small,
+	breaklines=true,                 % Enable line wrapping
+	frame=single,                     % Add a single frame around the code
+	framesep=5pt,                     % Padding between frame and code
+	rulecolor=\color{black},           % Frame color
+	backgroundcolor=\color{white},     % Background color
+	postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space}, % Mark line breaks
+	showstringspaces=false,           % Don't show spaces in strings
+	tabsize=2,                        % Set tab size
+	captionpos=b,                      % Caption position (bottom)
+	columns=flexible
+}
+
+\lstset{style=mystyle}
+
+% Настройки переносов: разрешаем перенос по слогам (в т.ч. русских слов)
+% и при этом избегаем грубого \sloppy.
+\lefthyphenmin=2
+\righthyphenmin=2
+\hyphenpenalty=300
+\exhyphenpenalty=50
+\tolerance=2000
+\emergencystretch=1.5em
+
+\usepackage[hidelinks]{hyperref}
+
+\newcommand{\srcref}[1]{\hyperlink{src:i#1}{[#1]}}
+\newcommand{\srcrange}[2]{\srcref{#1}--\srcref{#2}}
+
+% Ссылки на список источников ОСНОВНОГО ОТЧЁТА (перед Приложением 1)
+\newcommand{\repsrcref}[1]{\hyperlink{rep:i#1}{[#1]}}
+\newcommand{\repsrcrange}[2]{\repsrcref{#1}--\repsrcref{#2}}
+
+% Многоэлементные ссылочные конструкции:~srcmulti{8,11,10} -> [1; 2; 3]
+\usepackage{xparse}
+\ExplSyntaxOn
+\seq_new:N \l__src_items_seq
+\NewDocumentCommand{\srcmulti}{m}
+{
+	\seq_set_split:Nnn \l_tmpa_seq { , } { #1 }
+	\seq_clear:N \l__src_items_seq
+	\seq_map_inline:Nn \l_tmpa_seq { \seq_put_right:Nn \l__src_items_seq { \hyperlink{src:i##1}{##1} } }
+	[\seq_use:Nn \l__src_items_seq {;~}]
+}
+
+\seq_new:N \l__repsrc_items_seq
+\NewDocumentCommand{\repsrcmulti}{m}
+{
+	\seq_set_split:Nnn \l_tmpa_seq { , } { #1 }
+	\seq_clear:N \l__repsrc_items_seq
+	\seq_map_inline:Nn \l_tmpa_seq { \seq_put_right:Nn \l__repsrc_items_seq { \hyperlink{rep:i##1}{##1} } }
+	[\seq_use:Nn \l__repsrc_items_seq {;~}]
+}
+\ExplSyntaxOff
+
+
+\begin{document}
+
+	% 1) Титульный лист
+	\includepdf[pages=1]{title.pdf}
+
+	\tableofcontents
+	\clearpage
+	\reportheader{ВВЕДЕНИЕ}
+
+	Рост объёмов данных в современных поисковых системах приводит к необходимости разбиения поискового индекса на части (шарды), размещаемые на разных узлах кластера.
+	При обработке запроса необходимо определить, какие шарды могут содержать релевантные документы, и направить запрос только в них.
+	Число опрашиваемых шардов (fanout) напрямую влияет на время отклика и нагрузку на систему.
+
+	Актуальность исследования обусловлена тем, что классический подход к шардированию~--- хеш-разбиение термов~--- распределяет термы случайно, не учитывая их семантические связи.
+	Это приводит к высокому fanout, поскольку запрос, содержащий несколько связанных термов, направляется в несколько разных шардов.
+	Семантический шардинг, при котором совместно встречающиеся термы группируются в одном шарде, позволяет снизить fanout и, следовательно, уменьшить время обработки запроса.
+
+	Цель работы~--- исследование производительности поисковых индексов, построенных на основе кластеризации поисковых запросов.
+
+	Для достижения поставленной цели необходимо выполнить следующие задачи.
+	\begin{enumerate}
+		\item осуществить поиск существующих решений и подходов к шардированию в задаче построения поискового индекса;
+		\item выполнить поиск набора данных поисковых запросов для кластеризации с целью шардирования индекса на основе полученных кластеров;
+		\item реализовать прототип поискового индекса на основе полученных кластеров для найденного набора данных;
+		\item исследовать производительность реализованного решения в сравнении с классическими способами построения индекса.
+	\end{enumerate}
+
+	\begin{table}[H]
+	\centering
+	\caption{Индивидуальное задание на практику}
+	\label{tab:individual_task}
+	\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{0.9cm}|>{\raggedright\arraybackslash}p{3cm}|>{\raggedright\arraybackslash}X|}
+	\hline
+	\textbf{№ этапа} & \textbf{Название этапа} & \textbf{Задание} \\
+	\hline
+	1 & Инструктаж обучающегося & Инструктаж обучающегося по ознакомлению с требованиями охраны труда, техники безопасности, пожарной безопасности, а также правилами внутреннего трудового распорядка \\
+	\hline
+	2 & Анализ существующих решений & Осуществить поиск существующих решений и подходов к шардированию в задаче построения поискового индекса \\
+	\hline
+	3 & Поиск датасета поисковых запросов для кластеризации & Выполнить поиск датасета поисковых запросов для кластеризации с целью шардирования индекса на основе полученных кластеров \\
+	\hline
+	4 & Реализация прототипа поискового индекса на основе кластеров & Реализовать прототип поискового индекса на основе полученных кластеров для найденного датасета \\
+	\hline
+	5 & Исследовать производительность реализованного решения & Исследовать производительность реализованного решения в сравнении с классическими способами построения индекса \\
+	\hline
+	\end{tabularx}
+	\end{table}
+
+	\begin{table}[H]
+	\centering
+	\caption*{Продолжение таблицы~\ref{tab:individual_task}}
+	\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{0.9cm}|>{\raggedright\arraybackslash}p{3cm}|>{\raggedright\arraybackslash}X|}
+	\hline
+	\textbf{№ этапа} & \textbf{Название этапа} & \textbf{Задание} \\
+	\hline	
+	6 & Оформление отчёта, получение отзыва с оценкой от руководителя & Написание отчёта, оформление в соответствии с требованиями, получение отзыва от руководителей. Оформление отчётных документов в соответствии с требованиями: 1. Оформление отчёта должно быть выполнено в соответствии с методическим пособием (https://books.ifmo.ru/file/pdf/2622.pdf, разделы "Набор текста", "Нумерация страниц и разделов", "Заголовки разделов", "Оформление рисунков", "Оформление таблиц", "Оформление формул", "Оформление ссылок на источники", "Оформление списка использованных источников", "Оформление приложений"). 2. Структура документа: титульный лист, введение, основная часть, заключение, приложения. 3. В основной части подробно описывается выполнение задач всех этапов. Получить отзыв с оценкой у руководителя практики в модуле Практика. \\
+	\hline
+	\end{tabularx}
+	\end{table}
+
+	\section{Анализ существующих решений}
+
+	\subsection{Постановка задачи}
+
+	Инвертированный индекс~--- основная структура данных в информационном поиске, отображающая терм в список документов, содержащих этот терм.
+	При поиске по запросу система извлекает списки документов для всех термов запроса, пересекает или объединяет их и ранжирует результаты (например, по BM25).
+
+	При росте объёмов данных инвертированный индекс перестаёт помещаться на одном сервере и должен быть разбит на части~--- шарды.
+	Возникает задача \textit{маршрутизации запроса}: определить, какие шарды могут содержать релевантные документы, и направить запрос только в них, минимизируя число опрашиваемых шардов при сохранении полноты поиска (recall).
+
+	\subsection{Подходы к шардингу поискового индекса}
+
+	Существует два основных подхода к шардированию инвертированного индекса~\srcmulti{1,2,3}.
+
+	1. \textit{Шардирование по документам}.
+	Каждый документ назначается в шард по $\mathrm{hash}(\mathrm{doc\_id}) \bmod N$.
+	Это стандартный подход в Elasticsearch и большинстве распределённых поисковых систем.
+	Документы распределены равномерно, однако каждый шард содержит все термы, и для обработки запроса необходимо опрашивать \textit{все} шарды (fanout~$= N$).
+
+	2. \textit{Шардирование по термам}.
+	Каждый терм назначается в определённый шард, и шард содержит списки документов только для своих термов.
+	Документ назначается во все шарды, где есть его термы.
+	Запрос маршрутизируется только в шарды, содержащие термы запроса.
+	Fanout зависит от числа уникальных шардов термов запроса.
+
+	Однако оба подхода имеют свои недостатки, для решения которых предлагается такой подход, как семантический шардинг (по кластерам связанных термов).
+	Он отличается от шардирования по термам тем, что назначение термов в шарды производится не случайно, а на основе кластеризации, то есть совместно встречающиеся термы группируются в один шард.
+	Это позволяет уменьшить fanout, поскольку связанные термы запроса с высокой вероятностью оказываются в одном шарде (особенно эффективно для часто встречающихся вместе термов).
+
+	\subsection{Обзор релевантных работ}
+
+	Задача разбиения поискового индекса и маршрутизации запросов рассматривается в фундаментальной работе Маннинга и др., где описаны стратегии разбиения по документам и по термам, а также методы оценки полноты маршрутизации~\srcref{4}.
+	Ранний подход к определению релевантных коллекций для поиска представлен в системе GIOSS, где для каждого источника строилась статистическая модель на основе частотностей термов, позволявшая оценить вероятность наличия релевантных документов без прямого обращения к коллекции~\srcref{5}.
+
+	Метод Taily предлагает подход к выбору шардов на основе распределения оценок термов в каждом шарде~\srcref{6}.
+	Для каждого шарда строится приближение распределения оценок (tail распределение), и шарды ранжируются по вероятности содержать высокооценённые документы.
+	В отличие от GIOSS, Taily не требует хранения глобальной статистики по всем термам и лучше работает при большом числе шардов.
+
+	Система BitFunnel реализует шардирование по термам в промышленном поисковике Bing~\srcref{7}.
+	Вместо традиционного инвертированного индекса BitFunnel использует битовую матрицу <<терм--шард>>, где каждый бит указывает наличие терма в шарде, что обеспечивает компактное представление и быструю маршрутизацию.
+	Документы назначаются во все шарды, содержащие их термы, а запрос направляется только в шарды с совпадающими термами.
+	При масштабировании до миллиардов документов основной проблемой становится рост числа шардов и увеличение fanout.
+	Система Maguro также реализует шардирование по термам~\srcref{8}.
+
+	В отличие от перечисленных подходов работы по эмбеддинговому поиску предлагают использовать векторные представления запросов и документов для маршрутизации~\srcref{9}.
+	Однако такие подходы требуют значительных вычислительных ресурсов на обучение моделей и построение эмбеддингов.
+
+	В текущей работе рассматривается промежуточный подход, который находится между статистическим и нейросетевым.
+	Вместо обучения моделей для векторных представлений используется кластеризация на графе совстречаемости термов, что позволяет группировать семантически связанные термы без обучения нейронной сети~\srcref{10}.
+
+	\clearpage
+	\section{Выбор набора данных}
+
+	\subsection{Требования к данным}
+
+	Для проведения исследования необходим набор данных, удовлетворяющий следующим требованиям:
+	\begin{itemize}
+		\item наличие поисковых запросов и документов для них;
+		\item достаточный объём для оценки шардинга (более 100\,000 документов);
+		\item публичная доступность для воспроизводимости исследования.
+	\end{itemize}
+
+	\subsection{Обзор кандидатов}
+
+	Рассмотрены следующие наборы данных:
+	\begin{enumerate}
+		\item \textit{MS~MARCO v1}~--- коллекция из 8.8 млн документов и 1 млн запросов, один из стандартных тестовых наборов для задач информационного поиска;
+		\item \textit{MS~MARCO v2.1}~--- обновлённая версия с улучшенной разметкой, содержит 808\,731 запросов в обучающем разделе, каждому из которых соответствует 10 документов~\srcref{13};
+		\item \textit{TREC CAR}~--- коллекция для ответа на вопросы по статьям Википедии;
+		\item \textit{Natural Questions}~--- набор данных от Google с вопросами и ответами из Википедии, формат вопрос--ответ.
+	\end{enumerate}
+
+	\subsection{MS~MARCO v2.1}
+
+	Для исследования выбран набор данных MS~MARCO v2.1 по следующим причинам:
+	\begin{enumerate}
+		\item большой объём (808\,731 запросов с 10 документами каждый), обеспечивающий достаточную статистику для оценки шардинга;
+		\item каждый пример содержит текст запроса, текст документа и признак \texttt{is\_selected}, что позволяет построить эталонные данные для оценки полноты маршрутизации;
+		\item публичная доступность через библиотеку HuggingFace \texttt{datasets};
+		\item широкое использование в исследованиях по информационному поиску, обеспечивающее сравнимость результатов.
+	\end{enumerate}
+
+	\section{Реализация прототипа}
+
+	\subsection{Построение индекса}
+
+	Для построения индекса необходимо выполнить три основных этапа:
+	\begin{enumerate}
+		\item построить граф совстречаемости термов с весами NPMI;
+		\item кластеризовать граф алгоритмом Leiden с получением отображения \textit{терм~$\to$~шард};
+		\item назначить каждый документ во все шарды, содержащие его термы.
+	\end{enumerate}
+
+	\subsection{Построение NPMI-графа совстречаемости}
+
+	Для построения графа совстречаемости каждый документ представляется бинарным вектором термов (факт встречаемости без учёта частоты) с фильтрацией стоп-слов и ограничениями на частотность.
+	По матрице встречаемости вычисляется матрица совстречаемости (термы считаются совстретившимися, если они входят в один и тот же запрос), после чего для каждой пары термов с достаточным числом совместных упоминаний рассчитывается нормированная взаимная информация (NPMI):
+	\begin{equation}
+		\mathrm{NPMI}(x,y) = \frac{\log\frac{P(x,y)}{P(x)P(y)}}{-\log P(x,y)}
+	\end{equation}
+	NPMI нормирует PMI к отрезку $[-1, 1]$, что удобно для сравнения ассоциаций разной частотности.
+	Положительное значение NPMI указывает на то, что термы встречаются совместно чаще, чем при случайном распределении~\srcref{10}.
+	Пары с отрицательным NPMI отбрасываются.
+	В результате формируется взвешенный граф, где вершины~--- термы, рёбра~--- значимые совместные встречаемости, веса~--- значения NPMI.
+	На наборе данных MS~MARCO v2.1 (train) граф содержит 15\,000 термов (минимальное количество совстречаемости двух термов для принятия~--- 2, минимальная частота появления в документах~--- 2, максимальная доля документов, содержащих терм~--- 0.5).
+
+	\subsection{Кластеризация алгоритмом Leiden}
+
+	Разбиение термов на кластеры выполняется с помощью алгоритма Leiden на построенном NPMI-графе~\srcmulti{11,12}.
+	На наборе данных MS~MARCO v2.1 (train) алгоритм выделил 253 кластера (для разрешения $\gamma = 1.0$).
+
+	Термы, не вошедшие в граф совстречаемости (низкочастотные или слишком частотные), назначаются в шарды по хеш-функции.
+	В текстах документов содержится 139\,830 уникальных термов, из них 124\,830 не попали в граф (построенный по запросам) и были назначены по хешу в дополнительные шарды.
+
+	На рисунках~\ref{fig:npmi-clusters}--\ref{fig:tsne} представлены граф, распределение размеров, облака слов и t-SNE визуализация полученных кластеров соответственно.
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=\textwidth]{npmi_graph_clusters.pdf}
+		\caption{Визуализация кластеров NPMI-графа (топ-5 сообществ)}
+		\label{fig:npmi-clusters}
+	\end{figure}
+
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=\textwidth]{cluster_size_distribution.pdf}
+		\caption{Распределение размеров кластеров}
+		\label{fig:cluster-sizes}
+	\end{figure}
+
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=\textwidth]{word_clouds_top25.pdf}
+		\caption{Облака слов для топ-25 кластеров}
+		\label{fig:wordclouds}
+	\end{figure}
+
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=\textwidth]{tsne_2d_projection.pdf}
+		\caption{Проекция t-SNE термов}
+		\label{fig:tsne}
+	\end{figure}
+
+	Облака слов (рисунок~\ref{fig:wordclouds}) показывают, что каждый кластер образует тематически связную группу термов.
+	Проекция t-SNE (рисунок~\ref{fig:tsne}) демонстрирует чёткую локализацию кластеров в двумерном пространстве.
+
+	\subsection{Назначение документов в шарды}
+
+	Каждый документ назначается во все шарды, содержащие хотя бы один его терм.
+	Это гарантирует полноту маршрутизации при поиске, но приводит к дублированию документов между шардами.
+	Степень дублирования зависит от стратегии разбиения.
+	При семантической кластеризации связанные термы оказываются в одном шарде, что приводит к меньшему дублированию по сравнению с хеш-разбиением.
+
+	\section{Исследование производительности}
+
+	\subsection{Методика исследования}
+
+	Сравниваются две стратегии разбиения термов по шардам:
+	\begin{enumerate}
+		\item \textit{Hash}~--- хеш-разбиение (по термам);
+		\item \textit{Leiden}~--- семантическая кластеризация.
+	\end{enumerate}
+	Обе стратегии назначают каждый документ во все шарды, содержащие его термы, и маршрутизируют запрос во все шарды, содержащие термы запроса.
+	Набор данных MS~MARCO v2.1, раздел train (извлечено 120\,624 уникальных запроса и 129\,020 документов).
+
+	Для оценки полноты маршрутизации (routing recall) формируется эталонный набор документов для каждого запроса.
+	В качестве эталона используются результаты поиска по полному (нешардированному) инвертированному индексу.
+	Для запроса $q$ эталон $GT(q)$~--- множество всех документов, содержащих хотя бы один терм запроса (объединение термов операцией ИЛИ).
+	Такой эталон отражает множество документов, которые поисковая система способна найти без шардинга, и позволяет оценить, какую долю этого множества шардированный поиск обнаруживает через маршрутизацию.
+	Формально routing recall для запроса $q$ при множестве опрашиваемых шардов $S_q$ определяется как доля эталонных документов, назначенных хотя бы в один опрашиваемый шард:
+	\begin{equation}
+		\mathrm{recall}(q) = \frac{|\{d \in GT(q) : D(d) \cap S_q \neq \varnothing\}|}{|GT(q)|},
+	\end{equation}
+	где $D(d)$~--- множество шардов, в которые назначен документ $d$.
+
+	В качестве метрик сравнения используются:
+	\begin{enumerate}
+		\item \textit{fanout}~--- число шардов, в которые направляется запрос;
+		\item \textit{дублирование}~--- среднее число шардов, в которые попадает один документ;
+		\item \textit{избыточность хранения}~--- отношение суммарного числа документов во всех шардах к числу уникальных документов;
+		\item \textit{routing recall}~--- полнота маршрутизации, определяемая по формуле выше.
+	\end{enumerate}
+
+	\subsection{Результаты исследования}
+
+	В таблице~\ref{tab:partition-stats} приведены основные характеристики построенных разбиений.
+	\begin{table}[H]
+	\centering
+	\caption{Статистика разбиения по шардам}
+	\label{tab:partition-stats}
+	\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}X|}
+	\hline
+	\textbf{Показатель} & \textbf{Hash} & \textbf{Leiden} \\
+	\hline
+	Дублирование & 24.4× & 15.1× \\
+	\hline
+	Избыточность хранения & 36.1× & 23.7× \\
+	\hline
+	\end{tabularx}
+	\end{table}
+	Дублирование документов для Leiden индекса на 38\% меньше, чем при хеш-шардировании (15.1× против 24.4×), избыточность хранения~--- на 34\% меньше (23.7× против 36.1×).
+
+	На рисунке~\ref{fig:fanout} показано распределение fanout для 100\,000 запросов.
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=\textwidth]{fanout_distribution.pdf}
+		\caption{Распределение fanout}
+		\label{fig:fanout}
+	\end{figure}
+
+	В таблице~\ref{tab:fanout} приведены метрики для fanout.
+	\begin{table}[H]
+	\centering
+	\caption{Метрики fanout (для 100\,000 запросов)}
+	\label{tab:fanout}
+	\begin{tabularx}{0.7\textwidth}{|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}X|}
+	\hline
+	\textbf{Метрика} & \textbf{Hash} & \textbf{Leiden} \\
+	\hline
+	Среднее & 3.21 & 2.29 \\
+	\hline
+	Медиана & 3 & 2 \\
+	\hline
+	P95 & 5 & 4 \\
+	\hline
+	\end{tabularx}
+	\end{table}
+	Средний fanout для Leiden индекса на 29\% ниже, чем при хеш-шардировании (2.29 против 3.21).
+
+	Leiden достигает той же полноты маршрутизации при меньшем fanout, что следует из рисунка~\ref{fig:recall-fanout}, на котором представлена зависимость routing recall от количества опрашиваемых шардов.
+	Такой выигрыш наблюдается из-за того, что предлагаемый подход учитывает семантическую связность кластеров.
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=\textwidth]{recall_vs_fanout.pdf}
+		\caption{Зависимость routing recall от числа опрашиваемых шардов}
+		\label{fig:recall-fanout}
+	\end{figure}
+
+	\subsection{Ограничения}
+
+	Наряду с преимуществами выявлены следующие ограничения:
+	\begin{enumerate}
+		\item дублирование остается достаточно большим (15.1×). Дальнейшее снижение дублирования приведет к уменьшению полноты маршрутизации;
+		\item результат кластеризации существенно зависит от токенизации и фильтрации стоп-слов;
+		\item дрифт данных требует полного перестроения всех кластеров, а значит и индексов;
+		\item параметры построения графа (пороги частотности) и кластеризации (разрешение) влияют на число и размер кластеров;
+		\item построение индексов для большого набора данных (больше миллиона документов) может занять достаточно большое количество времени.
+	\end{enumerate}
+
+	\structheader{ЗАКЛЮЧЕНИЕ}
+
+	По результатам проведённого исследования можно сделать следующие выводы:
+	\begin{enumerate}
+		\item выполнен анализ существующих подходов к шардированию поискового индекса;
+		\item выбран набор данных MS~MARCO v2.1 (извлечена подвыборка из 120\,624 запросов и 129\,020 документов), обеспечивающий достаточный объём данных и публичную доступность для воспроизводимости исследования;
+		\item реализован прототип семантического шардированного индекса на основе кластеризации запросов;
+		\item проведены сравнительные исследования с хеш-шардированием (по термам): средний fanout при Leiden-шардировании на 29\% ниже (2.3 против 3.2), дублирование документов на 38\% меньше (15.1× против 24.4×), routing recall при полном fanout составляет 100\% для обеих стратегий, при ограниченном fanout Leiden обеспечивает более высокий recall, чем Hash;
+		\item выявлены ограничения: высокое дублирование (15.1×), увеличение числа шардов из-за хеш-назначения термов вне графа, более высокая латентность шардированного поиска по сравнению с полным индексом при отсутствии распределения.
+	\end{enumerate}
+
+	Перспективными направлениями дальнейших исследований являются:
+	\begin{enumerate}
+		\item кластеризация с учетом содержимого документов;
+		\item инкрементальное обновление кластеров при потоковом поступлении данных;
+		\item селективное назначение документов в шарды с ограничением дублирования;
+		\item оптимизация параметров (пороги частотности, разрешение Leiden) для различных сценариев использования.
+	\end{enumerate}
+
+	\structheader{СПИСОК ИСПОЛЬЗОВАННЫХ ИСТОЧНИКОВ}
+
+	\begin{enumerate}[wide=0pt, leftmargin=0pt, labelindent=\parindent, listparindent=\parindent, nosep, label=\arabic*]
+		\item \hypertarget{src:i1}{} Fahad A., Alshatri N., Tari Z., Alamri A., Khalil I., Zomaya A. Y., Foufou S., Bouras A. A survey of clustering algorithms for big data: Taxonomy and empirical analysis // IEEE Transactions on Emerging Topics in Computing. -- 2014. -- Т. 2, № 3. -- С. 267--279.
+		\item \hypertarget{src:i2}{} Wani A. A. Comprehensive analysis of clustering algorithms: exploring limitations and innovative solutions // PeerJ Computer Science. -- 2024. -- Т. 10. -- e2286.
+		\item \hypertarget{src:i3}{} Wegmann M., Zipperling D., Hillenbrand J., Fleischer J. A review of systematic selection of clustering algorithms and their evaluation // arXiv preprint arXiv:2106.12792. -- 2021.
+		\item \hypertarget{src:i4}{} Manning C. D., Raghavan P., Sch\"utze H. Introduction to Information Retrieval. -- Cambridge University Press, 2008. -- DOI: 10.1017/cbo9780511809071.
+		\item \hypertarget{src:i5}{} Gravano L., Garc\'ia-Molina H., Tomasic A. GIOSS: Text-source discovery over the Internet // ACM Transactions on Database Systems. -- 1999. -- Т. 24, № 2. -- С. 229--264. DOI: 10.1145/320248.320252.
+		\item \hypertarget{src:i6}{} Aly R., Hiemstra D., Demeester T. Taily: shard selection using the tail of score distributions // Proceedings of the 36th International ACM SIGIR Conference on Research and Development in Information Retrieval. -- 2013. -- С. 673--682. DOI: 10.1145/2484028.2484033.
+		\item \hypertarget{src:i7}{} Goodwin M., Hopcroft M., Luu D., Clemmer A. V., Chieu H., Elnikety S. BitFunnel: a space-optimal signature index for search // Proceedings of the 40th International ACM SIGIR Conference on Research and Development in Information Retrieval. -- 2017. -- С. 593--602. DOI: 10.1145/3077136.3080789.
+		\item \hypertarget{src:i8}{} Yamamoto Y., Shirahama K., Uehara K. Maguro: A Distributed Full-Text Search Engine with Term Partitioning // Proceedings of the 22nd International Conference on Extending Database Technology (EDBT). -- 2019. -- С. 546--549.
+		\item \hypertarget{src:i9}{} Huang J.-T., Sharma A., Sun S., Xia L., Zhang D., Pronin P., Padmanabhan S., Ottaviano G., Yang L. Embedding-based Retrieval in FB Search // Proceedings of the 26th ACM SIGKDD International Conference on Knowledge Discovery and Data Mining. -- 2020. -- С. 2553--2561. DOI: 10.1145/3394486.3403305.
+		\item \hypertarget{src:i10}{} Williams C. K. I. On Suspicious Coincidences and Pointwise Mutual Information // Neural Computation. -- 2022. -- Т. 34, № 10. -- С. 2037--2046. DOI: 10.1162/neco\_a\_01533.
+		\item \hypertarget{src:i11}{} Traag V. A., Waltman L., van Eck N. J. From Louvain to Leiden: guaranteeing well-connected communities // Scientific Reports. -- 2019. -- Т. 9, № 1. -- С. 5233. DOI: 10.1038/s41598-019-41695-z.
+		\item \hypertarget{src:i12}{} Chunaev P. Community detection in node-attributed social networks: A survey // Computer Science Review. -- 2020. -- Т. 37. -- Article 100286. DOI: 10.1016/j.cosrev.2020.100286.
+		\item \hypertarget{src:i13}{} Craswell N., Mitra B., Yilmaz E., Campos D., Voorhees E. M. Overview of the TREC 2021 Deep Learning Track // Text REtrieval Conference (TREC). -- 2021.
+	\end{enumerate}
+
+	\end{document}
