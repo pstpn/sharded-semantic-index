@@ -19,6 +19,7 @@ from sharded_index.config import BalanceConfig, ClusteringMethod
 from sharded_index.data.corpus import Corpus
 from sharded_index.graph.clustering import cluster_graph, refinements
 from sharded_index.partition.affinity import significant_choice
+from sharded_index.partition.hashing import id_space
 
 
 def balance(
@@ -76,6 +77,7 @@ class _Balancer:
 
         self.column = {term: j for j, term in enumerate(self.vocabulary)}
         self.shard_of = np.array([primary[term] for term in self.vocabulary], dtype=np.int64)
+        self.n_clusters = id_space(primary)
         self.in_hash_space = self.shard_of >= hash_offset
 
         src = edges["src"].map(self.column)
@@ -111,7 +113,7 @@ class _Balancer:
         n_terms = len(self.vocabulary)
         term_cluster = sp.csr_matrix(
             (np.ones(n_terms), (np.arange(n_terms), self.shard_of)),
-            shape=(n_terms, int(self.shard_of.max(initial=-1)) + 1),
+            shape=(n_terms, self.n_clusters),
         )
         return np.asarray(((self.by_term @ term_cluster) > 0).sum(axis=0)).ravel()
 

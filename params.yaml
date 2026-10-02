@@ -54,8 +54,8 @@ graph:
 clustering:
   seed: 42
   methods:
-    leiden: {algorithm: leiden, resolution: 1.0}
-    cpm: {algorithm: cpm, resolution: 0.02}
+    leiden: {algorithm: leiden, resolution: 1.0, iterations: convergence}
+    cpm: {algorithm: cpm, resolution: 0.02, iterations: convergence}
     infomap: {algorithm: infomap}
     metis: {algorithm: metis, n_parts: 341}
 

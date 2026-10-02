@@ -48,6 +48,13 @@ def test_method_parameters_must_match_the_algorithm() -> None:
     with pytest.raises(ValidationError):
         ClusteringMethod(algorithm="leiden")
     with pytest.raises(ValidationError):
+        ClusteringMethod(algorithm="leiden", resolution=1.0)
+    with pytest.raises(ValidationError):
+        ClusteringMethod(algorithm="cpm", resolution=1.0, iterations=0)
+    with pytest.raises(ValidationError):
+        ClusteringMethod(algorithm="metis", n_parts=8, iterations=2)
+    assert ClusteringMethod(algorithm="cpm", resolution=1.0, iterations=3).iterations == 3
+    with pytest.raises(ValidationError):
         ClusteringMethod(algorithm="infomap", resolution=1.0)
     with pytest.raises(ValidationError):
         ClusteringMethod(algorithm="metis", resolution=1.0)

@@ -134,12 +134,14 @@ class GraphConfig(_Section):
 class ClusteringMethod(_Section):
     algorithm: Algorithm
     resolution: float | None = Field(default=None, gt=0)
+    iterations: Annotated[int, Field(ge=1)] | Literal["convergence"] | None = None
     n_parts: int | None = Field(default=None, ge=2)
 
     @model_validator(mode="after")
     def _parameters_match_algorithm(self) -> ClusteringMethod:
-        if (self.algorithm in ("leiden", "cpm")) != (self.resolution is not None):
-            msg = "resolution is required for leiden and cpm and not accepted otherwise"
+        iterative = self.algorithm in ("leiden", "cpm")
+        if iterative != (self.resolution is not None) or iterative != (self.iterations is not None):
+            msg = "resolution and iterations are required for leiden and cpm only"
             raise ValueError(msg)
         if (self.algorithm == "metis") != (self.n_parts is not None):
             msg = "n_parts is required for metis and not accepted otherwise"

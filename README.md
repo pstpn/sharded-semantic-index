@@ -190,7 +190,7 @@ make check    # линтер, проверка типов и тесты
 ```yaml
 clustering:
   methods:
-    leiden_fine: {algorithm: leiden, resolution: 5.0}   # новая цепочка стадий *@leiden_fine
+    leiden_fine: {algorithm: leiden, resolution: 5.0, iterations: convergence}   # стадии *@leiden_fine
 
 ablations:
   variants:

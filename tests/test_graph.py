@@ -17,8 +17,8 @@ LOOSE = GraphConfig(
     stop_words=(),
 )
 METHODS = [
-    ClusteringMethod(algorithm="leiden", resolution=1.0),
-    ClusteringMethod(algorithm="cpm", resolution=0.05),
+    ClusteringMethod(algorithm="leiden", resolution=1.0, iterations="convergence"),
+    ClusteringMethod(algorithm="cpm", resolution=0.05, iterations=2),
     ClusteringMethod(algorithm="infomap"),
     ClusteringMethod(algorithm="metis", n_parts=4),
 ]
@@ -79,7 +79,7 @@ def test_topics_are_recovered(edges: pd.DataFrame, clustering: dict[str, int]) -
 
 
 def test_refinements_get_progressively_finer() -> None:
-    leiden = ClusteringMethod(algorithm="leiden", resolution=1.5)
+    leiden = ClusteringMethod(algorithm="leiden", resolution=1.5, iterations=2)
     assert [m.resolution for m in refinements(leiden, 3.2, 100, 3)] == [1.5, 3.0, 6.0]
     metis = ClusteringMethod(algorithm="metis", n_parts=50)
     assert [m.n_parts for m in refinements(metis, 3.2, 100, 5)] == [4, 8, 16, 32, 64]

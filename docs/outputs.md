@@ -185,7 +185,7 @@
 | Столбец | Значение |
 |---|---|
 | `method` | имя алгоритма в конфиге |
-| `algorithm`, `resolution`, `n_parts`, `seed` | настройки алгоритма |
+| `algorithm`, `resolution`, `iterations`, `n_parts`, `seed` | настройки алгоритма |
 | `graph_terms` | число кластеризованных слов |
 | `clusters` | число непустых кластеров |
 | `largest_cluster` | число слов в крупнейшем кластере |

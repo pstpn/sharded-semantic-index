@@ -16,7 +16,6 @@ def routing_summary(frame: pd.DataFrame) -> dict[str, float]:
     fanout = rows["fanout"]
     hash_probes = rows["hash_probes"]
     has_hash_space = len(rows) > 0 and bool(hash_probes.notna().all())
-    first_probes = np.bincount(rows["first_shard"].to_numpy(dtype=np.int64))
     return {
         "queries": len(frame),
         "evaluated": len(rows),
@@ -30,7 +29,7 @@ def routing_summary(frame: pd.DataFrame) -> dict[str, float]:
         "mixed_query_share": (
             ((hash_probes > 0) & (hash_probes < fanout)).mean() if has_hash_space else np.nan
         ),
-        "top_shard_traffic": first_probes.max() / first_probes.sum() if len(rows) else np.nan,
+        "top_shard_traffic": rows["first_shard"].value_counts(normalize=True).max(),
     }
 
 

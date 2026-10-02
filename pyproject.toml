@@ -9,31 +9,31 @@ description = "Semantic term sharding of a full-text inverted index: clustering 
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    "numpy>=2.0",
-    "pandas>=2.2",
-    "pyarrow>=15",
-    "scipy>=1.14",
-    "scikit-learn>=1.5",
+    "numpy>=2.3",
+    "pandas>=2.3",
+    "pyarrow>=24",
+    "scipy>=1.16",
+    "scikit-learn>=1.8",
     "igraph>=1.0",
-    "leidenalg>=0.10",
-    "pymetis>=2023.1",
-    "Whoosh>=2.7",
-    "datasets>=4.0",
-    "pydantic>=2.6",
+    "leidenalg>=0.12",
+    "pymetis>=2025.2",
+    "Whoosh>=2.7.4",
+    "datasets>=4.8",
+    "pydantic>=2.13",
     "PyYAML>=6.0",
-    "matplotlib>=3.8",
+    "matplotlib>=3.10",
     "seaborn>=0.13",
-    "networkx>=3.3",
+    "networkx>=3.5",
     "wordcloud>=1.9",
 ]
 
 [project.optional-dependencies]
 dev = [
-    "dvc>=3.60",
-    "ruff>=0.6",
-    "mypy>=1.10",
-    "pytest>=8.0",
-    "pre-commit>=3.7",
+    "dvc>=3.67",
+    "ruff>=0.16",
+    "mypy>=2.4",
+    "pytest>=9.0",
+    "pre-commit>=4.6",
     "types-PyYAML",
 ]
 
@@ -129,7 +129,7 @@ module = ["tests.*"]
 disallow_untyped_defs = false
 
 [tool.pytest.ini_options]
-minversion = "8.0"
+minversion = "9.0"
 testpaths = ["tests"]
 addopts = ["-ra", "--strict-markers", "--strict-config"]
 xfail_strict = true

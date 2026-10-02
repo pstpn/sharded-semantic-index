@@ -14,8 +14,12 @@ jobs:
         with:
           python-version: "3.13"
           cache: pip
-      - name: Install
-        run: pip install -e ".[dev]"
+          cache-dependency-path: requirements.lock
+      - name: Install the pinned environment
+        run: |
+          pip install -r requirements.lock
+          pip install -e . --no-deps
+          pip check
       - name: Lint
         run: |
           ruff check sharded_index tests

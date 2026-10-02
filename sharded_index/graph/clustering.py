@@ -18,6 +18,9 @@ from sharded_index.config import ClusteringMethod
 METIS_WEIGHT_SCALE = 1000
 """METIS takes integer edge weights: the largest weight maps to this value."""
 
+UNTIL_CONVERGENCE = -1
+"""A negative iteration count makes leidenalg iterate until the partition stops improving."""
+
 
 def _indexed_edges(edges: pd.DataFrame) -> tuple[pd.Index, np.ndarray, np.ndarray, np.ndarray]:
     """Nodes in first-appearance order and the edges as node indices with weights."""
@@ -81,6 +84,7 @@ def cluster_graph(
         membership = graph.community_infomap(edge_weights="weight").membership
     else:
         assert method.resolution is not None
+        assert method.iterations is not None
         graph = _weighted_graph(len(nodes), src, dst, weights)
         quality = (
             la.RBConfigurationVertexPartition
@@ -92,6 +96,9 @@ def cluster_graph(
             quality,
             weights="weight",
             resolution_parameter=method.resolution,
+            n_iterations=UNTIL_CONVERGENCE
+            if method.iterations == "convergence"
+            else method.iterations,
             seed=seed,
         ).membership
     return {str(node): int(cluster) for node, cluster in zip(nodes, membership, strict=True)}

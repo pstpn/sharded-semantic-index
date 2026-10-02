@@ -65,7 +65,7 @@ def edges(texts: list[str], graph_config: GraphConfig) -> pd.DataFrame:
 
 @pytest.fixture(scope="session")
 def leiden() -> ClusteringMethod:
-    return ClusteringMethod(algorithm="leiden", resolution=1.0)
+    return ClusteringMethod(algorithm="leiden", resolution=1.0, iterations="convergence")
 
 
 @pytest.fixture(scope="session")

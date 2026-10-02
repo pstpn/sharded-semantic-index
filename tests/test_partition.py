@@ -24,8 +24,8 @@ from sharded_index.partition.strategies import build_strategies, hash_space_offs
 from synthetic import SEED, STRATEGIES
 
 SPLITTERS = [
-    ClusteringMethod(algorithm="leiden", resolution=1.0),
-    ClusteringMethod(algorithm="cpm", resolution=0.02),
+    ClusteringMethod(algorithm="leiden", resolution=1.0, iterations="convergence"),
+    ClusteringMethod(algorithm="cpm", resolution=0.02, iterations=2),
     ClusteringMethod(algorithm="infomap"),
     ClusteringMethod(algorithm="metis", n_parts=4),
 ]
