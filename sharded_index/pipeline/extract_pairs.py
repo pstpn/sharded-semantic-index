@@ -1,31 +1,35 @@
-"""Stage 1: MS MARCO → normalized query-document pairs (data/processed/pairs.parquet)."""
+"""MS MARCO → normalized query-passage pairs."""
 
 from __future__ import annotations
 
-import pandas as pd
+import logging
+
 from datasets import load_dataset
 
-from sharded_index.config import PAIRS_PATH, load_params
-from sharded_index.dataset import extract_query_doc_pairs
+from sharded_index.config import Config
+from sharded_index.data.msmarco import extract_pairs
+from sharded_index.paths import Paths
+from sharded_index.pipeline.common import setup
+
+logger = logging.getLogger(__name__)
 
 
-def main() -> None:
-    params = load_params()["dataset"]
-
-    dataset = load_dataset(params["hf_name"], params["hf_config"])
-    pairs = extract_query_doc_pairs(
-        dataset["train"],
-        max_rows=params["max_rows"],
-        max_passages_per_query=params["max_passages_per_query"],
-        selected_only=params["selected_only"],
+def run(config: Config, paths: Paths) -> None:
+    dataset = load_dataset(config.dataset.name, config.dataset.config)
+    pairs = extract_pairs(
+        dataset[config.dataset.split],
+        max_rows=config.dataset.max_rows,
+        docs_per_query=config.dataset.docs_per_query,
     )
-
-    frame = pd.DataFrame(pairs)
-    PAIRS_PATH.parent.mkdir(parents=True, exist_ok=True)
-    frame.to_parquet(PAIRS_PATH, index=False)
-    print(f"{len(frame):,} pairs, {frame['doc_id'].nunique():,} docs, "
-          f"{frame['query'].nunique():,} queries -> {PAIRS_PATH}")
+    paths.pairs.parent.mkdir(parents=True, exist_ok=True)
+    pairs.to_parquet(paths.pairs, index=False)
+    logger.info(
+        "%d pairs, %d documents, %d queries",
+        len(pairs),
+        pairs["doc_id"].nunique(),
+        pairs["query"].nunique(),
+    )
 
 
 if __name__ == "__main__":
-    main()
+    run(*setup())

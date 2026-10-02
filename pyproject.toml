@@ -4,23 +4,23 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sharded-index"
-version = "0.1.0"
-description = "Semantic term sharding for full-text search: Leiden clustering of an NPMI co-occurrence graph vs hash partitioning, with term replication for low-fanout routing"
+version = "0.2.0"
+description = "Semantic term sharding of a full-text inverted index: clustering of a query co-occurrence graph against hash partitioning"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    # Пайплайн
     "numpy>=2.0",
     "pandas>=2.2",
+    "pyarrow>=15",
     "scipy>=1.14",
     "scikit-learn>=1.5",
     "igraph>=1.0",
     "leidenalg>=0.10",
+    "pymetis>=2023.1",
     "Whoosh>=2.7",
     "datasets>=4.0",
-    "tqdm>=4.66",
+    "pydantic>=2.6",
     "PyYAML>=6.0",
-    # Фигуры (sharded_index.plots)
     "matplotlib>=3.8",
     "seaborn>=0.13",
     "networkx>=3.3",
@@ -29,19 +29,109 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "dvc>=3.60",       # воспроизводимый пайплайн (dvc repro)
-    "ruff>=0.6",       # линтер (make lint)
-    "ipykernel",       # запуск ноутбука
+    "dvc>=3.60",
+    "ruff>=0.6",
+    "mypy>=1.10",
+    "pytest>=8.0",
+    "pre-commit>=3.7",
+    "types-PyYAML",
 ]
-# Точный срез рабочего окружения — requirements.lock (make freeze);
-# для воспроизведения ставьте его: make setup.
 
 [tool.setuptools.packages.find]
 include = ["sharded_index*"]
 
 [tool.ruff]
 line-length = 100
-src = ["sharded_index", "tests"]
+target-version = "py311"
+src = [".", "tests"]
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "W"]
+select = [
+    "E",     # pycodestyle errors
+    "W",     # pycodestyle warnings
+    "F",     # pyflakes
+    "I",     # isort
+    "N",     # pep8-naming
+    "D",     # pydocstyle
+    "UP",    # pyupgrade
+    "B",     # flake8-bugbear
+    "A",     # flake8-builtins
+    "C4",    # flake8-comprehensions
+    "EM",    # flake8-errmsg
+    "G",     # flake8-logging-format
+    "LOG",   # flake8-logging
+    "ISC",   # flake8-implicit-str-concat
+    "ICN",   # flake8-import-conventions
+    "PIE",   # flake8-pie
+    "PT",    # flake8-pytest-style
+    "PTH",   # flake8-use-pathlib
+    "RET",   # flake8-return
+    "RSE",   # flake8-raise
+    "SIM",   # flake8-simplify
+    "T20",   # flake8-print
+    "ARG",   # flake8-unused-arguments
+    "ERA",   # eradicate (commented-out code)
+    "PERF",  # perflint
+    "FURB",  # refurb
+    "NPY",   # numpy
+    "PD",    # pandas-vet
+    "PL",    # pylint
+    "TRY",   # tryceratops
+    "RUF",   # ruff-specific
+]
+ignore = [
+    "D1",       # docstrings are written where they add information, not everywhere
+    "PLR09",    # too many arguments / branches / statements
+    "PLR2004",  # magic value used in comparison
+    "PD010",    # pivot fails on duplicate keys, which is the wanted behaviour
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["D", "ARG001"]
+
+[tool.mypy]
+files = ["sharded_index", "tests"]
+python_version = "3.11"
+plugins = ["pydantic.mypy"]
+check_untyped_defs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_unreachable = true
+strict_equality = true
+enable_error_code = ["ignore-without-code", "redundant-expr", "truthy-bool"]
+
+[[tool.mypy.overrides]]
+module = [
+    "pandas.*",
+    "scipy.*",
+    "sklearn.*",
+    "igraph.*",
+    "leidenalg.*",
+    "pymetis.*",
+    "whoosh.*",
+    "datasets.*",
+    "networkx.*",
+    "seaborn.*",
+    "wordcloud.*",
+    "matplotlib.*",
+    "yaml.*",
+]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["tests.*"]
+disallow_untyped_defs = false
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+addopts = ["-ra", "--strict-markers", "--strict-config"]
+xfail_strict = true
+filterwarnings = ["error"]
+log_level = "INFO"

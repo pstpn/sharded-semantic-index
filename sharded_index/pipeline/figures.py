@@ -1,110 +1,148 @@
-"""Stage 5: all figures from saved artefacts (headless matplotlib → reports/figures)."""
+"""Draw the figures: per-method benchmark and cluster-structure plots and a method comparison."""
 
 from __future__ import annotations
 
-import json
-
-import matplotlib
-
-matplotlib.use("Agg")  # must run before sharded_index.plots imports pyplot
+import logging
 
 import pandas as pd
 
-from sharded_index import TermPartition
-from sharded_index.clusters import build_term_graph
-from sharded_index.config import (
-    EVAL_DIR,
-    FIGURES_DIR,
-    METRICS_DIR,
-    PARTITIONS_DIR,
-    load_params,
-    strategy_names,
-)
-from sharded_index.plots import (
-    plot_cluster_size_distribution,
-    plot_cluster_wordclouds,
-    plot_cover_fanout_by_split,
-    plot_fanout_distribution,
-    plot_graph_clusters,
-    plot_inter_cluster_heatmap,
-    plot_recall_vs_fanout,
-    plot_replication_tradeoff,
-    plot_tsne_projection,
-)
+from sharded_index.config import REAL_SAMPLES, Config
+from sharded_index.graph.cooccurrence import node_strength
+from sharded_index.paths import Paths
+from sharded_index.pipeline.common import read_clustering, setup
+from sharded_index.reporting import plots
+
+logger = logging.getLogger(__name__)
 
 
-def label(strategy: str) -> str:
-    """hash → Hash, leiden_r2 → Leiden ×2, leiden_bal_r2 → Leiden-bal ×2."""
-    fixed = {
-        "hash": "Hash", "leiden": "Leiden",
-        "leiden_aff": "Leiden-aff", "leiden_bal": "Leiden-bal",
-    }
-    if strategy in fixed:
-        return fixed[strategy]
-    for prefix, name in (("leiden_aff_r", "Leiden-aff ×"), ("leiden_bal_r", "Leiden-bal ×")):
-        if strategy.startswith(prefix):
-            return name + strategy.removeprefix(prefix)
-    return strategy.replace("leiden_r", "Leiden ×")
+def _benchmark_figures(
+    config: Config,
+    paths: Paths,
+    method: str,
+    partitions: pd.DataFrame,
+    routing: pd.DataFrame,
+    retrieval: pd.DataFrame,
+) -> None:
+    """Cover size, overlap by budget and the storage/routing trade-off of one method."""
+    sample = config.figures.sample
+    strategies = list(config.partition.strategies)
+    target = paths.figures / method
 
-
-def main() -> None:
-    params = load_params()
-    strategies = strategy_names(params)
-    fig_params = params["figures"]
-    top_n = fig_params["top_n_clusters"]
-    seed = fig_params["layout_seed"]
-    FIGURES_DIR.mkdir(parents=True, exist_ok=True)
-
-    # Основные фигуры считаются по главному ярусу — holdout.
-    fanouts_frame = pd.read_parquet(EVAL_DIR / "fanouts.parquet")
-    holdout_frame = fanouts_frame[fanouts_frame["split"] == "holdout"]
+    queries = pd.read_parquet(paths.evaluation(method) / "queries.parquet")
+    measured = queries[(queries["sample"] == sample) & queries["evaluated"]]
     fanouts = {
-        label(strategy): group["fanout"].tolist()
-        for strategy, group in holdout_frame.groupby("strategy", sort=False)
+        name: measured.loc[measured["strategy"] == name, "fanout"].to_numpy() for name in strategies
     }
-    plot_fanout_distribution(fanouts, save_path=FIGURES_DIR / "fanout_distribution.pdf")
+    plots.plot_fanout_ecdf(
+        fanouts, f"Query cover size: {method}, {sample}", target / "fanout_ecdf.pdf"
+    )
 
-    metrics = json.loads((METRICS_DIR / "metrics.json").read_text())
-    raw_curves = json.loads((METRICS_DIR / "recall_by_fanout.json").read_text())["holdout"]
-    curves = {label(s): {int(f): r for f, r in c.items()} for s, c in raw_curves.items()}
-    holdout_of = {s: metrics[s]["by_split"]["holdout"] for s in strategies}
-    mean_fanouts = {label(s): holdout_of[s]["cover_fanout"]["mean"] for s in strategies}
-    plot_recall_vs_fanout(curves, mean_fanouts, save_path=FIGURES_DIR / "recall_vs_fanout.pdf")
+    retrieval = retrieval[(retrieval["method"] == method) & (retrieval["sample"] == sample)]
+    overlap = retrieval.pivot(index="strategy", columns="budget", values="overlap")
+    budgets = list(dict.fromkeys(retrieval["budget"]))
+    plots.plot_overlap_by_budget(
+        {name: overlap.loc[name, budgets].to_dict() for name in strategies},
+        config.evaluation.top_k,
+        f"Overlap by shard budget: {method}, {sample}",
+        target / "overlap_by_budget.pdf",
+    )
 
-    tradeoff = {
-        label(s): {
-            "duplication": metrics[s]["duplication"],
-            "cover_fanout_mean": holdout_of[s]["cover_fanout"]["mean"],
-            "recall_at_1": holdout_of[s]["recall_at"]["1"],
+    routing = routing[routing["method"] == method]
+    fanout = routing.pivot(index="strategy", columns="sample", values="fanout_mean")
+    points = pd.DataFrame(
+        {
+            "strategy": strategies,
+            "duplication": partitions[partitions["method"] == method]
+            .set_index("strategy")
+            .loc[strategies, "duplication"]
+            .to_numpy(),
+            "fanout_mean": fanout.loc[strategies, sample].to_numpy(),
+            "overlap": overlap.loc[strategies, budgets[0]].to_numpy(),
         }
-        for s in strategies
-    }
-    plot_replication_tradeoff(tradeoff, save_path=FIGURES_DIR / "duplication_vs_fanout.pdf")
+    )
+    plots.plot_duplication_vs_fanout(
+        points,
+        f"Duplication against cover size: {method}, {sample}",
+        target / "duplication_vs_fanout.pdf",
+    )
 
-    by_split = {
-        label(s): {
-            split: entry["cover_fanout"]["mean"]
-            for split, entry in metrics[s]["by_split"].items()
-        }
-        for s in strategies
-    }
-    plot_cover_fanout_by_split(by_split, save_path=FIGURES_DIR / "fanout_by_split.pdf")
+    real_samples = [name for name in config.queries.sample_names() if name in REAL_SAMPLES]
+    plots.plot_fanout_by_sample(
+        fanout.loc[strategies, real_samples],
+        f"Query cover size by sample: {method}",
+        target / "fanout_by_sample.pdf",
+    )
 
-    core = TermPartition.load(PARTITIONS_DIR / "leiden_core")
-    plot_cluster_size_distribution(core.clusters_df,
-                                   save_path=FIGURES_DIR / "cluster_size_distribution.pdf")
-    plot_cluster_wordclouds(core, top_n=top_n,
-                            save_path=FIGURES_DIR / "word_clouds_top25.pdf")
 
-    graph = build_term_graph(core)
-    plot_graph_clusters(graph, core, max_nodes=fig_params["graph_max_nodes"], seed=seed,
-                        save_path=FIGURES_DIR / "npmi_graph_clusters.pdf")
-    plot_tsne_projection(graph, core, top_n_clusters=top_n, seed=seed,
-                         save_path=FIGURES_DIR / "tsne_2d_projection.pdf")
-    plot_inter_cluster_heatmap(core, top_n_clusters=top_n,
-                               save_path=FIGURES_DIR / "inter_cluster_heatmap.pdf")
-    print(f"9 figures -> {FIGURES_DIR}/")
+def _structure_figures(
+    config: Config,
+    paths: Paths,
+    method: str,
+    edges: pd.DataFrame,
+    strength: dict[str, float],
+) -> None:
+    """Sizes, contents and mutual links of the clusters of one method."""
+    settings = config.figures
+    top, seed = settings.top_clusters, settings.layout_seed
+    target = paths.figures / method
+    clustering = read_clustering(paths, method)
+
+    plots.plot_cluster_sizes(
+        clustering, top, f"Cluster sizes: {method}", target / "cluster_sizes.pdf"
+    )
+    plots.plot_cluster_wordclouds(
+        clustering,
+        strength,
+        top,
+        seed,
+        f"Largest clusters: {method}",
+        target / "cluster_wordclouds.pdf",
+    )
+    plots.plot_graph_clusters(
+        edges,
+        clustering,
+        settings.graph_max_nodes,
+        seed,
+        f"Term graph coloured by cluster: {method}",
+        target / "graph_clusters.pdf",
+    )
+    plots.plot_tsne(
+        edges,
+        clustering,
+        strength,
+        top,
+        seed,
+        f"t-SNE of graph terms: {method}",
+        target / "tsne.pdf",
+    )
+    plots.plot_cluster_heatmap(
+        edges,
+        clustering,
+        top,
+        f"Edge weight between clusters: {method}",
+        target / "cluster_heatmap.pdf",
+    )
+
+
+def run(config: Config, paths: Paths) -> None:
+    partitions = pd.read_csv(paths.metrics / "partitions.csv")
+    routing = pd.read_csv(paths.metrics / "routing.csv")
+    retrieval = pd.read_csv(paths.metrics / "retrieval.csv", dtype={"budget": str})
+    edges = pd.read_parquet(paths.graph)
+    strength = node_strength(edges)
+
+    for method in config.clustering.methods:
+        _benchmark_figures(config, paths, method, partitions, routing, retrieval)
+        _structure_figures(config, paths, method, edges, strength)
+        logger.info("%s: figures written", method)
+
+    sample, first_budget = config.figures.sample, str(config.evaluation.budgets[0])
+    plots.plot_methods_comparison(
+        retrieval[(retrieval["sample"] == sample) & (retrieval["budget"] == first_budget)],
+        f"Overlap@{config.evaluation.top_k} with {first_budget} shard probed: {sample}",
+        paths.figures / "methods_overlap.pdf",
+    )
 
 
 if __name__ == "__main__":
-    main()
+    run(*setup())

@@ -1,154 +1,337 @@
+# Pipeline of the experiment. Stages with `foreach` run once per clustering
+# method of params.yaml (`cluster@leiden`, `cluster@cpm`, ...).
+
 stages:
   extract_pairs:
     cmd: python -m sharded_index.pipeline.extract_pairs
     deps:
       - sharded_index/pipeline/extract_pairs.py
-      - sharded_index/config.py
-      - sharded_index/dataset.py
+      - sharded_index/data/msmarco.py
       - sharded_index/text.py
     params:
       - dataset
     outs:
       - data/processed/pairs.parquet
 
-  build_partitions:
-    cmd: python -m sharded_index.pipeline.build_partitions
+  build_corpus:
+    cmd: python -m sharded_index.pipeline.build_corpus
     deps:
-      - sharded_index/pipeline/build_partitions.py
-      - sharded_index/config.py
-      - sharded_index/dataset.py
+      - sharded_index/pipeline/build_corpus.py
+      - sharded_index/data/corpus.py
       - sharded_index/text.py
-      - sharded_index/graph.py
-      - sharded_index/clustering.py
-      - sharded_index/partition.py
+      - sharded_index/storage.py
       - data/processed/pairs.parquet
     params:
-      - partition
-      - split
+      - text
     outs:
-      - models/partitions
-      - data/interim/term_df.parquet
+      - data/interim/corpus
 
-  build_indices:
-    cmd: python -m sharded_index.pipeline.build_indices
+  build_index:
+    cmd: python -m sharded_index.pipeline.build_index
     deps:
-      - sharded_index/pipeline/build_indices.py
-      - sharded_index/config.py
-      - sharded_index/dataset.py
+      - sharded_index/pipeline/build_index.py
+      - sharded_index/index/build.py
       - sharded_index/text.py
-      - sharded_index/partition.py
-      - sharded_index/indexing.py
       - data/processed/pairs.parquet
-      - models/partitions
+    params:
+      - text
     outs:
-      - data/interim/assignments
-      # Индексы большие (гигабайты): не копируем в DVC-кэш и не удаляем между
-      # прогонами (persist) — стадия сама пересобирает только те индексы, чей
-      # контентный отпечаток назначений изменился (ASSIGNMENT_FINGERPRINT).
-      # Побочный эффект persist: каталоги стратегий, убранных из params,
-      # остаются на диске — удалять вручную.
-      - data/interim/indices:
+      # Rebuilt only when the corpus fingerprint changes, so it is kept between runs.
+      - data/interim/index:
           cache: false
           persist: true
 
+  build_graph:
+    cmd: python -m sharded_index.pipeline.build_graph
+    deps:
+      - sharded_index/pipeline/build_graph.py
+      - sharded_index/graph/cooccurrence.py
+      - sharded_index/data/msmarco.py
+      - data/processed/pairs.parquet
+    params:
+      - text
+      - graph
+      - queries.train_ratio
+    outs:
+      - models/graph.parquet
+
+  sample_queries:
+    cmd: python -m sharded_index.pipeline.sample_queries
+    deps:
+      - sharded_index/pipeline/sample_queries.py
+      - sharded_index/data/queries.py
+      - sharded_index/data/msmarco.py
+      - data/processed/pairs.parquet
+      - models/graph.parquet
+    params:
+      - queries
+    outs:
+      - data/interim/queries.parquet
+
+  rank_queries:
+    cmd: python -m sharded_index.pipeline.rank_queries
+    deps:
+      - sharded_index/pipeline/rank_queries.py
+      - sharded_index/index/ranking.py
+      - sharded_index/storage.py
+      - data/interim/queries.parquet
+      - data/interim/corpus
+      - data/interim/index
+    params:
+      - bm25
+      - evaluation.ranking_depth
+      - queries
+    outs:
+      # Rankings are reused query by query, so the directory is kept between runs.
+      - data/interim/rankings:
+          cache: false
+          persist: true
+
+  cluster:
+    foreach: ${clustering.methods}
+    do:
+      cmd: python -m sharded_index.pipeline.cluster --method ${key}
+      deps:
+        - sharded_index/pipeline/cluster.py
+        - sharded_index/graph/clustering.py
+        - models/graph.parquet
+      params:
+        - clustering.seed
+        - clustering.methods.${key}
+      outs:
+        - models/clusterings/${key}.parquet
+
+  build_partitions:
+    foreach: ${clustering.methods}
+    do:
+      cmd: python -m sharded_index.pipeline.build_partitions --method ${key}
+      deps:
+        - sharded_index/pipeline/build_partitions.py
+        - sharded_index/partition
+        - sharded_index/graph/clustering.py
+        - sharded_index/data/corpus.py
+        - models/graph.parquet
+        - models/clusterings/${key}.parquet
+        - data/interim/corpus
+      params:
+        - partition
+        - clustering.seed
+        - clustering.methods.${key}
+      outs:
+        - models/partitions/${key}
+
+  assign_documents:
+    foreach: ${clustering.methods}
+    do:
+      cmd: python -m sharded_index.pipeline.assign_documents --method ${key}
+      deps:
+        - sharded_index/pipeline/assign_documents.py
+        - sharded_index/evaluation/membership.py
+        - sharded_index/partition/model.py
+        - sharded_index/storage.py
+        - models/partitions/${key}
+        - data/interim/corpus
+      params:
+        - partition.strategies
+      outs:
+        - data/interim/assignments/${key}
+
   evaluate:
-    cmd: python -m sharded_index.pipeline.evaluate
+    foreach: ${clustering.methods}
+    do:
+      cmd: python -m sharded_index.pipeline.evaluate --method ${key}
+      deps:
+        - sharded_index/pipeline/evaluate.py
+        - sharded_index/evaluation/measure.py
+        - sharded_index/routing.py
+        - sharded_index/index/ranking.py
+        - models/graph.parquet
+        - models/clusterings/${key}.parquet
+        - models/partitions/${key}
+        - data/interim/assignments/${key}
+        - data/interim/corpus
+        - data/interim/rankings
+      params:
+        - text
+        - routing
+        - partition.strategies
+        - queries
+        - evaluation.top_k
+        - evaluation.budgets
+      outs:
+        - data/interim/evaluation/${key}
+
+  verify:
+    foreach: ${clustering.methods}
+    do:
+      cmd: python -m sharded_index.pipeline.verify --method ${key}
+      deps:
+        - sharded_index/pipeline/verify.py
+        - sharded_index/evaluation/verification.py
+        - sharded_index/evaluation/membership.py
+        - sharded_index/index
+        - sharded_index/routing.py
+        - data/processed/pairs.parquet
+        - models/graph.parquet
+        - models/partitions/${key}
+        - data/interim/assignments/${key}
+        - data/interim/corpus
+        - data/interim/rankings
+        - data/interim/index
+      params:
+        - text
+        - routing
+        - bm25
+        - partition.strategies
+        - queries
+        - evaluation.budgets
+        - verification
+      outs:
+        - data/interim/verification/${key}.json
+
+  sensitivity:
+    foreach: ${clustering.methods}
+    do:
+      cmd: python -m sharded_index.pipeline.sensitivity --method ${key}
+      deps:
+        - sharded_index/pipeline/sensitivity.py
+        - sharded_index/evaluation/variants.py
+        - sharded_index/evaluation/measure.py
+        - sharded_index/evaluation/membership.py
+        - sharded_index/evaluation/statistics.py
+        - sharded_index/partition
+        - sharded_index/graph
+        - sharded_index/routing.py
+        - data/processed/pairs.parquet
+        - data/interim/corpus
+        - data/interim/rankings
+      params:
+        - text
+        - queries
+        - graph
+        - partition
+        - routing
+        - clustering.seed
+        - clustering.methods.${key}
+        - evaluation.top_k
+        - evaluation.budgets
+        - sensitivity.sample
+        - sensitivity.seeds
+        - sensitivity.train_sizes
+        - sensitivity.parameters.${key}
+      outs:
+        - data/interim/sensitivity/${key}.parquet
+
+  ablations:
+    foreach: ${clustering.methods}
+    do:
+      cmd: python -m sharded_index.pipeline.ablations --method ${key}
+      deps:
+        - sharded_index/pipeline/ablations.py
+        - sharded_index/evaluation/variants.py
+        - sharded_index/evaluation/measure.py
+        - sharded_index/evaluation/membership.py
+        - sharded_index/evaluation/statistics.py
+        - sharded_index/partition
+        - sharded_index/graph
+        - sharded_index/routing.py
+        - data/processed/pairs.parquet
+        - data/interim/corpus
+        - data/interim/rankings
+      params:
+        - text
+        - queries
+        - graph
+        - partition
+        - routing
+        - clustering.seed
+        - clustering.methods.${key}
+        - evaluation.top_k
+        - evaluation.budgets
+        - ablations
+      outs:
+        - data/interim/ablations/${key}.parquet
+
+  report:
+    cmd: python -m sharded_index.pipeline.report
     deps:
-      - sharded_index/pipeline/evaluate.py
-      - sharded_index/config.py
-      - sharded_index/dataset.py
-      - sharded_index/text.py
-      - sharded_index/partition.py
-      - sharded_index/indexing.py
-      - sharded_index/evaluation.py
-      - data/processed/pairs.parquet
-      - models/partitions
-      - data/interim/term_df.parquet
-      - data/interim/assignments
-      - data/interim/indices
+      - sharded_index/pipeline/report.py
+      - sharded_index/reporting/tables.py
+      - sharded_index/evaluation/statistics.py
+      - sharded_index/evaluation/slices.py
+      - models/graph.parquet
+      - data/interim/queries.parquet
+      - data/interim/evaluation
+      - data/interim/verification
+      - data/interim/sensitivity
+      - data/interim/ablations
     params:
-      - evaluate
-      - split
+      - text
+      - clustering.methods
+      - partition.strategies
+      - queries
+      - evaluation
     outs:
-      - data/interim/eval
-      - metrics/recall_by_fanout.json:
+      - metrics/partitions.csv:
           cache: false
-    metrics:
-      - metrics/metrics.json:
+      - metrics/routing.csv:
+          cache: false
+      - metrics/retrieval.csv:
+          cache: false
+      - metrics/comparisons.csv:
+          cache: false
+      - metrics/slices.csv:
+          cache: false
+      - metrics/sensitivity.csv:
+          cache: false
+      - metrics/ablations.csv:
+          cache: false
+      - metrics/verification.csv:
           cache: false
 
-  analyze_load:
-    cmd: python -m sharded_index.pipeline.analyze_load
+  describe:
+    cmd: python -m sharded_index.pipeline.describe
     deps:
-      - sharded_index/pipeline/analyze_load.py
-      - sharded_index/config.py
-      - sharded_index/dataset.py
-      - sharded_index/text.py
-      - sharded_index/partition.py
-      - sharded_index/clustering.py
+      - sharded_index/pipeline/describe.py
+      - sharded_index/reporting/describe.py
       - data/processed/pairs.parquet
-      - models/partitions
-      - data/interim/assignments
+      - data/interim/corpus
+      - models/graph.parquet
+      - models/clusterings
     params:
-      - split
-      - partition
-      - evaluate.n_eval
-      - analyze_load
+      - text
+      - queries.train_ratio
+      - graph.stop_words
+      - clustering
+      - describe
     outs:
-      - metrics/load_metrics.json:
+      - metrics/corpus.json:
           cache: false
-
-  analyze_topical:
-    cmd: python -m sharded_index.pipeline.analyze_topical
-    deps:
-      - sharded_index/pipeline/analyze_topical.py
-      - sharded_index/config.py
-      - sharded_index/dataset.py
-      - sharded_index/text.py
-      - sharded_index/partition.py
-      - data/processed/pairs.parquet
-      - models/partitions
-      - data/interim/assignments
-    params:
-      - split
-      - partition
-      - evaluate.n_eval
-      - analyze_topical
-    outs:
-      - metrics/topical_metrics.json:
+      - metrics/clusterings.csv:
+          cache: false
+      - metrics/clusters.csv:
+          cache: false
+      - metrics/frame_words.csv:
           cache: false
 
   figures:
     cmd: python -m sharded_index.pipeline.figures
     deps:
       - sharded_index/pipeline/figures.py
-      - sharded_index/config.py
-      - sharded_index/partition.py
-      - sharded_index/clusters.py
-      - sharded_index/plots.py
-      - models/partitions
-      - data/interim/eval
-      - metrics/metrics.json
-      - metrics/recall_by_fanout.json
+      - sharded_index/reporting/plots.py
+      - models/graph.parquet
+      - models/clusterings
+      - data/interim/evaluation
+      - metrics/partitions.csv
+      - metrics/routing.csv
+      - metrics/retrieval.csv
     params:
+      - queries
+      - clustering.methods
+      - partition.strategies
+      - evaluation.top_k
+      - evaluation.budgets
       - figures
     outs:
-      # Фигуры остаются в git (используются в отчётах) — cache: false.
-      - reports/figures/fanout_distribution.pdf:
-          cache: false
-      - reports/figures/recall_vs_fanout.pdf:
-          cache: false
-      - reports/figures/duplication_vs_fanout.pdf:
-          cache: false
-      - reports/figures/fanout_by_split.pdf:
-          cache: false
-      - reports/figures/cluster_size_distribution.pdf:
-          cache: false
-      - reports/figures/word_clouds_top25.pdf:
-          cache: false
-      - reports/figures/npmi_graph_clusters.pdf:
-          cache: false
-      - reports/figures/tsne_2d_projection.pdf:
-          cache: false
-      - reports/figures/inter_cluster_heatmap.pdf:
+      - reports/figures:
           cache: false

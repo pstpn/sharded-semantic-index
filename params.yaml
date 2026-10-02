@@ -1,62 +1,150 @@
-dataset:
-  hf_name: microsoft/ms_marco
-  hf_config: v2.1
-  max_rows: 200000            # строк train-сплита
-  max_passages_per_query: 3
-  selected_only: true         # только пассажи, отмеченные асессорами
+# Every setting of the experiment. The reference of the parameters is in README.md.
 
-split:
-  train_ratio: 0.8            # доля запросов для построения графа; хвост — holdout для оценки
+text:
+  # Keep "on", "off", "no" and "y" quoted: bare YAML reads them as booleans.
+  stop_words:
+    [i, me, my, myself, we, our, ours, ourselves, you, your, yours, yourself,
+     yourselves, he, him, his, himself, she, her, hers, herself, it, its, itself,
+     they, them, their, theirs, themselves, what, which, who, whom, this, that,
+     these, those, am, is, are, was, were, be, been, being, have, has, had,
+     having, do, does, did, doing, a, an, the, and, but, if, or, because, as,
+     until, while, of, at, by, for, with, about, against, between, into,
+     through, during, before, after, above, below, to, from, up, down, in, out,
+     "on", "off", over, under, again, further, then, once, here, there, when, where,
+     why, how, all, any, both, each, few, more, most, other, some, such, "no", nor,
+     not, only, own, same, so, than, too, very, s, t, can, will, just, don,
+     should, now, d, ll, m, o, re, ve, "y", ain, aren, couldn, didn, doesn, hadn,
+     hasn, haven, isn, mightn, mustn, needn, shan, shouldn, wasn, weren, wouldn]
+
+dataset:
+  name: microsoft/ms_marco
+  config: v2.1
+  split: train
+  max_rows: 200000
+  docs_per_query: 2
+
+queries:
+  train_ratio: 0.95
+  sample_seed: 42
+  train_size: 10000
+  holdout_size: null
+  ood:
+    size: 10000
+    dataset: google-research-datasets/nq_open
+    config: null
+    split: train
+    column: question
+  synthetic:
+    size: 2000
+    kinds: [connected, frequent]
+    arities: [2, 3]
+
+graph:
+  min_df: 2
+  max_df_ratio: 0.5
+  min_pair_count: 2
+  min_npmi: 0.0
+  edge_weight: npmi
+  stop_words:
+    [mean, meaning, define, definition, stand, happens, used, long, good,
+     number, types, average, difference, largest, old, different, common,
+     normal, considered, worth, word, means, cost, price, age,
+     much, many, name, take]
+
+clustering:
+  seed: 42
+  methods:
+    leiden: {algorithm: leiden, resolution: 1.0}
+    cpm: {algorithm: cpm, resolution: 0.02}
+    infomap: {algorithm: infomap}
+    metis: {algorithm: metis, n_parts: 341}
 
 partition:
-  min_df: 2                   # мин. документная частота терма для графа
-  max_df_ratio: 0.5           # термы чаще, чем в 50% документов, отбрасываются
-  min_pair_count: 2           # мин. со-встречаемость для ребра
-  min_npmi: 0.0               # мин. NPMI ребра (фильтр топологии при любых весах)
-  edge_weight: npmi           # веса ребер: npmi | llr | chi2
-  graph_stop_words:           # доп. стоп-слова ТОЛЬКО для графа: слова-рамки вопросов
-                              # (data-driven отбор по qdf/ddf-ratio + позиции в запросе,
-                              # шутаут proto9; глобальный стоп-лист не трогать - doc_id).
-    [does, did, mean, meaning, define, definition, stand, happens, used, long,
-     good, number, types, average, difference, largest, old, different, common,
-     normal, considered, worth, word, means, cost, price, age]
-  cluster_method: leiden      # leiden | cpm | infomap | metis (нужен pymetis)
-  leiden_resolution: 1.0      # выше -> больше мелких кластеров (для metis = число частей)
-  leiden_seed: 42
-  term_replicas: [2, 3]       # стратегии leiden_r{k}: терм в top-k кластеров по affinity
-  replica_affinity_quantile: null  # null = реплицировать всех кандидатов; напр. 0.5 =
-                                   # только связи с affinity выше медианы (контроль дупликации)
-  doc_affinity_fallback: true # семейство leiden_aff{,_r{k}}: терм вне графа -> кластер,
-                              # с которым он чаще всего со-встречается в документах
-                              # (лечит структурный fanout>=2 смешанных запросов)
-  volume_cap_ratio: 0.15      # семейство leiden_bal{,_r{k}}: рекурсивное расщепление
-                              # кластеров с документным объёмом выше доли корпуса
-                              # (лечит вырожденный мега-шард; null - семейство выключено)
+  strategies:
+    [hash_base, base, base_r2, base_r3, hash_aff, aff, aff_r2, aff_r3, hash_bal, bal]
+  affinity_vote: llr
+  replica_affinity_quantile: null
+  balance:
+    volume_cap: 0.15
+    max_depth: 12
+    max_refinements: 5
 
-evaluate:
-  fast_gt: false              # true: эталон в памяти (>=1 общий терм) вместо небюджетного
-                              # BM25 по физическому индексу; эквивалентность закреплена
-                              # smoke-тестом. Для быстрых итераций; финальные числа - false
-  n_eval: 100000              # holdout-запросов (основной ярус; самая долгая часть — gt)
-  n_eval_train: 10000         # ярус in-train: запросы, на которых строился граф
-  n_eval_ood: 10000           # ярус out-of-distribution: чужие запросы
-  max_fanout_sweep: 5         # top-k шардов в развёртке recall-vs-fanout
-  ood:                        # источник OOD-запросов; убрать блок (null) — ярус пропускается
-    hf_name: google-research-datasets/nq_open
-    hf_config: null
-    split: train
-    text_field: question
+routing:
+  cover_weight: idf
 
-analyze_topical:
-  n_probes: 2000              # синтетических зондов каждого типа (пары/тройки/случайные)
-  probe_seed: 42
+bm25:
+  k1: 1.2
+  b: 0.75
 
-analyze_load:
-  leiden_seeds: [1, 2, 3]     # доп. seed кластеризации (первый в отчёте — leiden_seed)
-  gamma_sweep: [2, 5, 10, 20, 50]  # разрешения Leiden для кривой «баланс <-> fanout»
-  bootstrap_samples: 1000     # ресемплов bootstrap для 95% CI
+evaluation:
+  top_k: 10
+  budgets: [1, 2, 3, 5]
+  ranking_depth: 1000
+  bootstrap:
+    samples: 1000
+    seed: 42
+    confidence: 0.95
+  comparisons:
+    # Besides these, every strategy is compared with the hash baseline of its family.
+    pairs:
+      - [aff, base]
+      - [aff_r2, base_r2]
+      - [aff_r3, base_r3]
+      - [base_r2, base]
+      - [base_r3, base]
+      - [aff_r2, aff]
+      - [aff_r3, aff]
+      - [bal, aff]
+    reference_method: leiden
+  slices:
+    sample: holdout
+    connectivity_quantiles: 4
+    max_terms: 5
+
+verification:
+  sample: holdout
+  queries: 5
+  seed: 42
+  score_tolerance: 1.0e-9
+  workers: null
+
+sensitivity:
+  sample: holdout
+  seeds: [1, 2, 3]
+  train_sizes: [10000, 30000, 70000]
+  parameters:
+    leiden: {resolution: [2, 5, 10, 20, 50]}
+    cpm: {resolution: [0.005, 0.01, 0.05, 0.1]}
+    infomap: {}
+    metis: {n_parts: [361, 444, 569, 754, 1113]}
+
+ablations:
+  sample: holdout
+  variants:
+    baseline: {}
+    vote_raw: {partition: {affinity_vote: raw}}
+    cover_strength: {routing: {cover_weight: strength}}
+    no_frame_stops: {graph: {stop_words: []}}
+    edge_weight_llr: {graph: {edge_weight: llr}}
+    edge_weight_chi2: {graph: {edge_weight: chi2}}
+    min_npmi_01: {graph: {min_npmi: 0.1}}
+    min_npmi_02: {graph: {min_npmi: 0.2}}
+    min_npmi_03: {graph: {min_npmi: 0.3}}
+    min_pair_count_1: {graph: {min_pair_count: 1}}
+    min_pair_count_3: {graph: {min_pair_count: 3}}
+    min_pair_count_5: {graph: {min_pair_count: 5}}
+    min_df_3: {graph: {min_df: 3}}
+    min_df_5: {graph: {min_df: 5}}
+    max_df_001: {graph: {max_df_ratio: 0.01}}
+    max_df_0005: {graph: {max_df_ratio: 0.005}}
+
+describe:
+  top_clusters: 25
+  top_terms: 10
+  frame_word_candidates: 80
 
 figures:
-  top_n_clusters: 25
+  sample: holdout
+  top_clusters: 25
   graph_max_nodes: 1000
   layout_seed: 42
