@@ -7176,20 +7176,20 @@ stages:
       size: 3271
     - path: sharded_index/pipeline/figures.py
       hash: md5
-      md5: 295c492edc4a0fe03844f944e829064c
-      size: 8430
+      md5: ab23679bd371ff9430eda7fbbda925c9
+      size: 7846
     - path: sharded_index/reporting/labels.py
       hash: md5
-      md5: 4c14c647b2e14701d1d58198581272a1
-      size: 6420
+      md5: f929050a974316c4d825ae02134af0e8
+      size: 6207
     - path: sharded_index/reporting/overview.py
       hash: md5
-      md5: 8a240c8225f56f80ce6c2f78a9d75848
-      size: 21335
+      md5: 7d657eac16a15772bca34e23fc13cd1f
+      size: 19035
     - path: sharded_index/reporting/plots.py
       hash: md5
-      md5: a3df71510d600e1b5077877e525f58a6
-      size: 18567
+      md5: 6b88083b1d9fca2a711e9f6554b10744
+      size: 19957
     - path: sharded_index/reporting/style.py
       hash: md5
       md5: 735b17a32166ba289f9fc448c2cd9ec3
@@ -7241,6 +7241,9 @@ stages:
           - bal
           - aff
           language: ru
+          budgets:
+          - 1
+          - 2
         partition.strategies:
         - hash_base
         - base
@@ -7274,6 +7277,6 @@ stages:
     outs:
     - path: reports/figures
       hash: md5
-      md5: 0494069bb2a890c9fbcfd46023b47ddc.dir
-      size: 6164503
-      nfiles: 48
+      md5: 0a97318af287213c99fc9ae786dd265a.dir
+      size: 6071806
+      nfiles: 44

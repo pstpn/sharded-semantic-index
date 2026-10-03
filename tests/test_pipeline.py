@@ -137,15 +137,11 @@ def test_pipeline_runs_end_to_end(small_config: Config, paths: Paths) -> None:
     assert overview_names == {
         "methods_overlap.pdf",
         "overview_single_shard_by_sample.pdf",
-        "overview_overlap_by_sample.pdf",
         "overview_fanout_by_sample.pdf",
-        "overview_gain_overlap.pdf",
-        "overview_gain_single_shard.pdf",
         "overview_gain_fanout.pdf",
         "overview_quality_vs_cost.pdf",
         "overview_budget_curves.pdf",
         "overview_slices.pdf",
-        "overview_sensitivity.pdf",
         "overview_ablations.pdf",
     }
     assert all(f"`reports/figures/{name}`" in OUTPUTS for name in overview_names)

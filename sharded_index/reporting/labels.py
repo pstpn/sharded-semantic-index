@@ -2,7 +2,8 @@
 
 Every axis label, legend entry and panel title of the figures is looked up
 here, so switching ``figures.language`` redraws the same figures in the other
-language.  Names of strategies and algorithms stay as they are in the tables.
+language.  Names of strategies, algorithms and query samples stay as they are
+in the tables.
 """
 
 from __future__ import annotations
@@ -13,9 +14,9 @@ from typing import Literal
 Language = Literal["ru", "en"]
 
 _PHRASES: dict[str, dict[str, str]] = {
-    "overlap_at_one": {
-        "ru": "Overlap@{k} при опросе одного шарда",
-        "en": "Overlap@{k} with one shard probed",
+    "overlap_at": {
+        "ru": "Overlap@{k} при опросе {shards}",
+        "en": "Overlap@{k} with {shards} probed",
     },
     "overlap_at_budget": {
         "ru": "Overlap@{k} с полным индексом",
@@ -42,32 +43,23 @@ _PHRASES: dict[str, dict[str, str]] = {
         "en": "Duplication (shards per document)",
     },
     "fanout_short": {"ru": "Шардов в покрытии запроса", "en": "Shards in the query cover"},
-    "volume_short": {"ru": "Объём опроса одного шарда", "en": "Probed volume, one shard"},
-    "volume_at_one": {
-        "ru": "Объём опроса одного шарда (доля корпуса)",
-        "en": "Probed volume with one shard (share of corpus)",
+    "volume_short": {"ru": "Объём опроса {shards}", "en": "Probed volume, {shards}"},
+    "volume_at": {
+        "ru": "Объём опроса {shards} (доля корпуса)",
+        "en": "Probed volume with {shards} (share of corpus)",
     },
     "volume": {"ru": "Объём опроса (доля корпуса)", "en": "Probed volume (share of corpus)"},
     "one_shard_line": {"ru": "один шард на запрос", "en": "one shard per query"},
-    "delta_overlap": {
-        "ru": "Δ overlap@{k} к hash (один шард)",
-        "en": "Δ overlap@{k} vs hash (one shard)",
-    },
-    "delta_single_shard": {
-        "ru": "Δ доли запросов в один шард к hash",
-        "en": "Δ single-shard share vs hash",
-    },
+    "probing": {"ru": "при опросе {shards}", "en": "{shards} probed"},
     "delta_fanout": {
         "ru": "Δ среднего числа шардов к hash",
         "en": "Δ mean cover size vs hash",
     },
     "queries": {"ru": "запросов", "en": "queries"},
     "method": {"ru": "алгоритм", "en": "method"},
-    "strategy": {"ru": "стратегия", "en": "strategy"},
+    "semantic_strategy": {"ru": "семантическая стратегия", "en": "semantic strategy"},
+    "hash_baseline": {"ru": "hash-разбиение", "en": "hash baseline"},
     "sample": {"ru": "выборка", "en": "sample"},
-    "seed": {"ru": "Зерно кластеризации", "en": "Clustering seed"},
-    "train_size": {"ru": "Запросов журнала в графе", "en": "Training queries in the graph"},
-    "no_parameter": {"ru": "нет параметра", "en": "no parameter"},
     "connectivity": {
         "ru": "Связность слов запроса (квартиль NPMI)",
         "en": "Connectivity of the query terms (NPMI quartile)",
@@ -75,7 +67,10 @@ _PHRASES: dict[str, dict[str, str]] = {
     "terms": {"ru": "Слов в запросе", "en": "Terms in the query"},
     "out_of_graph": {"ru": "вне графа", "en": "out of graph"},
     "single_term": {"ru": "одно слово", "en": "single term"},
-    "delta_pp": {"ru": "Δ overlap@{k}, п. п.", "en": "Δ overlap@{k}, p.p."},
+    "delta_pp": {
+        "ru": "Δ overlap@{k} при опросе {shards}, п. п.",
+        "en": "Δ overlap@{k} with {shards} probed, p.p.",
+    },
     "cluster_size": {"ru": "Размер кластера (слов)", "en": "Cluster size (terms)"},
     "clusters": {"ru": "Кластеров", "en": "Clusters"},
     "cluster": {"ru": "Кластер", "en": "Cluster"},
@@ -87,15 +82,16 @@ _PHRASES: dict[str, dict[str, str]] = {
     "mean": {"ru": "в среднем", "en": "mean"},
 }
 
-_SAMPLES: dict[str, dict[str, str]] = {
-    "train": {"ru": "обучающие", "en": "train"},
-    "holdout": {"ru": "отложенные", "en": "holdout"},
-    "ood": {"ru": "OOD", "en": "OOD"},
-    "connected_pairs": {"ru": "связные пары", "en": "connected pairs"},
-    "connected_triples": {"ru": "связные тройки", "en": "connected triples"},
-    "frequent_pairs": {"ru": "частые пары", "en": "frequent pairs"},
-    "frequent_triples": {"ru": "частые тройки", "en": "frequent triples"},
+_SAMPLES = {
+    "train": "train",
+    "holdout": "holdout",
+    "ood": "OOD",
+    "connected_pairs": "connected pairs",
+    "connected_triples": "connected triples",
+    "frequent_pairs": "frequent pairs",
+    "frequent_triples": "frequent triples",
 }
+"""Display names of the query samples: English in both languages, like the names in the tables."""
 
 _PANEL_LETTERS = {"ru": "абвгдежзик", "en": "abcdefghij"}
 
@@ -109,9 +105,15 @@ class Labels:
     def __call__(self, key: str, **values: object) -> str:
         return _PHRASES[key][self.language].format(**values)
 
+    def shards(self, count: int) -> str:
+        """``count`` shards as words: «одного шарда», «2 шардов»; "one shard", "2 shards"."""
+        if self.language == "ru":
+            return "одного шарда" if count == 1 else f"{count} шардов"
+        return "one shard" if count == 1 else f"{count} shards"
+
     def sample(self, name: str) -> str:
         """Display name of a query sample; unknown names are shown as they are."""
-        return _SAMPLES.get(name, {}).get(self.language, name)
+        return _SAMPLES.get(name, name)
 
     def slice(self, slicing: str, name: str) -> str:
         """Display name of a slice of the queries."""

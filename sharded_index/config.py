@@ -263,6 +263,7 @@ class FiguresConfig(_Section):
     focus_strategies: StrategyNames
     ablation_strategies: StrategyNames
     language: Literal["ru", "en"]
+    budgets: tuple[int, ...] = Field(min_length=1)
 
 
 class Config(_Section):
@@ -322,6 +323,11 @@ class Config(_Section):
             strategies,
         )
         _require("figures.ablation_strategies", self.figures.ablation_strategies, strategies)
+        _require(
+            "figures.budgets",
+            [str(budget) for budget in self.figures.budgets],
+            {str(budget) for budget in self.evaluation.budgets},
+        )
         for setting, sample in (
             ("evaluation.slices.sample", self.evaluation.slices.sample),
             ("verification.sample", self.verification.sample),

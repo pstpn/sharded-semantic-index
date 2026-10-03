@@ -26,7 +26,7 @@ def _benchmark_figures(
     retrieval: pd.DataFrame,
 ) -> None:
     """Cover size, overlap by budget and the storage/routing trade-off of one method."""
-    sample = config.figures.sample
+    sample, budgets = config.figures.sample, config.figures.budgets
     strategies = list(config.partition.strategies)
     samples = [name for name in config.queries.sample_names() if name in set(routing["sample"])]
     target = paths.figures / method
@@ -41,9 +41,9 @@ def _benchmark_figures(
 
     retrieval = retrieval[(retrieval["method"] == method) & (retrieval["sample"] == sample)]
     overlap = retrieval.pivot(index="strategy", columns="budget", values="overlap")
-    budgets = list(dict.fromkeys(retrieval["budget"]))
+    all_budgets = list(dict.fromkeys(retrieval["budget"]))
     plots.plot_overlap_by_budget(
-        {name: overlap.loc[name, budgets].to_dict() for name in strategies},
+        {name: overlap.loc[name, all_budgets].to_dict() for name in strategies},
         config.evaluation.top_k,
         text,
         title,
@@ -52,6 +52,12 @@ def _benchmark_figures(
 
     routing = routing[routing["method"] == method]
     fanout = routing.pivot(index="strategy", columns="sample", values="fanout_mean")
+    labels = [
+        name
+        + "\n"
+        + ", ".join(f"@{budget} {overlap.loc[name, str(budget)]:.2f}" for budget in budgets)
+        for name in strategies
+    ]
     points = pd.DataFrame(
         {
             "strategy": strategies,
@@ -60,7 +66,7 @@ def _benchmark_figures(
             .loc[strategies, "duplication"]
             .to_numpy(),
             "fanout_mean": fanout.loc[strategies, sample].to_numpy(),
-            "overlap": overlap.loc[strategies, budgets[0]].to_numpy(),
+            "label": labels,
         }
     )
     plots.plot_duplication_vs_fanout(points, text, title, target / "duplication_vs_fanout.pdf")
@@ -108,15 +114,13 @@ def _overview_figures(
     routing: pd.DataFrame,
     retrieval: pd.DataFrame,
 ) -> None:
-    """Every method and strategy together: samples, gains over hash, costs, budgets, sweeps."""
+    """Every method and strategy together: samples, gains over hash, costs, budgets, ablations."""
     settings = config.figures
-    sample, top_k = settings.sample, config.evaluation.top_k
-    first_budget = str(config.evaluation.budgets[0])
+    sample, top_k, budgets = settings.sample, config.evaluation.top_k, list(settings.budgets)
     strategies = list(config.partition.strategies)
     semantic = [name for name in strategies if not Strategy.parse(name).is_hash]
     samples = [name for name in config.queries.sample_names() if name in set(routing["sample"])]
     counts = routing.drop_duplicates("sample").set_index("sample")["evaluated"].to_dict()
-    at_first_budget = retrieval[retrieval["budget"] == first_budget]
     comparisons = pd.read_csv(paths.metrics / "comparisons.csv")
 
     overview.plot_metric_by_sample(
@@ -132,17 +136,6 @@ def _overview_figures(
         limits=(0, 1.02),
     )
     overview.plot_metric_by_sample(
-        at_first_budget,
-        "overlap",
-        ("overlap_ci_low", "overlap_ci_high"),
-        strategies,
-        samples,
-        counts,
-        text,
-        text("overlap_at_one", k=top_k),
-        paths.figures / "overview_overlap_by_sample.pdf",
-    )
-    overview.plot_metric_by_sample(
         routing,
         "fanout_mean",
         ("fanout_ci_low", "fanout_ci_high"),
@@ -153,28 +146,31 @@ def _overview_figures(
         text("fanout_mean"),
         paths.figures / "overview_fanout_by_sample.pdf",
     )
-    for metric, label, name in (
-        (f"overlap_{first_budget}", text("delta_overlap", k=top_k), "overview_gain_overlap.pdf"),
-        ("single_shard_share", text("delta_single_shard"), "overview_gain_single_shard.pdf"),
-        ("fanout", text("delta_fanout"), "overview_gain_fanout.pdf"),
-    ):
-        overview.plot_gain_by_sample(
-            comparisons, metric, semantic, samples, counts, text, label, paths.figures / name
-        )
+    overview.plot_gain_by_sample(
+        comparisons,
+        "fanout",
+        semantic,
+        samples,
+        counts,
+        text,
+        text("delta_fanout"),
+        paths.figures / "overview_gain_fanout.pdf",
+    )
 
-    points = (
-        partitions[["method", "strategy", "duplication"]]
-        .merge(
-            routing.loc[routing["sample"] == sample, ["method", "strategy", "fanout_mean"]],
-            on=["method", "strategy"],
-        )
-        .merge(
-            at_first_budget.loc[
-                at_first_budget["sample"] == sample, ["method", "strategy", "volume", "overlap"]
+    costs = partitions[["method", "strategy", "duplication"]].merge(
+        routing.loc[routing["sample"] == sample, ["method", "strategy", "fanout_mean"]],
+        on=["method", "strategy"],
+    )
+    points = {
+        budget: costs.merge(
+            retrieval.loc[
+                (retrieval["sample"] == sample) & (retrieval["budget"] == str(budget)),
+                ["method", "strategy", "volume", "overlap"],
             ],
             on=["method", "strategy"],
         )
-    )
+        for budget in budgets
+    }
     overview.plot_quality_vs_cost(
         points, top_k, text, paths.figures / "overview_quality_vs_cost.pdf"
     )
@@ -189,20 +185,15 @@ def _overview_figures(
         pd.read_csv(paths.metrics / "slices.csv"),
         settings.focus_strategies,
         top_k,
+        budgets,
         text,
         paths.figures / "overview_slices.pdf",
-    )
-    overview.plot_sensitivity(
-        pd.read_csv(paths.metrics / "sensitivity.csv"),
-        settings.focus_strategies,
-        top_k,
-        text,
-        paths.figures / "overview_sensitivity.pdf",
     )
     overview.plot_ablation_heatmaps(
         pd.read_csv(paths.metrics / "ablations.csv"),
         settings.ablation_strategies,
         top_k,
+        budgets[0],
         text,
         paths.figures / "overview_ablations.pdf",
     )
@@ -221,10 +212,11 @@ def run(config: Config, paths: Paths) -> None:
         _structure_figures(config, paths, method, text, edges, strength)
         logger.info("%s: figures written", method)
 
-    sample, first_budget = config.figures.sample, str(config.evaluation.budgets[0])
+    sample = config.figures.sample
     plots.plot_methods_comparison(
-        retrieval[(retrieval["sample"] == sample) & (retrieval["budget"] == first_budget)],
+        retrieval[retrieval["sample"] == sample],
         config.evaluation.top_k,
+        list(config.figures.budgets),
         text,
         text.sample(sample),
         paths.figures / "methods_overlap.pdf",

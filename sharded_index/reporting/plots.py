@@ -13,6 +13,7 @@ import pandas as pd
 import seaborn as sns
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 from matplotlib.figure import Figure
+from matplotlib.lines import Line2D
 from matplotlib.transforms import Bbox
 from sklearn.manifold import TSNE
 from sklearn.preprocessing import normalize
@@ -31,6 +32,7 @@ from sharded_index.reporting.style import (
     categorical_x,
     marker_style,
     method_colors,
+    method_markers,
     save,
     strategy_color,
     strategy_line_style,
@@ -209,8 +211,8 @@ def _label_points(
 def plot_duplication_vs_fanout(points: pd.DataFrame, text: Labels, title: str, path: Path) -> None:
     """Storage cost against routing cost, one point per strategy.
 
-    ``points`` has columns ``strategy``, ``duplication``, ``fanout_mean`` and ``overlap``.
-    Every point carries its own label, placed where it covers nothing else.
+    ``points`` has columns ``strategy``, ``duplication``, ``fanout_mean`` and ``label``.
+    Every point carries its label, placed where it covers nothing else.
     """
     figure = Figure(figsize=(PAGE_WIDTH, 3.2), layout="constrained")
     axis = figure.subplots()
@@ -246,7 +248,7 @@ def plot_duplication_vs_fanout(points: pd.DataFrame, text: Labels, title: str, p
         axis,
         figure,
         list(zip(points["duplication"], points["fanout_mean"], strict=True)),
-        [f"{row.strategy}\noverlap {row.overlap:.2f}" for row in points.itertuples(index=False)],
+        list(points["label"]),
         colors,
     )
     save(figure, path)
@@ -286,58 +288,92 @@ def plot_fanout_by_sample(fanout: pd.DataFrame, text: Labels, title: str, path: 
     save(figure, path)
 
 
-def _grouped_bars(
-    axis: Any,
-    table: pd.DataFrame,
-    errors: Mapping[str, Any] | None,
-    colors: Mapping[str, Any],
-) -> None:
-    """Bars of every column of ``table`` grouped by its rows."""
-    slot = 0.8 / max(len(table.columns), 1)
-    x = np.arange(len(table))
-    for j, column in enumerate(table.columns):
-        offset = (j - (len(table.columns) - 1) / 2) * slot
-        axis.bar(
-            x + offset,
-            table[column],
-            slot * 0.9,
-            yerr=None if errors is None else errors[column],
-            error_kw={"elinewidth": 0.6, "ecolor": "black", "capsize": 1.5, "capthick": 0.6},
-            label=column,
-            color=colors[column],
-            linewidth=0,
-        )
-    axis.set_xticks(x, table.index)
-    categorical_x(axis)
-
-
 @themed
 def plot_methods_comparison(
-    retrieval: pd.DataFrame, top_k: int, text: Labels, title: str, path: Path
+    retrieval: pd.DataFrame,
+    top_k: int,
+    budgets: Sequence[int],
+    text: Labels,
+    title: str,
+    path: Path,
 ) -> None:
-    """Overlap of every strategy under every clustering method, with confidence intervals.
+    """Overlap of every strategy under every method with confidence intervals, a panel per budget.
 
-    ``retrieval`` holds the rows of one sample and one budget of the retrieval table.
+    ``retrieval`` holds the rows of one sample of the retrieval table.
     """
     methods = list(dict.fromkeys(retrieval["method"]))
     strategies = list(dict.fromkeys(retrieval["strategy"]))
-
-    def pivot(column: str) -> pd.DataFrame:
-        table = retrieval.pivot(index="strategy", columns="method", values=column)
-        return table.loc[strategies, methods]
-
-    overlap, low, high = pivot("overlap"), pivot("overlap_ci_low"), pivot("overlap_ci_high")
-    errors = {
-        method: [overlap[method] - low[method], high[method] - overlap[method]]
-        for method in methods
-    }
-    figure = Figure(figsize=(PAGE_WIDTH, 2.8), layout="constrained")
-    axis = figure.subplots()
-    _grouped_bars(axis, overlap, errors, method_colors(methods))
-    axis.set_ylabel(text("overlap_at_one", k=top_k))
-    axis.set_ylim(0, 1.0)
-    axis.set_title(title, loc="left")
-    figure.legend(loc="outside upper center", ncol=len(methods))
+    colors, markers = method_colors(methods), method_markers(methods)
+    figure = Figure(figsize=(PAGE_WIDTH, 2.1 * len(budgets) + 0.6), layout="constrained")
+    axes = figure.subplots(len(budgets), 1, sharex=True, squeeze=False)[:, 0]
+    x = np.arange(len(strategies))
+    dodge = 0.7 / max(len(methods), 1)
+    hollow = np.array([Strategy.parse(name).is_hash for name in strategies])
+    for index, (axis, budget) in enumerate(zip(axes, budgets, strict=True)):
+        part = retrieval[retrieval["budget"] == str(budget)]
+        for k, method in enumerate(methods):
+            rows = part[part["method"] == method].set_index("strategy").reindex(strategies)
+            values = rows["overlap"].to_numpy(dtype=float)
+            low = rows["overlap_ci_low"].to_numpy(dtype=float)
+            high = rows["overlap_ci_high"].to_numpy(dtype=float)
+            offset = (k - (len(methods) - 1) / 2) * dodge
+            for mask, face in ((~hollow, colors[method]), (hollow, SURFACE)):
+                if mask.any():
+                    axis.errorbar(
+                        x[mask] + offset,
+                        values[mask],
+                        yerr=[values[mask] - low[mask], high[mask] - values[mask]],
+                        marker=markers[method],
+                        color=colors[method],
+                        markerfacecolor=face,
+                        elinewidth=0.6,
+                        capsize=0,
+                        linestyle="",
+                        markersize=3.5,
+                    )
+        for i in range(1, len(strategies)):
+            if Strategy.parse(strategies[i]).family != Strategy.parse(strategies[i - 1]).family:
+                axis.axvline(i - 0.5, color="#dddddd", linewidth=0.5, zorder=0)
+        axis.set_ylabel(text("overlap_at", k=top_k, shards=text.shards(budget)))
+        axis.set_title(
+            f"{text.panel(index)} {text('probing', shards=text.shards(budget))}", loc="left"
+        )
+    axes[-1].set_xticks(x, strategies)
+    categorical_x(axes[-1])
+    axes[-1].set_xlim(-0.6, len(strategies) - 0.4)
+    figure.suptitle(title)
+    handles = [
+        Line2D(
+            [],
+            [],
+            linestyle="",
+            marker=markers[name],
+            color=color,
+            markerfacecolor=color,
+            label=name,
+        )
+        for name, color in colors.items()
+    ] + [
+        Line2D(
+            [],
+            [],
+            linestyle="",
+            marker="o",
+            color=INK_MUTED,
+            markerfacecolor=INK_MUTED,
+            label=text("semantic_strategy"),
+        ),
+        Line2D(
+            [],
+            [],
+            linestyle="",
+            marker="o",
+            color=INK_MUTED,
+            markerfacecolor=SURFACE,
+            label=text("hash_baseline"),
+        ),
+    ]
+    figure.legend(handles=handles, loc="outside lower center", ncol=len(handles))
     save(figure, path)
 
 

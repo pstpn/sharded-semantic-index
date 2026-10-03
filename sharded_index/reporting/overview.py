@@ -3,7 +3,7 @@
 Colour and marker shape are the clustering method throughout; a hash
 baseline is drawn hollow (and dashed where there are lines).  Figures with
 one panel per query sample share their value axis, so samples are comparable
-at a glance.
+at a glance; figures that depend on the shard budget have one row per budget.
 """
 
 from __future__ import annotations
@@ -72,33 +72,48 @@ def _method_handles(
     ]
 
 
-def _fill_handles(text: Labels, lines: bool = False) -> list[Line2D]:
+def _fill_handles(text: Labels) -> list[Line2D]:
     """Legend entries for the fill convention: filled = semantic strategy, hollow = hash."""
     return [
         Line2D(
             [],
             [],
-            linestyle="-" if lines else "",
+            linestyle="",
             marker="o",
             color=INK_MUTED,
             markerfacecolor=INK_MUTED,
-            label=text("strategy"),
+            label=text("semantic_strategy"),
         ),
         Line2D(
             [],
             [],
-            linestyle="--" if lines else "",
+            linestyle="",
             marker="o",
             color=HASH_COLOR,
             markerfacecolor=SURFACE,
-            label="hash",
+            label=text("hash_baseline"),
         ),
     ]
 
 
-def _strategy_handles(
-    strategies: Sequence[str], *, lines: bool = True, sized: bool = False
-) -> list[Line2D]:
+def _focus_handles(strategies: Sequence[str], lines: bool) -> list[Line2D]:
+    """Legend entries naming the focus strategies: filled = semantic, hollow = its hash."""
+    return [
+        Line2D(
+            [],
+            [],
+            linestyle=strategy_line_style(name) if lines else "",
+            marker="o",
+            color=INK_MUTED,
+            markerfacecolor=SURFACE if Strategy.parse(name).is_hash else INK_MUTED,
+            label=name,
+        )
+        for name in strategies
+    ]
+
+
+def _strategy_handles(strategies: Sequence[str]) -> list[Line2D]:
+    """Legend entries of the strategies by family marker, replica size and hash fill."""
     handles = []
     for name in strategies:
         strategy = Strategy.parse(name)
@@ -107,8 +122,8 @@ def _strategy_handles(
                 [],
                 [],
                 color=INK_MUTED,
-                linestyle=strategy_line_style(name) if lines else "",
-                markersize=REPLICA_SIZE[min(strategy.replicas, 3)] if sized else 4,
+                linestyle="",
+                markersize=REPLICA_SIZE[min(strategy.replicas, 3)],
                 label=name,
                 **marker_style(name, INK_MUTED),
             )
@@ -129,9 +144,9 @@ def _panel_grid(n_panels: int, height: float, **subplot_kw: Any) -> tuple[Figure
     return figure, axes[:n_panels], spare
 
 
-def _legend(figure: Figure, spare: Any, handles: Sequence[Line2D], ncol: int = 1) -> None:
+def _legend(figure: Figure, spare: Any, handles: Sequence[Line2D]) -> None:
     if spare is not None:
-        spare.legend(handles=handles, loc="center left", ncol=ncol, borderaxespad=0)
+        spare.legend(handles=handles, loc="center left", borderaxespad=0)
     else:
         figure.legend(handles=handles, loc="outside lower center", ncol=max(len(handles), 1))
 
@@ -264,43 +279,50 @@ def plot_gain_by_sample(
 
 
 @themed
-def plot_quality_vs_cost(points: pd.DataFrame, top_k: int, text: Labels, path: Path) -> None:
-    """Overlap against the three costs — storage, routing, probed volume — for every configuration.
+def plot_quality_vs_cost(
+    points: Mapping[int, pd.DataFrame], top_k: int, text: Labels, path: Path
+) -> None:
+    """Overlap against the three costs — storage, routing, probed volume — one row per budget.
 
-    ``points`` has one row per (method, strategy) with ``duplication``,
-    ``fanout_mean``, ``volume`` and ``overlap``.
+    ``points[budget]`` has one row per (method, strategy) with ``duplication``,
+    ``fanout_mean``, ``volume`` and ``overlap`` at that budget.
     """
-    methods = list(dict.fromkeys(points["method"]))
+    budgets = list(points)
+    first = points[budgets[0]]
+    methods = list(dict.fromkeys(first["method"]))
     colors = method_colors(methods)
     costs = [
         ("duplication", text("duplication_short")),
         ("fanout_mean", text("fanout_short")),
-        ("volume", text("volume_short")),
+        ("volume", text("volume")),
     ]
-    figure = Figure(figsize=(PAGE_WIDTH, 2.5), layout="constrained")
-    axes = figure.subplots(1, len(costs), sharey=True)
-    for axis, (column, label) in zip(axes, costs, strict=True):
-        for row in points.itertuples(index=False):
-            strategy = Strategy.parse(row.strategy)
-            color = colors[row.method]
-            axis.scatter(
-                getattr(row, column),
-                row.overlap,
-                s=REPLICA_AREA[min(strategy.replicas, 3)],
-                marker=FAMILY_MARKERS[strategy.family],
-                facecolors=SURFACE if strategy.is_hash else color,
-                edgecolors=color,
-                linewidths=0.8,
-                zorder=3,
-            )
-        axis.set_xlabel(label)
-        axis.set_xlim(left=0)
-    axes[0].set_ylabel(text("overlap_at_one", k=top_k))
-    strategies = list(dict.fromkeys(points["strategy"]))
+    figure = Figure(figsize=(PAGE_WIDTH, 2.2 * len(budgets) + 0.5), layout="constrained")
+    grid = figure.subplots(len(budgets), len(costs), sharex="col", sharey="row", squeeze=False)
+    for i, budget in enumerate(budgets):
+        for j, (column, label) in enumerate(costs):
+            axis = grid[i, j]
+            for row in points[budget].itertuples(index=False):
+                strategy = Strategy.parse(row.strategy)
+                color = colors[row.method]
+                axis.scatter(
+                    getattr(row, column),
+                    row.overlap,
+                    s=REPLICA_AREA[min(strategy.replicas, 3)],
+                    marker=FAMILY_MARKERS[strategy.family],
+                    facecolors=SURFACE if strategy.is_hash else color,
+                    edgecolors=color,
+                    linewidths=0.8,
+                    zorder=3,
+                )
+            axis.set_xlim(left=0)
+            if i == len(budgets) - 1:
+                axis.set_xlabel(label)
+        grid[i, 0].set_ylabel(text("overlap_at", k=top_k, shards=text.shards(budget)))
+    strategies = list(dict.fromkeys(first["strategy"]))
     handles = [
         Line2D([], [], linestyle="", marker="o", color=color, markerfacecolor=color, label=name)
         for name, color in colors.items()
-    ] + _strategy_handles(strategies, lines=False, sized=True)
+    ] + _strategy_handles(strategies)
     figure.legend(handles=handles, loc="outside lower center", ncol=7)
     save(figure, path)
 
@@ -341,140 +363,70 @@ def plot_budget_curves(
         axis.set_xlabel(text("shards_probed"))
     overlap_axis.set_ylabel(text("overlap_at_budget", k=top_k))
     volume_axis.set_ylabel(text("volume"))
-    handles = _method_handles(colors, markers, lines=True) + _fill_handles(text, lines=True)
+    handles = _method_handles(colors, markers, lines=True) + _focus_handles(strategies, lines=True)
     figure.legend(handles=handles, loc="outside lower center", ncol=len(handles))
     save(figure, path)
 
 
 @themed
 def plot_slices(
-    slices: pd.DataFrame, focus: Sequence[str], top_k: int, text: Labels, path: Path
+    slices: pd.DataFrame,
+    focus: Sequence[str],
+    top_k: int,
+    budgets: Sequence[int],
+    text: Labels,
+    path: Path,
 ) -> None:
-    """Overlap of the focus strategies and baselines on every query slice, a panel per slicing."""
+    """Overlap of the focus strategies and baselines on every query slice.
+
+    Columns are the slicings (connectivity, length), rows the shard budgets.
+    """
     strategies = with_baselines(focus)
     methods = list(dict.fromkeys(slices["method"]))
     colors, markers = method_colors(methods), method_markers(methods)
     slicings = list(dict.fromkeys(slices["slicing"]))
-    figure = Figure(figsize=(PAGE_WIDTH, 2.6), layout="constrained")
-    axes = figure.subplots(1, len(slicings), sharey=True, squeeze=False)[0]
+    figure = Figure(figsize=(PAGE_WIDTH, 2.3 * len(budgets) + 0.5), layout="constrained")
+    grid = figure.subplots(len(budgets), len(slicings), sharex="col", sharey="row", squeeze=False)
     dodge = 0.7 / max(len(methods) * len(strategies), 1)
-    for axis, slicing in zip(axes, slicings, strict=True):
-        part = slices[slices["slicing"] == slicing]
-        names = list(dict.fromkeys(part["slice"]))
-        counts = part.drop_duplicates("slice").set_index("slice")["queries"]
-        x = np.arange(len(names))
-        series_index = 0
-        for method in methods:
-            for name in strategies:
-                series = (
-                    part[(part["method"] == method) & (part["strategy"] == name)]
-                    .set_index("slice")
-                    .reindex(names)
-                )
-                offset = (series_index - (len(methods) * len(strategies) - 1) / 2) * dodge
-                series_index += 1
-                axis.plot(
-                    x + offset,
-                    series["overlap_1"],
-                    linestyle="",
-                    color=colors[method],
-                    **marker_style(name, colors[method], markers[method]),
-                )
-        for boundary in range(1, len(names)):
-            axis.axvline(boundary - 0.5, color="#dddddd", linewidth=0.5, zorder=0)
-        axis.set_xticks(
-            x, [f"{text.slice(slicing, name)}\n{text.number(int(counts[name]))}" for name in names]
-        )
-        categorical_x(axis)
-        axis.set_xlim(-0.5, len(names) - 0.5)
-        axis.set_xlabel(text(slicing) if slicing in ("connectivity", "terms") else slicing)
-    axes[0].set_ylabel(text("overlap_at_one", k=top_k))
-    handles = _method_handles(colors, markers) + _fill_handles(text)
-    figure.legend(handles=handles, loc="outside lower center", ncol=len(handles))
-    save(figure, path)
-
-
-@themed
-def plot_sensitivity(
-    sensitivity: pd.DataFrame,
-    focus: Sequence[str],
-    top_k: int,
-    text: Labels,
-    path: Path,
-) -> None:
-    """Overlap of the focus strategies under every sweep: seed, log size, the method's parameter."""
-    strategies = with_baselines(focus)
-    methods = list(dict.fromkeys(sensitivity["method"]))
-    colors, markers = method_colors(methods), method_markers(methods)
-    n_columns = max(2, len(methods))
-    figure = Figure(figsize=(PAGE_WIDTH, 4.6), layout="constrained")
-    grid = figure.add_gridspec(2, n_columns)
-    seed_axis = figure.add_subplot(grid[0, : n_columns // 2])
-    size_axis = figure.add_subplot(grid[0, n_columns // 2 :], sharey=seed_axis)
-
-    seeds = sorted(sensitivity.loc[sensitivity["sweep"] == "seed", "value"].unique())
-    sizes = sorted(sensitivity.loc[sensitivity["sweep"] == "train_size", "value"].unique())
-    for method in methods:
-        for name in strategies:
-            rows = sensitivity[
-                (sensitivity["method"] == method) & (sensitivity["strategy"] == name)
-            ]
-            style = {
-                "color": colors[method],
-                "linestyle": strategy_line_style(name),
-                **marker_style(name, colors[method], markers[method]),
-            }
-            by_seed = rows[rows["sweep"] == "seed"].set_index("value").reindex(seeds)
-            seed_axis.plot(range(len(seeds)), by_seed["overlap_1"], **{**style, "linestyle": ""})
-            by_size = rows[rows["sweep"] == "train_size"].set_index("value").reindex(sizes)
-            size_axis.plot(sizes, by_size["overlap_1"], **style)
-    seed_axis.set_xticks(range(len(seeds)), [f"{seed:g}" for seed in seeds])
-    categorical_x(seed_axis)
-    seed_axis.set_xlabel(text("seed"))
-    seed_axis.set_ylabel(text("overlap_at_one", k=top_k))
-    seed_axis.set_title(f"{text.panel(0)} {text('seed').lower()}", loc="left")
-    if sizes and sizes[-1] / max(sizes[0], 1) > 10:
-        size_axis.set_xscale("log")
-    size_axis.set_xlabel(text("train_size"))
-    size_axis.set_title(f"{text.panel(1)} {text('train_size').lower()}", loc="left")
-    size_axis.tick_params(labelleft=False)
-
-    own = sensitivity[~sensitivity["sweep"].isin(["seed", "train_size"])]
-    for j, method in enumerate(methods):
-        axis = figure.add_subplot(grid[1, j], sharey=seed_axis)
-        part = own[own["method"] == method]
-        axis.set_title(f"{text.panel(2 + j)} {method}", loc="left")
-        if j > 0:
-            axis.tick_params(labelleft=False)
-        else:
-            axis.set_ylabel(text("overlap_at_one", k=top_k))
-        if part.empty:
-            axis.text(
-                0.5,
-                0.5,
-                text("no_parameter"),
-                ha="center",
-                va="center",
-                transform=axis.transAxes,
-                color=INK_MUTED,
+    for i, budget in enumerate(budgets):
+        for j, slicing in enumerate(slicings):
+            axis = grid[i, j]
+            part = slices[slices["slicing"] == slicing]
+            names = list(dict.fromkeys(part["slice"]))
+            counts = part.drop_duplicates("slice").set_index("slice")["queries"]
+            x = np.arange(len(names))
+            series_index = 0
+            for method in methods:
+                for name in strategies:
+                    series = (
+                        part[(part["method"] == method) & (part["strategy"] == name)]
+                        .set_index("slice")
+                        .reindex(names)
+                    )
+                    offset = (series_index - (len(methods) * len(strategies) - 1) / 2) * dodge
+                    series_index += 1
+                    axis.plot(
+                        x + offset,
+                        series[f"overlap_{budget}"],
+                        linestyle="",
+                        color=colors[method],
+                        **marker_style(name, colors[method], markers[method]),
+                    )
+            for boundary in range(1, len(names)):
+                axis.axvline(boundary - 0.5, color="#dddddd", linewidth=0.5, zorder=0)
+            axis.set_xticks(
+                x,
+                [
+                    f"{text.slice(slicing, name)}\n{text.number(int(counts[name]))}"
+                    for name in names
+                ],
             )
-            axis.set_xticks([])
-            continue
-        parameter = str(part["sweep"].iloc[0])
-        values = sorted(part["value"].unique())
-        for name in strategies:
-            series = part[part["strategy"] == name].set_index("value").reindex(values)
-            axis.plot(
-                values,
-                series["overlap_1"],
-                color=colors[method],
-                linestyle=strategy_line_style(name),
-                **marker_style(name, colors[method], markers[method]),
-            )
-        if len(values) > 1 and values[-1] / max(values[0], 1e-12) > 10:
-            axis.set_xscale("log")
-        axis.set_xlabel(parameter)
-    handles = _method_handles(colors, markers, lines=True) + _fill_handles(text, lines=True)
+            categorical_x(axis)
+            axis.set_xlim(-0.5, len(names) - 0.5)
+            if i == len(budgets) - 1:
+                axis.set_xlabel(text(slicing) if slicing in ("connectivity", "terms") else slicing)
+        grid[i, 0].set_ylabel(text("overlap_at", k=top_k, shards=text.shards(budget)))
+    handles = _method_handles(colors, markers) + _focus_handles(strategies, lines=False)
     figure.legend(handles=handles, loc="outside lower center", ncol=len(handles))
     save(figure, path)
 
@@ -484,6 +436,7 @@ def plot_ablation_heatmaps(
     ablations: pd.DataFrame,
     strategies: Sequence[str],
     top_k: int,
+    budget: int,
     text: Labels,
     path: Path,
 ) -> None:
@@ -495,7 +448,7 @@ def plot_ablation_heatmaps(
     for index, (axis, strategy) in enumerate(zip(axes, strategies, strict=True)):
         table = (
             ablations[ablations["strategy"] == strategy]
-            .pivot(index="variant", columns="method", values="overlap_1")
+            .pivot(index="variant", columns="method", values=f"overlap_{budget}")
             .reindex(index=["baseline", *variants], columns=methods)
         )
         delta = (table.loc[variants] - table.loc["baseline"]) * 100
@@ -523,5 +476,10 @@ def plot_ablation_heatmaps(
         axis.grid(visible=True, which="minor", color=SURFACE, linewidth=1.5)
         axis.tick_params(which="both", length=0)
         axis.set_title(f"{text.panel(index)} {strategy}", loc="left")
-        figure.colorbar(image, ax=axis, shrink=0.9, label=text("delta_pp", k=top_k))
+        figure.colorbar(
+            image,
+            ax=axis,
+            shrink=0.9,
+            label=text("delta_pp", k=top_k, shards=text.shards(budget)),
+        )
     save(figure, path)

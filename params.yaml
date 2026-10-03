@@ -154,3 +154,4 @@ figures:
   focus_strategies: [bal]
   ablation_strategies: [bal, aff]
   language: ru
+  budgets: [1, 2]

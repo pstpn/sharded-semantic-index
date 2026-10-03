@@ -118,7 +118,7 @@ def test_every_figure_renders(
             "strategy": ["hash_bal", "bal"],
             "duplication": [23.0, 19.0],
             "fanout_mean": [3.0, 1.5],
-            "overlap": [0.6, 0.8],
+            "label": ["hash_bal\n@1 0.60", "bal\n@1 0.80"],
         }
     )
     by_sample = pd.DataFrame(
@@ -128,6 +128,7 @@ def test_every_figure_renders(
         {
             "method": ["leiden", "leiden", "cpm", "cpm"],
             "strategy": ["hash_bal", "bal"] * 2,
+            "budget": ["1"] * 4,
             "overlap": [0.6, 0.8, 0.6, 0.7],
             "overlap_ci_low": [0.55, 0.75, 0.55, 0.65],
             "overlap_ci_high": [0.65, 0.85, 0.65, 0.75],
@@ -140,7 +141,7 @@ def test_every_figure_renders(
     )
     plots.plot_duplication_vs_fanout(points, text, "t", tmp_path / "c.pdf")
     plots.plot_fanout_by_sample(by_sample, text, "t", tmp_path / "d.pdf")
-    plots.plot_methods_comparison(retrieval, 10, text, "t", tmp_path / "e.pdf")
+    plots.plot_methods_comparison(retrieval, 10, [1], text, "t", tmp_path / "e.pdf")
     plots.plot_cluster_sizes(clustering, 3, text, "t", tmp_path / "f.pdf")
     plots.plot_cluster_wordclouds(clustering, strength, 4, 1, text, "t", tmp_path / "g.pdf")
     plots.plot_graph_clusters(edges, clustering, 50, 1, text, "t", tmp_path / "h.pdf")
@@ -168,8 +169,14 @@ def test_style_codes_identity_consistently() -> None:
 
 def test_labels_exist_in_both_languages() -> None:
     russian, english = Labels("ru"), Labels("en")
-    assert russian("overlap_at_one", k=10) != english("overlap_at_one", k=10)
-    assert russian.sample("frequent_pairs") == "частые пары"
+    assert (
+        russian("overlap_at", k=10, shards=russian.shards(1))
+        == "Overlap@10 при опросе одного шарда"
+    )
+    assert (
+        english("overlap_at", k=10, shards=english.shards(2)) == "Overlap@10 with 2 shards probed"
+    )
+    assert russian.sample("frequent_pairs") == english.sample("frequent_pairs") == "frequent pairs"
     assert english.sample("unknown_sample") == "unknown_sample"
     assert russian.number(241185) == "241\u2009185"
     assert english.number(241185) == "241,185"
