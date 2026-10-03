@@ -10,13 +10,14 @@ from matplotlib.figure import Figure
 from sharded_index.config import ComparisonsConfig
 from sharded_index.data.corpus import Corpus
 from sharded_index.graph.cooccurrence import node_strength
-from sharded_index.reporting import plots
+from sharded_index.reporting import plots, style
 from sharded_index.reporting.describe import (
     clusters_table,
     collection_description,
     frame_word_candidates,
     graph_description,
 )
+from sharded_index.reporting.labels import Labels
 from sharded_index.reporting.tables import comparison_pairs, variants_table, write_table
 from sharded_index.text import Tokenizer
 from synthetic import STRATEGIES
@@ -132,18 +133,48 @@ def test_every_figure_renders(
             "overlap_ci_high": [0.65, 0.85, 0.65, 0.75],
         }
     )
-    plots.plot_fanout_ecdf(fanouts, "t", tmp_path / "a.pdf")
-    plots.plot_overlap_by_budget({"hash_bal": curve, "bal": curve}, 10, "t", tmp_path / "b.pdf")
-    plots.plot_duplication_vs_fanout(points, "t", tmp_path / "c.pdf")
-    plots.plot_fanout_by_sample(by_sample, "t", tmp_path / "d.pdf")
-    plots.plot_methods_comparison(retrieval, "t", tmp_path / "e.pdf")
-    plots.plot_cluster_sizes(clustering, 3, "t", tmp_path / "f.pdf")
-    plots.plot_cluster_wordclouds(clustering, strength, 4, 1, "t", tmp_path / "g.pdf")
-    plots.plot_graph_clusters(edges, clustering, 50, 1, "t", tmp_path / "h.pdf")
-    plots.plot_tsne(edges, clustering, strength, 3, 1, "t", tmp_path / "i.pdf")
-    plots.plot_cluster_heatmap(edges, clustering, 3, "t", tmp_path / "j.pdf")
+    text = Labels("ru")
+    plots.plot_fanout_ecdf(fanouts, text, "t", tmp_path / "a.pdf")
+    plots.plot_overlap_by_budget(
+        {"hash_bal": curve, "bal": curve}, 10, text, "t", tmp_path / "b.pdf"
+    )
+    plots.plot_duplication_vs_fanout(points, text, "t", tmp_path / "c.pdf")
+    plots.plot_fanout_by_sample(by_sample, text, "t", tmp_path / "d.pdf")
+    plots.plot_methods_comparison(retrieval, 10, text, "t", tmp_path / "e.pdf")
+    plots.plot_cluster_sizes(clustering, 3, text, "t", tmp_path / "f.pdf")
+    plots.plot_cluster_wordclouds(clustering, strength, 4, 1, text, "t", tmp_path / "g.pdf")
+    plots.plot_graph_clusters(edges, clustering, 50, 1, text, "t", tmp_path / "h.pdf")
+    plots.plot_tsne(edges, clustering, strength, 3, 1, text, "t", tmp_path / "i.pdf")
+    plots.plot_cluster_heatmap(edges, clustering, 3, text, "t", tmp_path / "j.pdf")
     for name in "abcdefghij":
         assert (tmp_path / f"{name}.pdf").stat().st_size > 0
+
+
+def test_style_codes_identity_consistently() -> None:
+    colors = style.method_colors(["metis", "leiden", "custom"])
+    assert colors["leiden"] == style.BLUE
+    assert colors["metis"] == style.PURPLE
+    assert colors["custom"] in style.SPARE_COLORS
+    markers = style.method_markers(["cpm", "custom"])
+    assert markers["cpm"] == "^"
+    assert markers["custom"] in style.SPARE_MARKERS
+    assert style.strategy_color("hash_bal") == style.HASH_COLOR
+    assert style.strategy_color("base_r3") != style.strategy_color("base")
+    assert style.strategy_marker("aff_r3") == style.strategy_marker("aff") == "s"
+    assert style.marker_style("hash_aff", "#000000")["markerfacecolor"] == style.SURFACE
+    assert style.strategy_line_style("hash_base") == "--"
+    assert style.strategy_line_style("base") == "-"
+
+
+def test_labels_exist_in_both_languages() -> None:
+    russian, english = Labels("ru"), Labels("en")
+    assert russian("overlap_at_one", k=10) != english("overlap_at_one", k=10)
+    assert russian.sample("frequent_pairs") == "частые пары"
+    assert english.sample("unknown_sample") == "unknown_sample"
+    assert russian.number(241185) == "241\u2009185"
+    assert english.number(241185) == "241,185"
+    assert russian.panel(0) == "а)"
+    assert english.panel(1) == "b)"
 
 
 def test_point_labels_do_not_overlap_and_stay_inside_the_axes() -> None:
@@ -165,7 +196,9 @@ def test_point_labels_do_not_overlap_and_stay_inside_the_axes() -> None:
 @pytest.mark.parametrize("name", ["a", "b"])
 def test_figures_are_byte_stable(name: str, tmp_path: Path) -> None:
     for run in ("first", "second"):
-        plots.plot_fanout_ecdf({"bal": np.array([1, 2, 2])}, name, tmp_path / run / "x.pdf")
+        plots.plot_fanout_ecdf(
+            {"bal": np.array([1, 2, 2])}, Labels("en"), name, tmp_path / run / "x.pdf"
+        )
     assert (tmp_path / "first" / "x.pdf").read_bytes() == (
         tmp_path / "second" / "x.pdf"
     ).read_bytes()

@@ -137,6 +137,9 @@ ablations:
     min_df_5: {graph: {min_df: 5}}
     max_df_001: {graph: {max_df_ratio: 0.01}}
     max_df_0005: {graph: {max_df_ratio: 0.005}}
+    no_frame_mpc3: {graph: {stop_words: [], min_pair_count: 3}}
+    no_frame_mpc5: {graph: {stop_words: [], min_pair_count: 5}}
+    llr_no_frame_mpc3: {graph: {edge_weight: llr, stop_words: [], min_pair_count: 3}}
 
 describe:
   top_clusters: 25
@@ -148,3 +151,6 @@ figures:
   top_clusters: 25
   graph_max_nodes: 1000
   layout_seed: 42
+  focus_strategies: [bal]
+  ablation_strategies: [bal, aff]
+  language: ru

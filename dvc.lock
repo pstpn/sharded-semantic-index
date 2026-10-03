@@ -5057,6 +5057,19 @@ stages:
             max_df_0005:
               graph:
                 max_df_ratio: 0.005
+            no_frame_mpc3:
+              graph:
+                stop_words: []
+                min_pair_count: 3
+            no_frame_mpc5:
+              graph:
+                stop_words: []
+                min_pair_count: 5
+            llr_no_frame_mpc3:
+              graph:
+                edge_weight: llr
+                stop_words: []
+                min_pair_count: 3
         clustering.methods.leiden:
           algorithm: leiden
           resolution: 1.0
@@ -5300,8 +5313,8 @@ stages:
     outs:
     - path: data/interim/ablations/leiden.parquet
       hash: md5
-      md5: 571aac2aba7ffa69dd670610c71af2c9
-      size: 28756
+      md5: 39dce9dffa7171433c9f78e5e0fa073e
+      size: 31900
   ablations@cpm:
     cmd: python -m sharded_index.pipeline.ablations --method cpm
     deps:
@@ -5424,6 +5437,19 @@ stages:
             max_df_0005:
               graph:
                 max_df_ratio: 0.005
+            no_frame_mpc3:
+              graph:
+                stop_words: []
+                min_pair_count: 3
+            no_frame_mpc5:
+              graph:
+                stop_words: []
+                min_pair_count: 5
+            llr_no_frame_mpc3:
+              graph:
+                edge_weight: llr
+                stop_words: []
+                min_pair_count: 3
         clustering.methods.cpm:
           algorithm: cpm
           resolution: 0.02
@@ -5667,8 +5693,8 @@ stages:
     outs:
     - path: data/interim/ablations/cpm.parquet
       hash: md5
-      md5: 1ad256cfcc5b2f060e1225f99758bce9
-      size: 28985
+      md5: 9d8a9dd34f9b9f0bd94c1cac7560dbc5
+      size: 32152
   ablations@infomap:
     cmd: python -m sharded_index.pipeline.ablations --method infomap
     deps:
@@ -5791,6 +5817,19 @@ stages:
             max_df_0005:
               graph:
                 max_df_ratio: 0.005
+            no_frame_mpc3:
+              graph:
+                stop_words: []
+                min_pair_count: 3
+            no_frame_mpc5:
+              graph:
+                stop_words: []
+                min_pair_count: 5
+            llr_no_frame_mpc3:
+              graph:
+                edge_weight: llr
+                stop_words: []
+                min_pair_count: 3
         clustering.methods.infomap:
           algorithm: infomap
         clustering.seed: 42
@@ -6031,8 +6070,8 @@ stages:
     outs:
     - path: data/interim/ablations/infomap.parquet
       hash: md5
-      md5: 261728ddd9b87fa6bd7305e10558595a
-      size: 29036
+      md5: 71a05f4314b03c93940faf73a3a3d5a7
+      size: 32080
   ablations@metis:
     cmd: python -m sharded_index.pipeline.ablations --method metis
     deps:
@@ -6155,6 +6194,19 @@ stages:
             max_df_0005:
               graph:
                 max_df_ratio: 0.005
+            no_frame_mpc3:
+              graph:
+                stop_words: []
+                min_pair_count: 3
+            no_frame_mpc5:
+              graph:
+                stop_words: []
+                min_pair_count: 5
+            llr_no_frame_mpc3:
+              graph:
+                edge_weight: llr
+                stop_words: []
+                min_pair_count: 3
         clustering.methods.metis:
           algorithm: metis
           n_parts: 341
@@ -6396,15 +6448,15 @@ stages:
     outs:
     - path: data/interim/ablations/metis.parquet
       hash: md5
-      md5: 7dde6212e94d9b7c324742ad52e3a191
-      size: 28264
+      md5: 4ac4c2a921285e60a8066d7db7d80bd8
+      size: 31289
   report:
     cmd: python -m sharded_index.pipeline.report
     deps:
     - path: data/interim/ablations
       hash: md5
-      md5: fda1af4e4bd65a2fccc6553f92520835.dir
-      size: 115041
+      md5: 6de63a159dafbda1250a3eb704ef5bbd.dir
+      size: 127421
       nfiles: 4
     - path: data/interim/evaluation
       hash: md5
@@ -6720,8 +6772,8 @@ stages:
     outs:
     - path: metrics/ablations.csv
       hash: md5
-      md5: 965b798f9b8ece1ac8a0abb601575186
-      size: 93140
+      md5: a9f5914c4a5a13962e543c5dfd279ff8
+      size: 110714
     - path: metrics/comparisons.csv
       hash: md5
       md5: c90f04a44936afc38a0245897a7aff18
@@ -7061,6 +7113,14 @@ stages:
       md5: e015ab2d2d24d129986589708fcd9922.dir
       size: 37325874
       nfiles: 8
+    - path: metrics/ablations.csv
+      hash: md5
+      md5: a9f5914c4a5a13962e543c5dfd279ff8
+      size: 110714
+    - path: metrics/comparisons.csv
+      hash: md5
+      md5: c90f04a44936afc38a0245897a7aff18
+      size: 568559
     - path: metrics/partitions.csv
       hash: md5
       md5: b19f497e36da3eb8569fc807978c799c
@@ -7073,6 +7133,14 @@ stages:
       hash: md5
       md5: b1773c6dda87441df07fad4f6ea99a18
       size: 29979
+    - path: metrics/sensitivity.csv
+      hash: md5
+      md5: c5d934fe3358c98b40b1ca5278a4e8bc
+      size: 71448
+    - path: metrics/slices.csv
+      hash: md5
+      md5: 817d74266aec2ac5ae79a88d8c0e8173
+      size: 53945
     - path: models/clusterings
       hash: md5
       md5: 7d08f3730fc63bf1b2e73a758830f747.dir
@@ -7108,12 +7176,24 @@ stages:
       size: 3271
     - path: sharded_index/pipeline/figures.py
       hash: md5
-      md5: d079fea0df334decf2df49d2b51eeb5b
-      size: 4961
+      md5: 295c492edc4a0fe03844f944e829064c
+      size: 8430
+    - path: sharded_index/reporting/labels.py
+      hash: md5
+      md5: 4c14c647b2e14701d1d58198581272a1
+      size: 6420
+    - path: sharded_index/reporting/overview.py
+      hash: md5
+      md5: 8a240c8225f56f80ce6c2f78a9d75848
+      size: 21335
     - path: sharded_index/reporting/plots.py
       hash: md5
-      md5: 2e7f8c718ecdac052a190874cd7983be
-      size: 16664
+      md5: a3df71510d600e1b5077877e525f58a6
+      size: 18567
+    - path: sharded_index/reporting/style.py
+      hash: md5
+      md5: 735b17a32166ba289f9fc448c2cd9ec3
+      size: 6492
     - path: sharded_index/routing.py
       hash: md5
       md5: 2113d7610b4b15cf3f91d0e694557d92
@@ -7155,6 +7235,12 @@ stages:
           top_clusters: 25
           graph_max_nodes: 1000
           layout_seed: 42
+          focus_strategies:
+          - bal
+          ablation_strategies:
+          - bal
+          - aff
+          language: ru
         partition.strategies:
         - hash_base
         - base
@@ -7188,6 +7274,6 @@ stages:
     outs:
     - path: reports/figures
       hash: md5
-      md5: d40a733212b38bf6e07a1a01b3a9c3ad.dir
-      size: 11721438
-      nfiles: 37
+      md5: 0494069bb2a890c9fbcfd46023b47ddc.dir
+      size: 6164503
+      nfiles: 48

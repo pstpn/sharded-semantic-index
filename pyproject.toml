@@ -25,6 +25,7 @@ dependencies = [
     "seaborn>=0.13",
     "networkx>=3.5",
     "wordcloud>=1.9",
+    "scienceplots>=2.2",
 ]
 
 [project.optional-dependencies]
@@ -91,6 +92,8 @@ convention = "google"
 
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = ["D", "ARG001"]
+"sharded_index/reporting/labels.py" = ["RUF001", "RUF002"]  # Russian wording of the figures
+"tests/test_reporting.py" = ["RUF001"]
 
 [tool.mypy]
 files = ["sharded_index", "tests"]

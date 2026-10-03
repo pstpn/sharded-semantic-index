@@ -215,7 +215,7 @@ ablations:
 | `metrics/ablations.csv` | варианты с одной изменённой настройкой |
 | `metrics/verification.csv` | результаты проверок корректности |
 | `metrics/corpus.json`, `clusterings.csv`, `clusters.csv`, `frame_words.csv` | описание корпуса, графа и кластеров |
-| `reports/figures/` | графики, по каталогу на алгоритм |
+| `reports/figures/` | графики в стиле SciencePlots: обзорные `overview_*.pdf` по всем алгоритмам, стратегиям и выборкам сразу и по каталогу на алгоритм; язык подписей — `figures.language` |
 
 Каждая таблица устроена одинаково: строка — конфигурация (`method`, `strategy`, `sample`),
 столбцы — метрики. Описание всех столбцов — в [docs/outputs.md](docs/outputs.md).

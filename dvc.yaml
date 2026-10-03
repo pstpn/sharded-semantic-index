@@ -377,7 +377,10 @@ stages:
       - sharded_index/graph/cooccurrence.py
       - sharded_index/index/ranking.py
       - sharded_index/partition/model.py
+      - sharded_index/reporting/labels.py
+      - sharded_index/reporting/overview.py
       - sharded_index/reporting/plots.py
+      - sharded_index/reporting/style.py
       - sharded_index/routing.py
       - sharded_index/storage.py
       - sharded_index/text.py
@@ -387,6 +390,10 @@ stages:
       - metrics/partitions.csv
       - metrics/routing.csv
       - metrics/retrieval.csv
+      - metrics/comparisons.csv
+      - metrics/slices.csv
+      - metrics/sensitivity.csv
+      - metrics/ablations.csv
     params:
       - queries
       - clustering.methods

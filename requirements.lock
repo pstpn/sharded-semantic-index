@@ -113,6 +113,7 @@ requests==2.34.2
 rich==15.0.0
 ruamel.yaml==0.19.1
 ruff==0.16.10
+SciencePlots==2.2.2
 scikit-learn==1.9.1
 scipy==1.18.1
 scmrepo==3.6.2

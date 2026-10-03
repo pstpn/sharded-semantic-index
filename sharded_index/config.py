@@ -260,6 +260,9 @@ class FiguresConfig(_Section):
     top_clusters: int = Field(gt=0)
     graph_max_nodes: int = Field(gt=0)
     layout_seed: int
+    focus_strategies: StrategyNames
+    ablation_strategies: StrategyNames
+    language: Literal["ru", "en"]
 
 
 class Config(_Section):
@@ -307,6 +310,18 @@ class Config(_Section):
                     self.clustering.methods[name].with_parameter(parameter, value)
         for name, overrides in self.ablations.variants.items():
             _require(f"ablations.variants.{name}", overrides, set(VARIABLE_SECTIONS))
+        strategies = set(self.partition.strategies)
+        focus = self.figures.focus_strategies
+        if any(Strategy.parse(name).is_hash for name in focus):
+            msg = "figures.focus_strategies must name semantic strategies, not hash baselines"
+            raise ValueError(msg)
+        _require("figures.focus_strategies", focus, strategies)
+        _require(
+            "figures.focus_strategies (hash baselines)",
+            [Strategy.parse(name).hash_baseline for name in focus],
+            strategies,
+        )
+        _require("figures.ablation_strategies", self.figures.ablation_strategies, strategies)
         for setting, sample in (
             ("evaluation.slices.sample", self.evaluation.slices.sample),
             ("verification.sample", self.verification.sample),
