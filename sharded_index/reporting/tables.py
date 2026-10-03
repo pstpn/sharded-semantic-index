@@ -29,6 +29,8 @@ COUNT_COLUMNS = frozenset(
         "graph_terms",
         "clusters",
         "largest_cluster",
+        "max_iterations",
+        "n_parts",
         "terms",
         "internal_edges",
         "incomplete_covers",

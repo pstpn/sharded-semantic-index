@@ -1,0 +1,43 @@
+{
+  "collection": {
+    "documents": 241185,
+    "judged_relevant_documents": 128009,
+    "distractor_documents": 113176,
+    "queries": 122063,
+    "train_queries": 115959,
+    "holdout_queries": 6104,
+    "judged_per_query_mean": 1.0579
+  },
+  "vocabulary": {
+    "terms": 189841,
+    "document_term_pairs": 6320007,
+    "terms_per_document_mean": 26.204,
+    "terms_per_document_median": 25.0
+  },
+  "document_frequency": {
+    "max_share": 0.1137,
+    "top10": {
+      "one": 0.1137,
+      "also": 0.1137,
+      "may": 0.0919,
+      "used": 0.0892,
+      "time": 0.063,
+      "two": 0.0596,
+      "use": 0.0579,
+      "people": 0.0546,
+      "many": 0.0545,
+      "first": 0.0511
+    },
+    "terms_over_1pct": 383,
+    "terms_over_5pct": 11
+  },
+  "graph": {
+    "terms": 10567,
+    "edges": 39794,
+    "components": 289,
+    "largest_component_terms": 9972,
+    "terms_in_corpus": 10562,
+    "corpus_vocabulary_share": 0.0556,
+    "frame_stop_words": 29
+  }
+}

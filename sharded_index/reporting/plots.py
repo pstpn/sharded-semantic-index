@@ -11,7 +11,9 @@ import networkx as nx
 import numpy as np
 import pandas as pd
 import seaborn as sns
+from matplotlib.backends.backend_agg import FigureCanvasAgg
 from matplotlib.figure import Figure
+from matplotlib.transforms import Bbox
 from sklearn.manifold import TSNE
 from sklearn.preprocessing import normalize
 from wordcloud import WordCloud
@@ -19,6 +21,25 @@ from wordcloud import WordCloud
 from sharded_index.evaluation.measure import FULL
 
 MARKERS = ["o", "s", "^", "D", "v", "P", "X", "*", "h", "<"]
+LABEL_OFFSETS = [
+    (10, 6),
+    (10, -20),
+    (-10, 6),
+    (-10, -20),
+    (10, 32),
+    (-10, 32),
+    (10, -46),
+    (-10, -46),
+    (36, 60),
+    (-36, 60),
+    (36, -74),
+    (-36, -74),
+    (60, 6),
+    (-60, 6),
+    (60, -20),
+    (-60, -20),
+]
+"""Candidate label positions in points from a marker; the first free of overlaps is used."""
 
 
 def _save(figure: Figure, path: Path) -> None:
@@ -110,10 +131,75 @@ def plot_overlap_by_budget(
     _save(figure, path)
 
 
+def _label_points(
+    axis: Any,
+    figure: Figure,
+    points: Sequence[tuple[float, float]],
+    labels: Sequence[str],
+    colors: Sequence[Any],
+) -> list[Bbox]:
+    """Annotate the points so that no label covers another label or a marker.
+
+    A label tries ``LABEL_OFFSETS`` in order and takes the first position that
+    lies inside the axes and overlaps nothing; a label moved away from the
+    default position gets a leader line to its marker.  Returns the bounding
+    boxes of the labels in pixels.
+    """
+    canvas = FigureCanvasAgg(figure)
+    canvas.draw()
+    renderer = canvas.get_renderer()
+    inside = axis.bbox
+    markers = [
+        Bbox.from_bounds(px - 9, py - 9, 18, 18) for px, py in axis.transData.transform(points)
+    ]
+    placed: list[Bbox] = []
+
+    def fits(extent: Bbox) -> bool:
+        return bool(
+            inside.x0 <= extent.x0 <= extent.x1 <= inside.x1
+            and inside.y0 <= extent.y0 <= extent.y1 <= inside.y1
+        )
+
+    def annotate(index: int, offset: tuple[int, int], leader: bool) -> Any:
+        return axis.annotate(
+            labels[index],
+            points[index],
+            textcoords="offset points",
+            xytext=offset,
+            fontsize=9,
+            color=colors[index],
+            ha="left" if offset[0] > 0 else "right",
+            va="bottom" if offset[1] > 0 else "top",
+            arrowprops={"arrowstyle": "-", "color": colors[index], "alpha": 0.6, "linewidth": 0.7}
+            if leader
+            else None,
+        )
+
+    for i in range(len(points)):
+        obstacles = placed + markers[:i] + markers[i + 1 :]
+        for offset in LABEL_OFFSETS:
+            text = annotate(i, offset, leader=False)
+            extent = text.get_window_extent(renderer)
+            box = extent.expanded(1.08, 1.15)
+            if fits(extent) and not any(box.overlaps(other) for other in obstacles):
+                break
+            text.remove()
+        else:
+            offset = LABEL_OFFSETS[0]
+            text = annotate(i, offset, leader=False)
+            box = text.get_window_extent(renderer)
+        if offset != LABEL_OFFSETS[0]:
+            text.remove()
+            annotate(i, offset, leader=True)
+        placed.append(box)
+    return placed
+
+
 def plot_duplication_vs_fanout(points: pd.DataFrame, title: str, path: Path) -> None:
     """Storage cost against routing cost, one point per strategy.
 
     ``points`` has columns ``strategy``, ``duplication``, ``fanout_mean`` and ``overlap``.
+    Every point carries its own label, placed where it covers nothing else.
     """
     figure = Figure(figsize=(10, 6), layout="tight")
     axis = figure.subplots()
@@ -125,24 +211,22 @@ def plot_duplication_vs_fanout(points: pd.DataFrame, title: str, path: Path) -> 
             color=_color(i),
             marker=MARKERS[i % len(MARKERS)],
             zorder=3,
-            label=row.strategy,
-        )
-        axis.annotate(
-            f"{row.strategy}\noverlap {row.overlap:.2f}",
-            (row.duplication, row.fanout_mean),
-            textcoords="offset points",
-            xytext=(10, 6),
-            fontsize=9,
-            color=_color(i),
         )
     axis.axhline(y=1.0, color="green", linestyle="--", alpha=0.6)
-    axis.set_xlim(left=0)
-    axis.set_ylim(bottom=0.9)
+    bottom, top = 0.9, float(points["fanout_mean"].max())
+    axis.set_xlim(left=0, right=float(points["duplication"].max()) * 1.15)
+    axis.set_ylim(bottom=bottom, top=top + 0.25 * (top - bottom))
     axis.set_xlabel("Document duplication (shards per document)")
     axis.set_ylabel("Mean shards in the query cover")
     axis.set_title(title)
-    axis.legend(loc="upper right")
     axis.grid(visible=True, alpha=0.3)
+    _label_points(
+        axis,
+        figure,
+        list(zip(points["duplication"], points["fanout_mean"], strict=True)),
+        [f"{row.strategy}\noverlap {row.overlap:.2f}" for row in points.itertuples(index=False)],
+        [_color(i) for i in range(len(points))],
+    )
     _save(figure, path)
 
 
@@ -220,7 +304,9 @@ def plot_cluster_sizes(clustering: Mapping[str, int], top_n: int, title: str, pa
     histogram.set_title(title)
 
     top = sizes.head(top_n)
-    largest.barh(top.index.astype(str), top.to_numpy(), color="coral")
+    positions = range(len(top))
+    largest.barh(positions, top.to_numpy(), color="coral")
+    largest.set_yticks(positions, [str(cluster) for cluster in top.index])
     largest.set_xlabel("Cluster size (terms)")
     largest.set_ylabel("Cluster")
     largest.set_title(f"{len(top)} largest clusters")

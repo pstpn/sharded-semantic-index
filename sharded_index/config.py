@@ -135,6 +135,7 @@ class ClusteringMethod(_Section):
     algorithm: Algorithm
     resolution: float | None = Field(default=None, gt=0)
     iterations: Annotated[int, Field(ge=1)] | Literal["convergence"] | None = None
+    max_iterations: int | None = Field(default=None, ge=1)
     n_parts: int | None = Field(default=None, ge=2)
 
     @model_validator(mode="after")
@@ -142,6 +143,11 @@ class ClusteringMethod(_Section):
         iterative = self.algorithm in ("leiden", "cpm")
         if iterative != (self.resolution is not None) or iterative != (self.iterations is not None):
             msg = "resolution and iterations are required for leiden and cpm only"
+            raise ValueError(msg)
+        if (self.iterations == "convergence") != (self.max_iterations is not None):
+            msg = (
+                "max_iterations is required with iterations: convergence and not accepted otherwise"
+            )
             raise ValueError(msg)
         if (self.algorithm == "metis") != (self.n_parts is not None):
             msg = "n_parts is required for metis and not accepted otherwise"

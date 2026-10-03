@@ -45,8 +45,9 @@ stages:
     cmd: python -m sharded_index.pipeline.build_graph
     deps:
       - sharded_index/pipeline/build_graph.py
-      - sharded_index/graph/cooccurrence.py
       - sharded_index/data/msmarco.py
+      - sharded_index/graph/cooccurrence.py
+      - sharded_index/text.py
       - data/processed/pairs.parquet
     params:
       - text
@@ -59,8 +60,9 @@ stages:
     cmd: python -m sharded_index.pipeline.sample_queries
     deps:
       - sharded_index/pipeline/sample_queries.py
-      - sharded_index/data/queries.py
       - sharded_index/data/msmarco.py
+      - sharded_index/data/queries.py
+      - sharded_index/text.py
       - data/processed/pairs.parquet
       - models/graph.parquet
     params:
@@ -72,8 +74,11 @@ stages:
     cmd: python -m sharded_index.pipeline.rank_queries
     deps:
       - sharded_index/pipeline/rank_queries.py
+      - sharded_index/data/corpus.py
+      - sharded_index/index/build.py
       - sharded_index/index/ranking.py
       - sharded_index/storage.py
+      - sharded_index/text.py
       - data/interim/queries.parquet
       - data/interim/corpus
       - data/interim/index
@@ -107,9 +112,11 @@ stages:
       cmd: python -m sharded_index.pipeline.build_partitions --method ${key}
       deps:
         - sharded_index/pipeline/build_partitions.py
+        - sharded_index/graph
         - sharded_index/partition
-        - sharded_index/graph/clustering.py
         - sharded_index/data/corpus.py
+        - sharded_index/storage.py
+        - sharded_index/text.py
         - models/graph.parquet
         - models/clusterings/${key}.parquet
         - data/interim/corpus
@@ -126,9 +133,11 @@ stages:
       cmd: python -m sharded_index.pipeline.assign_documents --method ${key}
       deps:
         - sharded_index/pipeline/assign_documents.py
+        - sharded_index/data/corpus.py
         - sharded_index/evaluation/membership.py
         - sharded_index/partition/model.py
         - sharded_index/storage.py
+        - sharded_index/text.py
         - models/partitions/${key}
         - data/interim/corpus
       params:
@@ -142,9 +151,15 @@ stages:
       cmd: python -m sharded_index.pipeline.evaluate --method ${key}
       deps:
         - sharded_index/pipeline/evaluate.py
+        - sharded_index/graph
+        - sharded_index/partition
+        - sharded_index/data/corpus.py
         - sharded_index/evaluation/measure.py
-        - sharded_index/routing.py
+        - sharded_index/evaluation/membership.py
         - sharded_index/index/ranking.py
+        - sharded_index/routing.py
+        - sharded_index/storage.py
+        - sharded_index/text.py
         - models/graph.parquet
         - models/clusterings/${key}.parquet
         - models/partitions/${key}
@@ -167,10 +182,17 @@ stages:
       cmd: python -m sharded_index.pipeline.verify --method ${key}
       deps:
         - sharded_index/pipeline/verify.py
-        - sharded_index/evaluation/verification.py
-        - sharded_index/evaluation/membership.py
         - sharded_index/index
+        - sharded_index/data/corpus.py
+        - sharded_index/data/queries.py
+        - sharded_index/evaluation/measure.py
+        - sharded_index/evaluation/membership.py
+        - sharded_index/evaluation/verification.py
+        - sharded_index/graph/cooccurrence.py
+        - sharded_index/partition/model.py
         - sharded_index/routing.py
+        - sharded_index/storage.py
+        - sharded_index/text.py
         - data/processed/pairs.parquet
         - models/graph.parquet
         - models/partitions/${key}
@@ -195,13 +217,18 @@ stages:
       cmd: python -m sharded_index.pipeline.sensitivity --method ${key}
       deps:
         - sharded_index/pipeline/sensitivity.py
-        - sharded_index/evaluation/variants.py
+        - sharded_index/graph
+        - sharded_index/partition
+        - sharded_index/data/corpus.py
+        - sharded_index/data/msmarco.py
         - sharded_index/evaluation/measure.py
         - sharded_index/evaluation/membership.py
         - sharded_index/evaluation/statistics.py
-        - sharded_index/partition
-        - sharded_index/graph
+        - sharded_index/evaluation/variants.py
+        - sharded_index/index/ranking.py
         - sharded_index/routing.py
+        - sharded_index/storage.py
+        - sharded_index/text.py
         - data/processed/pairs.parquet
         - data/interim/corpus
         - data/interim/rankings
@@ -228,13 +255,18 @@ stages:
       cmd: python -m sharded_index.pipeline.ablations --method ${key}
       deps:
         - sharded_index/pipeline/ablations.py
-        - sharded_index/evaluation/variants.py
+        - sharded_index/graph
+        - sharded_index/partition
+        - sharded_index/data/corpus.py
+        - sharded_index/data/msmarco.py
         - sharded_index/evaluation/measure.py
         - sharded_index/evaluation/membership.py
         - sharded_index/evaluation/statistics.py
-        - sharded_index/partition
-        - sharded_index/graph
+        - sharded_index/evaluation/variants.py
+        - sharded_index/index/ranking.py
         - sharded_index/routing.py
+        - sharded_index/storage.py
+        - sharded_index/text.py
         - data/processed/pairs.parquet
         - data/interim/corpus
         - data/interim/rankings
@@ -256,9 +288,18 @@ stages:
     cmd: python -m sharded_index.pipeline.report
     deps:
       - sharded_index/pipeline/report.py
-      - sharded_index/reporting/tables.py
-      - sharded_index/evaluation/statistics.py
+      - sharded_index/data/corpus.py
+      - sharded_index/evaluation/measure.py
+      - sharded_index/evaluation/membership.py
       - sharded_index/evaluation/slices.py
+      - sharded_index/evaluation/statistics.py
+      - sharded_index/graph/cooccurrence.py
+      - sharded_index/index/ranking.py
+      - sharded_index/partition/model.py
+      - sharded_index/reporting/tables.py
+      - sharded_index/routing.py
+      - sharded_index/storage.py
+      - sharded_index/text.py
       - models/graph.parquet
       - data/interim/queries.parquet
       - data/interim/evaluation
@@ -293,7 +334,19 @@ stages:
     cmd: python -m sharded_index.pipeline.describe
     deps:
       - sharded_index/pipeline/describe.py
+      - sharded_index/graph
+      - sharded_index/data/corpus.py
+      - sharded_index/data/msmarco.py
+      - sharded_index/evaluation/measure.py
+      - sharded_index/evaluation/membership.py
+      - sharded_index/evaluation/statistics.py
+      - sharded_index/index/ranking.py
+      - sharded_index/partition/model.py
       - sharded_index/reporting/describe.py
+      - sharded_index/reporting/tables.py
+      - sharded_index/routing.py
+      - sharded_index/storage.py
+      - sharded_index/text.py
       - data/processed/pairs.parquet
       - data/interim/corpus
       - models/graph.parquet
@@ -318,7 +371,16 @@ stages:
     cmd: python -m sharded_index.pipeline.figures
     deps:
       - sharded_index/pipeline/figures.py
+      - sharded_index/data/corpus.py
+      - sharded_index/evaluation/measure.py
+      - sharded_index/evaluation/membership.py
+      - sharded_index/graph/cooccurrence.py
+      - sharded_index/index/ranking.py
+      - sharded_index/partition/model.py
       - sharded_index/reporting/plots.py
+      - sharded_index/routing.py
+      - sharded_index/storage.py
+      - sharded_index/text.py
       - models/graph.parquet
       - models/clusterings
       - data/interim/evaluation

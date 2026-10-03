@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 import random
 from collections.abc import Iterator
 from math import ceil
@@ -15,11 +16,10 @@ import scipy.sparse as sp
 
 from sharded_index.config import ClusteringMethod
 
+logger = logging.getLogger(__name__)
+
 METIS_WEIGHT_SCALE = 1000
 """METIS takes integer edge weights: the largest weight maps to this value."""
-
-UNTIL_CONVERGENCE = -1
-"""A negative iteration count makes leidenalg iterate until the partition stops improving."""
 
 
 def _indexed_edges(edges: pd.DataFrame) -> tuple[pd.Index, np.ndarray, np.ndarray, np.ndarray]:
@@ -64,6 +64,42 @@ def _metis(
     return list(parts)
 
 
+def _leiden(graph: ig.Graph, method: ClusteringMethod, seed: int | None) -> list[int]:
+    """Leiden with the modularity (``leiden``) or the CPM (``cpm``) quality function.
+
+    ``iterations: convergence`` repeats passes while a pass still improves the
+    partition, as leidenalg itself does, but gives up after ``max_iterations``
+    passes: when two placements of a node are exactly equivalent, rounding
+    noise can report a positive improvement forever.
+    """
+    assert method.resolution is not None
+    assert method.iterations is not None
+    quality = (
+        la.RBConfigurationVertexPartition if method.algorithm == "leiden" else la.CPMVertexPartition
+    )
+    partition = quality(graph, weights="weight", resolution_parameter=method.resolution)
+    optimiser = la.Optimiser()
+    if seed is not None:
+        optimiser.set_rng_seed(seed)
+    if method.iterations != "convergence":
+        optimiser.optimise_partition(partition, n_iterations=method.iterations)
+        return list(partition.membership)
+    assert method.max_iterations is not None
+    for _ in range(method.max_iterations):
+        if optimiser.optimise_partition(partition, n_iterations=1) <= 0:
+            break
+    else:
+        logger.warning(
+            "%s did not converge in %d passes on %d nodes at resolution %g; "
+            "keeping the last partition",
+            method.algorithm,
+            method.max_iterations,
+            graph.vcount(),
+            method.resolution,
+        )
+    return list(partition.membership)
+
+
 def cluster_graph(
     edges: pd.DataFrame, method: ClusteringMethod, seed: int | None
 ) -> dict[str, int]:
@@ -83,24 +119,7 @@ def cluster_graph(
         ig.set_random_number_generator(random.Random(seed))
         membership = graph.community_infomap(edge_weights="weight").membership
     else:
-        assert method.resolution is not None
-        assert method.iterations is not None
-        graph = _weighted_graph(len(nodes), src, dst, weights)
-        quality = (
-            la.RBConfigurationVertexPartition
-            if method.algorithm == "leiden"
-            else la.CPMVertexPartition
-        )
-        membership = la.find_partition(
-            graph,
-            quality,
-            weights="weight",
-            resolution_parameter=method.resolution,
-            n_iterations=UNTIL_CONVERGENCE
-            if method.iterations == "convergence"
-            else method.iterations,
-            seed=seed,
-        ).membership
+        membership = _leiden(_weighted_graph(len(nodes), src, dst, weights), method, seed)
     return {str(node): int(cluster) for node, cluster in zip(nodes, membership, strict=True)}
 
 

@@ -1,0 +1,7193 @@
+schema: '2.0'
+stages:
+  extract_pairs:
+    cmd: python -m sharded_index.pipeline.extract_pairs
+    deps:
+    - path: sharded_index/data/msmarco.py
+      hash: md5
+      md5: f56edef6271143c67df92018dfc63583
+      size: 2939
+    - path: sharded_index/pipeline/extract_pairs.py
+      hash: md5
+      md5: 957c1ee4fd5eec2fca3556efdf1284f2
+      size: 954
+    - path: sharded_index/text.py
+      hash: md5
+      md5: 8cf058a157dbbf8c4050fe7ef02f6f2c
+      size: 1003
+    params:
+      params.yaml:
+        dataset:
+          name: microsoft/ms_marco
+          config: v2.1
+          split: train
+          max_rows: 200000
+          docs_per_query: 2
+    outs:
+    - path: data/processed/pairs.parquet
+      hash: md5
+      md5: 98a214c2393745523e78ee89a0fa9113
+      size: 57962340
+  build_corpus:
+    cmd: python -m sharded_index.pipeline.build_corpus
+    deps:
+    - path: data/processed/pairs.parquet
+      hash: md5
+      md5: 98a214c2393745523e78ee89a0fa9113
+      size: 57962340
+    - path: sharded_index/data/corpus.py
+      hash: md5
+      md5: d97fb1176ef635b3afa710337838c367
+      size: 3084
+    - path: sharded_index/pipeline/build_corpus.py
+      hash: md5
+      md5: 125ef2b5ef4c2221cf3ec77d665d42ff
+      size: 728
+    - path: sharded_index/storage.py
+      hash: md5
+      md5: c3715042d73e354fd9ca5d4fb6bf2f8b
+      size: 1740
+    - path: sharded_index/text.py
+      hash: md5
+      md5: 8cf058a157dbbf8c4050fe7ef02f6f2c
+      size: 1003
+    params:
+      params.yaml:
+        text:
+          stop_words:
+          - i
+          - me
+          - my
+          - myself
+          - we
+          - our
+          - ours
+          - ourselves
+          - you
+          - your
+          - yours
+          - yourself
+          - yourselves
+          - he
+          - him
+          - his
+          - himself
+          - she
+          - her
+          - hers
+          - herself
+          - it
+          - its
+          - itself
+          - they
+          - them
+          - their
+          - theirs
+          - themselves
+          - what
+          - which
+          - who
+          - whom
+          - this
+          - that
+          - these
+          - those
+          - am
+          - is
+          - are
+          - was
+          - were
+          - be
+          - been
+          - being
+          - have
+          - has
+          - had
+          - having
+          - do
+          - does
+          - did
+          - doing
+          - a
+          - an
+          - the
+          - and
+          - but
+          - if
+          - or
+          - because
+          - as
+          - until
+          - while
+          - of
+          - at
+          - by
+          - for
+          - with
+          - about
+          - against
+          - between
+          - into
+          - through
+          - during
+          - before
+          - after
+          - above
+          - below
+          - to
+          - from
+          - up
+          - down
+          - in
+          - out
+          - on
+          - off
+          - over
+          - under
+          - again
+          - further
+          - then
+          - once
+          - here
+          - there
+          - when
+          - where
+          - why
+          - how
+          - all
+          - any
+          - both
+          - each
+          - few
+          - more
+          - most
+          - other
+          - some
+          - such
+          - no
+          - nor
+          - not
+          - only
+          - own
+          - same
+          - so
+          - than
+          - too
+          - very
+          - s
+          - t
+          - can
+          - will
+          - just
+          - don
+          - should
+          - now
+          - d
+          - ll
+          - m
+          - o
+          - re
+          - ve
+          - y
+          - ain
+          - aren
+          - couldn
+          - didn
+          - doesn
+          - hadn
+          - hasn
+          - haven
+          - isn
+          - mightn
+          - mustn
+          - needn
+          - shan
+          - shouldn
+          - wasn
+          - weren
+          - wouldn
+    outs:
+    - path: data/interim/corpus
+      hash: md5
+      md5: c66366fe16a0a9f6b7f53225bbf30e9a.dir
+      size: 23758442
+      nfiles: 3
+  build_index:
+    cmd: python -m sharded_index.pipeline.build_index
+    deps:
+    - path: data/processed/pairs.parquet
+      hash: md5
+      md5: 98a214c2393745523e78ee89a0fa9113
+      size: 57962340
+    - path: sharded_index/index/build.py
+      hash: md5
+      md5: de6134d473facb7c84b54e35aaf465b1
+      size: 3194
+    - path: sharded_index/pipeline/build_index.py
+      hash: md5
+      md5: 406254964a9d0390ec2f13f8f60166f5
+      size: 1094
+    - path: sharded_index/text.py
+      hash: md5
+      md5: 8cf058a157dbbf8c4050fe7ef02f6f2c
+      size: 1003
+    params:
+      params.yaml:
+        text:
+          stop_words:
+          - i
+          - me
+          - my
+          - myself
+          - we
+          - our
+          - ours
+          - ourselves
+          - you
+          - your
+          - yours
+          - yourself
+          - yourselves
+          - he
+          - him
+          - his
+          - himself
+          - she
+          - her
+          - hers
+          - herself
+          - it
+          - its
+          - itself
+          - they
+          - them
+          - their
+          - theirs
+          - themselves
+          - what
+          - which
+          - who
+          - whom
+          - this
+          - that
+          - these
+          - those
+          - am
+          - is
+          - are
+          - was
+          - were
+          - be
+          - been
+          - being
+          - have
+          - has
+          - had
+          - having
+          - do
+          - does
+          - did
+          - doing
+          - a
+          - an
+          - the
+          - and
+          - but
+          - if
+          - or
+          - because
+          - as
+          - until
+          - while
+          - of
+          - at
+          - by
+          - for
+          - with
+          - about
+          - against
+          - between
+          - into
+          - through
+          - during
+          - before
+          - after
+          - above
+          - below
+          - to
+          - from
+          - up
+          - down
+          - in
+          - out
+          - on
+          - off
+          - over
+          - under
+          - again
+          - further
+          - then
+          - once
+          - here
+          - there
+          - when
+          - where
+          - why
+          - how
+          - all
+          - any
+          - both
+          - each
+          - few
+          - more
+          - most
+          - other
+          - some
+          - such
+          - no
+          - nor
+          - not
+          - only
+          - own
+          - same
+          - so
+          - than
+          - too
+          - very
+          - s
+          - t
+          - can
+          - will
+          - just
+          - don
+          - should
+          - now
+          - d
+          - ll
+          - m
+          - o
+          - re
+          - ve
+          - y
+          - ain
+          - aren
+          - couldn
+          - didn
+          - doesn
+          - hadn
+          - hasn
+          - haven
+          - isn
+          - mightn
+          - mustn
+          - needn
+          - shan
+          - shouldn
+          - wasn
+          - weren
+          - wouldn
+    outs:
+    - path: data/interim/index
+      hash: md5
+      md5: 749ecab75430f698ee590c01b806bf38.dir
+      size: 228601131
+      nfiles: 4
+  build_graph:
+    cmd: python -m sharded_index.pipeline.build_graph
+    deps:
+    - path: data/processed/pairs.parquet
+      hash: md5
+      md5: 98a214c2393745523e78ee89a0fa9113
+      size: 57962340
+    - path: sharded_index/data/msmarco.py
+      hash: md5
+      md5: f56edef6271143c67df92018dfc63583
+      size: 2939
+    - path: sharded_index/graph/cooccurrence.py
+      hash: md5
+      md5: 50dd13b477eeb3caec96b4b5f4d09fb6
+      size: 5146
+    - path: sharded_index/pipeline/build_graph.py
+      hash: md5
+      md5: d8947108c40b9b90716d82304ba21b2c
+      size: 1055
+    - path: sharded_index/text.py
+      hash: md5
+      md5: 8cf058a157dbbf8c4050fe7ef02f6f2c
+      size: 1003
+    params:
+      params.yaml:
+        graph:
+          min_df: 2
+          max_df_ratio: 0.5
+          min_pair_count: 2
+          min_npmi: 0.0
+          edge_weight: npmi
+          stop_words:
+          - mean
+          - meaning
+          - define
+          - definition
+          - stand
+          - happens
+          - used
+          - long
+          - good
+          - number
+          - types
+          - average
+          - difference
+          - largest
+          - old
+          - different
+          - common
+          - normal
+          - considered
+          - worth
+          - word
+          - means
+          - cost
+          - price
+          - age
+          - much
+          - many
+          - name
+          - take
+        queries.train_ratio: 0.95
+        text:
+          stop_words:
+          - i
+          - me
+          - my
+          - myself
+          - we
+          - our
+          - ours
+          - ourselves
+          - you
+          - your
+          - yours
+          - yourself
+          - yourselves
+          - he
+          - him
+          - his
+          - himself
+          - she
+          - her
+          - hers
+          - herself
+          - it
+          - its
+          - itself
+          - they
+          - them
+          - their
+          - theirs
+          - themselves
+          - what
+          - which
+          - who
+          - whom
+          - this
+          - that
+          - these
+          - those
+          - am
+          - is
+          - are
+          - was
+          - were
+          - be
+          - been
+          - being
+          - have
+          - has
+          - had
+          - having
+          - do
+          - does
+          - did
+          - doing
+          - a
+          - an
+          - the
+          - and
+          - but
+          - if
+          - or
+          - because
+          - as
+          - until
+          - while
+          - of
+          - at
+          - by
+          - for
+          - with
+          - about
+          - against
+          - between
+          - into
+          - through
+          - during
+          - before
+          - after
+          - above
+          - below
+          - to
+          - from
+          - up
+          - down
+          - in
+          - out
+          - on
+          - off
+          - over
+          - under
+          - again
+          - further
+          - then
+          - once
+          - here
+          - there
+          - when
+          - where
+          - why
+          - how
+          - all
+          - any
+          - both
+          - each
+          - few
+          - more
+          - most
+          - other
+          - some
+          - such
+          - no
+          - nor
+          - not
+          - only
+          - own
+          - same
+          - so
+          - than
+          - too
+          - very
+          - s
+          - t
+          - can
+          - will
+          - just
+          - don
+          - should
+          - now
+          - d
+          - ll
+          - m
+          - o
+          - re
+          - ve
+          - y
+          - ain
+          - aren
+          - couldn
+          - didn
+          - doesn
+          - hadn
+          - hasn
+          - haven
+          - isn
+          - mightn
+          - mustn
+          - needn
+          - shan
+          - shouldn
+          - wasn
+          - weren
+          - wouldn
+    outs:
+    - path: models/graph.parquet
+      hash: md5
+      md5: 456a403bc8f404bcb896fcb006200073
+      size: 503352
+  sample_queries:
+    cmd: python -m sharded_index.pipeline.sample_queries
+    deps:
+    - path: data/processed/pairs.parquet
+      hash: md5
+      md5: 98a214c2393745523e78ee89a0fa9113
+      size: 57962340
+    - path: models/graph.parquet
+      hash: md5
+      md5: 456a403bc8f404bcb896fcb006200073
+      size: 503352
+    - path: sharded_index/data/msmarco.py
+      hash: md5
+      md5: f56edef6271143c67df92018dfc63583
+      size: 2939
+    - path: sharded_index/data/queries.py
+      hash: md5
+      md5: 1c765589aec6e7a8fedbfdbbee3941ce
+      size: 4466
+    - path: sharded_index/pipeline/sample_queries.py
+      hash: md5
+      md5: b6ba8dfaf8bab6af0fe0a08b5a87fd6b
+      size: 1039
+    - path: sharded_index/text.py
+      hash: md5
+      md5: 8cf058a157dbbf8c4050fe7ef02f6f2c
+      size: 1003
+    params:
+      params.yaml:
+        queries:
+          train_ratio: 0.95
+          sample_seed: 42
+          train_size: 10000
+          holdout_size:
+          ood:
+            size: 10000
+            dataset: google-research-datasets/nq_open
+            config:
+            split: train
+            column: question
+          synthetic:
+            size: 2000
+            kinds:
+            - connected
+            - frequent
+            arities:
+            - 2
+            - 3
+    outs:
+    - path: data/interim/queries.parquet
+      hash: md5
+      md5: a6707b3c986a106f93527a9dd1a149b5
+      size: 910138
+  rank_queries:
+    cmd: python -m sharded_index.pipeline.rank_queries
+    deps:
+    - path: data/interim/corpus
+      hash: md5
+      md5: c66366fe16a0a9f6b7f53225bbf30e9a.dir
+      size: 23758442
+      nfiles: 3
+    - path: data/interim/index
+      hash: md5
+      md5: 749ecab75430f698ee590c01b806bf38.dir
+      size: 228601131
+      nfiles: 4
+    - path: data/interim/queries.parquet
+      hash: md5
+      md5: a6707b3c986a106f93527a9dd1a149b5
+      size: 910138
+    - path: sharded_index/data/corpus.py
+      hash: md5
+      md5: d97fb1176ef635b3afa710337838c367
+      size: 3084
+    - path: sharded_index/index/build.py
+      hash: md5
+      md5: de6134d473facb7c84b54e35aaf465b1
+      size: 3194
+    - path: sharded_index/index/ranking.py
+      hash: md5
+      md5: dccfc838c0fb0ae6b2d0af0e85b1f362
+      size: 5717
+    - path: sharded_index/pipeline/rank_queries.py
+      hash: md5
+      md5: a21416860e20561df53f0ac95540a593
+      size: 1079
+    - path: sharded_index/storage.py
+      hash: md5
+      md5: c3715042d73e354fd9ca5d4fb6bf2f8b
+      size: 1740
+    - path: sharded_index/text.py
+      hash: md5
+      md5: 8cf058a157dbbf8c4050fe7ef02f6f2c
+      size: 1003
+    params:
+      params.yaml:
+        bm25:
+          k1: 1.2
+          b: 0.75
+        evaluation.ranking_depth: 1000
+        queries:
+          train_ratio: 0.95
+          sample_seed: 42
+          train_size: 10000
+          holdout_size:
+          ood:
+            size: 10000
+            dataset: google-research-datasets/nq_open
+            config:
+            split: train
+            column: question
+          synthetic:
+            size: 2000
+            kinds:
+            - connected
+            - frequent
+            arities:
+            - 2
+            - 3
+    outs:
+    - path: data/interim/rankings
+      hash: md5
+      md5: 2a1c6ae2fa71bc31f9e01337253bcc43.dir
+      size: 86442810
+      nfiles: 7
+  cluster@leiden:
+    cmd: python -m sharded_index.pipeline.cluster --method leiden
+    deps:
+    - path: models/graph.parquet
+      hash: md5
+      md5: 456a403bc8f404bcb896fcb006200073
+      size: 503352
+    - path: sharded_index/graph/clustering.py
+      hash: md5
+      md5: ff2a32006c668e5ac79406d91b28a5f9
+      size: 5850
+    - path: sharded_index/pipeline/cluster.py
+      hash: md5
+      md5: 4f41f427e5136f4cfc704ab31876bbb4
+      size: 1019
+    params:
+      params.yaml:
+        clustering.methods.leiden:
+          algorithm: leiden
+          resolution: 1.0
+          iterations: convergence
+          max_iterations: 200
+        clustering.seed: 42
+    outs:
+    - path: models/clusterings/leiden.parquet
+      hash: md5
+      md5: cad63d9a2bc9478c4d75a2be66820dc0
+      size: 111209
+  cluster@cpm:
+    cmd: python -m sharded_index.pipeline.cluster --method cpm
+    deps:
+    - path: models/graph.parquet
+      hash: md5
+      md5: 456a403bc8f404bcb896fcb006200073
+      size: 503352
+    - path: sharded_index/graph/clustering.py
+      hash: md5
+      md5: ff2a32006c668e5ac79406d91b28a5f9
+      size: 5850
+    - path: sharded_index/pipeline/cluster.py
+      hash: md5
+      md5: 4f41f427e5136f4cfc704ab31876bbb4
+      size: 1019
+    params:
+      params.yaml:
+        clustering.methods.cpm:
+          algorithm: cpm
+          resolution: 0.02
+          iterations: convergence
+          max_iterations: 200
+        clustering.seed: 42
+    outs:
+    - path: models/clusterings/cpm.parquet
+      hash: md5
+      md5: c2c9941be49404754f7d43f6d0a54bba
+      size: 122963
+  cluster@infomap:
+    cmd: python -m sharded_index.pipeline.cluster --method infomap
+    deps:
+    - path: models/graph.parquet
+      hash: md5
+      md5: 456a403bc8f404bcb896fcb006200073
+      size: 503352
+    - path: sharded_index/graph/clustering.py
+      hash: md5
+      md5: ff2a32006c668e5ac79406d91b28a5f9
+      size: 5850
+    - path: sharded_index/pipeline/cluster.py
+      hash: md5
+      md5: 4f41f427e5136f4cfc704ab31876bbb4
+      size: 1019
+    params:
+      params.yaml:
+        clustering.methods.infomap:
+          algorithm: infomap
+        clustering.seed: 42
+    outs:
+    - path: models/clusterings/infomap.parquet
+      hash: md5
+      md5: aa6dadde286af97ce2b148fa8a9be761
+      size: 116885
+  cluster@metis:
+    cmd: python -m sharded_index.pipeline.cluster --method metis
+    deps:
+    - path: models/graph.parquet
+      hash: md5
+      md5: 456a403bc8f404bcb896fcb006200073
+      size: 503352
+    - path: sharded_index/graph/clustering.py
+      hash: md5
+      md5: ff2a32006c668e5ac79406d91b28a5f9
+      size: 5850
+    - path: sharded_index/pipeline/cluster.py
+      hash: md5
+      md5: 4f41f427e5136f4cfc704ab31876bbb4
+      size: 1019
+    params:
+      params.yaml:
+        clustering.methods.metis:
+          algorithm: metis
+          n_parts: 341
+        clustering.seed: 42
+    outs:
+    - path: models/clusterings/metis.parquet
+      hash: md5
+      md5: 95f945452307b3fec2a3715ab6349964
+      size: 111499
+  build_partitions@leiden:
+    cmd: python -m sharded_index.pipeline.build_partitions --method leiden
+    deps:
+    - path: data/interim/corpus
+      hash: md5
+      md5: c66366fe16a0a9f6b7f53225bbf30e9a.dir
+      size: 23758442
+      nfiles: 3
+    - path: models/clusterings/leiden.parquet
+      hash: md5
+      md5: cad63d9a2bc9478c4d75a2be66820dc0
+      size: 111209
+    - path: models/graph.parquet
+      hash: md5
+      md5: 456a403bc8f404bcb896fcb006200073
+      size: 503352
+    - path: sharded_index/data/corpus.py
+      hash: md5
+      md5: d97fb1176ef635b3afa710337838c367
+      size: 3084
+    - path: sharded_index/graph
+      hash: md5
+      md5: b83e6dbb34f6df140b22871cdff2f5db.dir
+      size: 11052
+      nfiles: 3
+    - path: sharded_index/partition
+      hash: md5
+      md5: 64f1753deffb06a10f2bbf404441d558.dir
+      size: 23702
+      nfiles: 7
+    - path: sharded_index/pipeline/build_partitions.py
+      hash: md5
+      md5: 211328434e61617ff784de8a66419ec8
+      size: 1262
+    - path: sharded_index/storage.py
+      hash: md5
+      md5: c3715042d73e354fd9ca5d4fb6bf2f8b
+      size: 1740
+    - path: sharded_index/text.py
+      hash: md5
+      md5: 8cf058a157dbbf8c4050fe7ef02f6f2c
+      size: 1003
+    params:
+      params.yaml:
+        clustering.methods.leiden:
+          algorithm: leiden
+          resolution: 1.0
+          iterations: convergence
+          max_iterations: 200
+        clustering.seed: 42
+        partition:
+          strategies:
+          - hash_base
+          - base
+          - base_r2
+          - base_r3
+          - hash_aff
+          - aff
+          - aff_r2
+          - aff_r3
+          - hash_bal
+          - bal
+          affinity_vote: llr
+          replica_affinity_quantile:
+          balance:
+            volume_cap: 0.15
+            max_depth: 12
+            max_refinements: 5
+    outs:
+    - path: models/partitions/leiden
+      hash: md5
+      md5: 5ffd966dac2bb5523483fe37e2696e39.dir
+      size: 15955387
+      nfiles: 10
+  build_partitions@cpm:
+    cmd: python -m sharded_index.pipeline.build_partitions --method cpm
+    deps:
+    - path: data/interim/corpus
+      hash: md5
+      md5: c66366fe16a0a9f6b7f53225bbf30e9a.dir
+      size: 23758442
+      nfiles: 3
+    - path: models/clusterings/cpm.parquet
+      hash: md5
+      md5: c2c9941be49404754f7d43f6d0a54bba
+      size: 122963
+    - path: models/graph.parquet
+      hash: md5
+      md5: 456a403bc8f404bcb896fcb006200073
+      size: 503352
+    - path: sharded_index/data/corpus.py
+      hash: md5
+      md5: d97fb1176ef635b3afa710337838c367
+      size: 3084
+    - path: sharded_index/graph
+      hash: md5
+      md5: b83e6dbb34f6df140b22871cdff2f5db.dir
+      size: 11052
+      nfiles: 3
+    - path: sharded_index/partition
+      hash: md5
+      md5: 64f1753deffb06a10f2bbf404441d558.dir
+      size: 23702
+      nfiles: 7
+    - path: sharded_index/pipeline/build_partitions.py
+      hash: md5
+      md5: 211328434e61617ff784de8a66419ec8
+      size: 1262
+    - path: sharded_index/storage.py
+      hash: md5
+      md5: c3715042d73e354fd9ca5d4fb6bf2f8b
+      size: 1740
+    - path: sharded_index/text.py
+      hash: md5
+      md5: 8cf058a157dbbf8c4050fe7ef02f6f2c
+      size: 1003
+    params:
+      params.yaml:
+        clustering.methods.cpm:
+          algorithm: cpm
+          resolution: 0.02
+          iterations: convergence
+          max_iterations: 200
+        clustering.seed: 42
+        partition:
+          strategies:
+          - hash_base
+          - base
+          - base_r2
+          - base_r3
+          - hash_aff
+          - aff
+          - aff_r2
+          - aff_r3
+          - hash_bal
+          - bal
+          affinity_vote: llr
+          replica_affinity_quantile:
+          balance:
+            volume_cap: 0.15
+            max_depth: 12
+            max_refinements: 5
+    outs:
+    - path: models/partitions/cpm
+      hash: md5
+      md5: 4a588c24b3d01bf7b0553ea7e1cf744f.dir
+      size: 16649351
+      nfiles: 10
+  build_partitions@infomap:
+    cmd: python -m sharded_index.pipeline.build_partitions --method infomap
+    deps:
+    - path: data/interim/corpus
+      hash: md5
+      md5: c66366fe16a0a9f6b7f53225bbf30e9a.dir
+      size: 23758442
+      nfiles: 3
+    - path: models/clusterings/infomap.parquet
+      hash: md5
+      md5: aa6dadde286af97ce2b148fa8a9be761
+      size: 116885
+    - path: models/graph.parquet
+      hash: md5
+      md5: 456a403bc8f404bcb896fcb006200073
+      size: 503352
+    - path: sharded_index/data/corpus.py
+      hash: md5
+      md5: d97fb1176ef635b3afa710337838c367
+      size: 3084
+    - path: sharded_index/graph
+      hash: md5
+      md5: b83e6dbb34f6df140b22871cdff2f5db.dir
+      size: 11052
+      nfiles: 3
+    - path: sharded_index/partition
+      hash: md5
+      md5: 64f1753deffb06a10f2bbf404441d558.dir
+      size: 23702
+      nfiles: 7
+    - path: sharded_index/pipeline/build_partitions.py
+      hash: md5
+      md5: 211328434e61617ff784de8a66419ec8
+      size: 1262
+    - path: sharded_index/storage.py
+      hash: md5
+      md5: c3715042d73e354fd9ca5d4fb6bf2f8b
+      size: 1740
+    - path: sharded_index/text.py
+      hash: md5
+      md5: 8cf058a157dbbf8c4050fe7ef02f6f2c
+      size: 1003
+    params:
+      params.yaml:
+        clustering.methods.infomap:
+          algorithm: infomap
+        clustering.seed: 42
+        partition:
+          strategies:
+          - hash_base
+          - base
+          - base_r2
+          - base_r3
+          - hash_aff
+          - aff
+          - aff_r2
+          - aff_r3
+          - hash_bal
+          - bal
+          affinity_vote: llr
+          replica_affinity_quantile:
+          balance:
+            volume_cap: 0.15
+            max_depth: 12
+            max_refinements: 5
+    outs:
+    - path: models/partitions/infomap
+      hash: md5
+      md5: 69b71f6a2503c46de44174f5c8bb9475.dir
+      size: 16410130
+      nfiles: 10
+  build_partitions@metis:
+    cmd: python -m sharded_index.pipeline.build_partitions --method metis
+    deps:
+    - path: data/interim/corpus
+      hash: md5
+      md5: c66366fe16a0a9f6b7f53225bbf30e9a.dir
+      size: 23758442
+      nfiles: 3
+    - path: models/clusterings/metis.parquet
+      hash: md5
+      md5: 95f945452307b3fec2a3715ab6349964
+      size: 111499
+    - path: models/graph.parquet
+      hash: md5
+      md5: 456a403bc8f404bcb896fcb006200073
+      size: 503352
+    - path: sharded_index/data/corpus.py
+      hash: md5
+      md5: d97fb1176ef635b3afa710337838c367
+      size: 3084
+    - path: sharded_index/graph
+      hash: md5
+      md5: b83e6dbb34f6df140b22871cdff2f5db.dir
+      size: 11052
+      nfiles: 3
+    - path: sharded_index/partition
+      hash: md5
+      md5: 64f1753deffb06a10f2bbf404441d558.dir
+      size: 23702
+      nfiles: 7
+    - path: sharded_index/pipeline/build_partitions.py
+      hash: md5
+      md5: 211328434e61617ff784de8a66419ec8
+      size: 1262
+    - path: sharded_index/storage.py
+      hash: md5
+      md5: c3715042d73e354fd9ca5d4fb6bf2f8b
+      size: 1740
+    - path: sharded_index/text.py
+      hash: md5
+      md5: 8cf058a157dbbf8c4050fe7ef02f6f2c
+      size: 1003
+    params:
+      params.yaml:
+        clustering.methods.metis:
+          algorithm: metis
+          n_parts: 341
+        clustering.seed: 42
+        partition:
+          strategies:
+          - hash_base
+          - base
+          - base_r2
+          - base_r3
+          - hash_aff
+          - aff
+          - aff_r2
+          - aff_r3
+          - hash_bal
+          - bal
+          affinity_vote: llr
+          replica_affinity_quantile:
+          balance:
+            volume_cap: 0.15
+            max_depth: 12
+            max_refinements: 5
+    outs:
+    - path: models/partitions/metis
+      hash: md5
+      md5: cd39551a05e5eaa55dd0da5f6752d47b.dir
+      size: 16091805
+      nfiles: 10
+  assign_documents@leiden:
+    cmd: python -m sharded_index.pipeline.assign_documents --method leiden
+    deps:
+    - path: data/interim/corpus
+      hash: md5
+      md5: c66366fe16a0a9f6b7f53225bbf30e9a.dir
+      size: 23758442
+      nfiles: 3
+    - path: models/partitions/leiden
+      hash: md5
+      md5: 5ffd966dac2bb5523483fe37e2696e39.dir
+      size: 15955387
+      nfiles: 10
+    - path: sharded_index/data/corpus.py
+      hash: md5
+      md5: d97fb1176ef635b3afa710337838c367
+      size: 3084
+    - path: sharded_index/evaluation/membership.py
+      hash: md5
+      md5: fcf8eafaad9dbec222c60b1385af4f6b
+      size: 1573
+    - path: sharded_index/partition/model.py
+      hash: md5
+      md5: d3b84b04c431b6690c27b83802ab5f56
+      size: 3271
+    - path: sharded_index/pipeline/assign_documents.py
+      hash: md5
+      md5: 2650daf51b3fe70b90ed1c7734de7070
+      size: 1009
+    - path: sharded_index/storage.py
+      hash: md5
+      md5: c3715042d73e354fd9ca5d4fb6bf2f8b
+      size: 1740
+    - path: sharded_index/text.py
+      hash: md5
+      md5: 8cf058a157dbbf8c4050fe7ef02f6f2c
+      size: 1003
+    params:
+      params.yaml:
+        partition.strategies:
+        - hash_base
+        - base
+        - base_r2
+        - base_r3
+        - hash_aff
+        - aff
+        - aff_r2
+        - aff_r3
+        - hash_bal
+        - bal
+    outs:
+    - path: data/interim/assignments/leiden
+      hash: md5
+      md5: 02a4fcd2937d03a49b0819d369f17a68.dir
+      size: 48079577
+      nfiles: 10
+  assign_documents@cpm:
+    cmd: python -m sharded_index.pipeline.assign_documents --method cpm
+    deps:
+    - path: data/interim/corpus
+      hash: md5
+      md5: c66366fe16a0a9f6b7f53225bbf30e9a.dir
+      size: 23758442
+      nfiles: 3
+    - path: models/partitions/cpm
+      hash: md5
+      md5: 4a588c24b3d01bf7b0553ea7e1cf744f.dir
+      size: 16649351
+      nfiles: 10
+    - path: sharded_index/data/corpus.py
+      hash: md5
+      md5: d97fb1176ef635b3afa710337838c367
+      size: 3084
+    - path: sharded_index/evaluation/membership.py
+      hash: md5
+      md5: fcf8eafaad9dbec222c60b1385af4f6b
+      size: 1573
+    - path: sharded_index/partition/model.py
+      hash: md5
+      md5: d3b84b04c431b6690c27b83802ab5f56
+      size: 3271
+    - path: sharded_index/pipeline/assign_documents.py
+      hash: md5
+      md5: 2650daf51b3fe70b90ed1c7734de7070
+      size: 1009
+    - path: sharded_index/storage.py
+      hash: md5
+      md5: c3715042d73e354fd9ca5d4fb6bf2f8b
+      size: 1740
+    - path: sharded_index/text.py
+      hash: md5
+      md5: 8cf058a157dbbf8c4050fe7ef02f6f2c
+      size: 1003
+    params:
+      params.yaml:
+        partition.strategies:
+        - hash_base
+        - base
+        - base_r2
+        - base_r3
+        - hash_aff
+        - aff
+        - aff_r2
+        - aff_r3
+        - hash_bal
+        - bal
+    outs:
+    - path: data/interim/assignments/cpm
+      hash: md5
+      md5: dee8f740ba7135661ce1539ec42f4501.dir
+      size: 117598903
+      nfiles: 10
+  assign_documents@infomap:
+    cmd: python -m sharded_index.pipeline.assign_documents --method infomap
+    deps:
+    - path: data/interim/corpus
+      hash: md5
+      md5: c66366fe16a0a9f6b7f53225bbf30e9a.dir
+      size: 23758442
+      nfiles: 3
+    - path: models/partitions/infomap
+      hash: md5
+      md5: 69b71f6a2503c46de44174f5c8bb9475.dir
+      size: 16410130
+      nfiles: 10
+    - path: sharded_index/data/corpus.py
+      hash: md5
+      md5: d97fb1176ef635b3afa710337838c367
+      size: 3084
+    - path: sharded_index/evaluation/membership.py
+      hash: md5
+      md5: fcf8eafaad9dbec222c60b1385af4f6b
+      size: 1573
+    - path: sharded_index/partition/model.py
+      hash: md5
+      md5: d3b84b04c431b6690c27b83802ab5f56
+      size: 3271
+    - path: sharded_index/pipeline/assign_documents.py
+      hash: md5
+      md5: 2650daf51b3fe70b90ed1c7734de7070
+      size: 1009
+    - path: sharded_index/storage.py
+      hash: md5
+      md5: c3715042d73e354fd9ca5d4fb6bf2f8b
+      size: 1740
+    - path: sharded_index/text.py
+      hash: md5
+      md5: 8cf058a157dbbf8c4050fe7ef02f6f2c
+      size: 1003
+    params:
+      params.yaml:
+        partition.strategies:
+        - hash_base
+        - base
+        - base_r2
+        - base_r3
+        - hash_aff
+        - aff
+        - aff_r2
+        - aff_r3
+        - hash_bal
+        - bal
+    outs:
+    - path: data/interim/assignments/infomap
+      hash: md5
+      md5: 6d0b26caeb55138715f17c0a8ad02330.dir
+      size: 102071499
+      nfiles: 10
+  assign_documents@metis:
+    cmd: python -m sharded_index.pipeline.assign_documents --method metis
+    deps:
+    - path: data/interim/corpus
+      hash: md5
+      md5: c66366fe16a0a9f6b7f53225bbf30e9a.dir
+      size: 23758442
+      nfiles: 3
+    - path: models/partitions/metis
+      hash: md5
+      md5: cd39551a05e5eaa55dd0da5f6752d47b.dir
+      size: 16091805
+      nfiles: 10
+    - path: sharded_index/data/corpus.py
+      hash: md5
+      md5: d97fb1176ef635b3afa710337838c367
+      size: 3084
+    - path: sharded_index/evaluation/membership.py
+      hash: md5
+      md5: fcf8eafaad9dbec222c60b1385af4f6b
+      size: 1573
+    - path: sharded_index/partition/model.py
+      hash: md5
+      md5: d3b84b04c431b6690c27b83802ab5f56
+      size: 3271
+    - path: sharded_index/pipeline/assign_documents.py
+      hash: md5
+      md5: 2650daf51b3fe70b90ed1c7734de7070
+      size: 1009
+    - path: sharded_index/storage.py
+      hash: md5
+      md5: c3715042d73e354fd9ca5d4fb6bf2f8b
+      size: 1740
+    - path: sharded_index/text.py
+      hash: md5
+      md5: 8cf058a157dbbf8c4050fe7ef02f6f2c
+      size: 1003
+    params:
+      params.yaml:
+        partition.strategies:
+        - hash_base
+        - base
+        - base_r2
+        - base_r3
+        - hash_aff
+        - aff
+        - aff_r2
+        - aff_r3
+        - hash_bal
+        - bal
+    outs:
+    - path: data/interim/assignments/metis
+      hash: md5
+      md5: 9ae4a3e69a8472bb21a4ad47ba191d02.dir
+      size: 98142698
+      nfiles: 10
+  evaluate@leiden:
+    cmd: python -m sharded_index.pipeline.evaluate --method leiden
+    deps:
+    - path: data/interim/assignments/leiden
+      hash: md5
+      md5: 02a4fcd2937d03a49b0819d369f17a68.dir
+      size: 48079577
+      nfiles: 10
+    - path: data/interim/corpus
+      hash: md5
+      md5: c66366fe16a0a9f6b7f53225bbf30e9a.dir
+      size: 23758442
+      nfiles: 3
+    - path: data/interim/rankings
+      hash: md5
+      md5: 2a1c6ae2fa71bc31f9e01337253bcc43.dir
+      size: 86442810
+      nfiles: 7
+    - path: models/clusterings/leiden.parquet
+      hash: md5
+      md5: cad63d9a2bc9478c4d75a2be66820dc0
+      size: 111209
+    - path: models/graph.parquet
+      hash: md5
+      md5: 456a403bc8f404bcb896fcb006200073
+      size: 503352
+    - path: models/partitions/leiden
+      hash: md5
+      md5: 5ffd966dac2bb5523483fe37e2696e39.dir
+      size: 15955387
+      nfiles: 10
+    - path: sharded_index/data/corpus.py
+      hash: md5
+      md5: d97fb1176ef635b3afa710337838c367
+      size: 3084
+    - path: sharded_index/evaluation/measure.py
+      hash: md5
+      md5: 496865360ec14ca4025790f0a40bc224
+      size: 6622
+    - path: sharded_index/evaluation/membership.py
+      hash: md5
+      md5: fcf8eafaad9dbec222c60b1385af4f6b
+      size: 1573
+    - path: sharded_index/graph
+      hash: md5
+      md5: b83e6dbb34f6df140b22871cdff2f5db.dir
+      size: 11052
+      nfiles: 3
+    - path: sharded_index/index/ranking.py
+      hash: md5
+      md5: dccfc838c0fb0ae6b2d0af0e85b1f362
+      size: 5717
+    - path: sharded_index/partition
+      hash: md5
+      md5: 64f1753deffb06a10f2bbf404441d558.dir
+      size: 23702
+      nfiles: 7
+    - path: sharded_index/pipeline/evaluate.py
+      hash: md5
+      md5: 6c4e05b209f80b1b7de318edc8549c2a
+      size: 2505
+    - path: sharded_index/routing.py
+      hash: md5
+      md5: 2113d7610b4b15cf3f91d0e694557d92
+      size: 2894
+    - path: sharded_index/storage.py
+      hash: md5
+      md5: c3715042d73e354fd9ca5d4fb6bf2f8b
+      size: 1740
+    - path: sharded_index/text.py
+      hash: md5
+      md5: 8cf058a157dbbf8c4050fe7ef02f6f2c
+      size: 1003
+    params:
+      params.yaml:
+        evaluation.budgets:
+        - 1
+        - 2
+        - 3
+        - 5
+        evaluation.top_k: 10
+        partition.strategies:
+        - hash_base
+        - base
+        - base_r2
+        - base_r3
+        - hash_aff
+        - aff
+        - aff_r2
+        - aff_r3
+        - hash_bal
+        - bal
+        queries:
+          train_ratio: 0.95
+          sample_seed: 42
+          train_size: 10000
+          holdout_size:
+          ood:
+            size: 10000
+            dataset: google-research-datasets/nq_open
+            config:
+            split: train
+            column: question
+          synthetic:
+            size: 2000
+            kinds:
+            - connected
+            - frequent
+            arities:
+            - 2
+            - 3
+        routing:
+          cover_weight: idf
+        text:
+          stop_words:
+          - i
+          - me
+          - my
+          - myself
+          - we
+          - our
+          - ours
+          - ourselves
+          - you
+          - your
+          - yours
+          - yourself
+          - yourselves
+          - he
+          - him
+          - his
+          - himself
+          - she
+          - her
+          - hers
+          - herself
+          - it
+          - its
+          - itself
+          - they
+          - them
+          - their
+          - theirs
+          - themselves
+          - what
+          - which
+          - who
+          - whom
+          - this
+          - that
+          - these
+          - those
+          - am
+          - is
+          - are
+          - was
+          - were
+          - be
+          - been
+          - being
+          - have
+          - has
+          - had
+          - having
+          - do
+          - does
+          - did
+          - doing
+          - a
+          - an
+          - the
+          - and
+          - but
+          - if
+          - or
+          - because
+          - as
+          - until
+          - while
+          - of
+          - at
+          - by
+          - for
+          - with
+          - about
+          - against
+          - between
+          - into
+          - through
+          - during
+          - before
+          - after
+          - above
+          - below
+          - to
+          - from
+          - up
+          - down
+          - in
+          - out
+          - on
+          - off
+          - over
+          - under
+          - again
+          - further
+          - then
+          - once
+          - here
+          - there
+          - when
+          - where
+          - why
+          - how
+          - all
+          - any
+          - both
+          - each
+          - few
+          - more
+          - most
+          - other
+          - some
+          - such
+          - no
+          - nor
+          - not
+          - only
+          - own
+          - same
+          - so
+          - than
+          - too
+          - very
+          - s
+          - t
+          - can
+          - will
+          - just
+          - don
+          - should
+          - now
+          - d
+          - ll
+          - m
+          - o
+          - re
+          - ve
+          - y
+          - ain
+          - aren
+          - couldn
+          - didn
+          - doesn
+          - hadn
+          - hasn
+          - haven
+          - isn
+          - mightn
+          - mustn
+          - needn
+          - shan
+          - shouldn
+          - wasn
+          - weren
+          - wouldn
+    outs:
+    - path: data/interim/evaluation/leiden
+      hash: md5
+      md5: d9006a86a41dcbb59fc29453d8a3fb62.dir
+      size: 8326560
+      nfiles: 2
+  evaluate@cpm:
+    cmd: python -m sharded_index.pipeline.evaluate --method cpm
+    deps:
+    - path: data/interim/assignments/cpm
+      hash: md5
+      md5: dee8f740ba7135661ce1539ec42f4501.dir
+      size: 117598903
+      nfiles: 10
+    - path: data/interim/corpus
+      hash: md5
+      md5: c66366fe16a0a9f6b7f53225bbf30e9a.dir
+      size: 23758442
+      nfiles: 3
+    - path: data/interim/rankings
+      hash: md5
+      md5: 2a1c6ae2fa71bc31f9e01337253bcc43.dir
+      size: 86442810
+      nfiles: 7
+    - path: models/clusterings/cpm.parquet
+      hash: md5
+      md5: c2c9941be49404754f7d43f6d0a54bba
+      size: 122963
+    - path: models/graph.parquet
+      hash: md5
+      md5: 456a403bc8f404bcb896fcb006200073
+      size: 503352
+    - path: models/partitions/cpm
+      hash: md5
+      md5: 4a588c24b3d01bf7b0553ea7e1cf744f.dir
+      size: 16649351
+      nfiles: 10
+    - path: sharded_index/data/corpus.py
+      hash: md5
+      md5: d97fb1176ef635b3afa710337838c367
+      size: 3084
+    - path: sharded_index/evaluation/measure.py
+      hash: md5
+      md5: 496865360ec14ca4025790f0a40bc224
+      size: 6622
+    - path: sharded_index/evaluation/membership.py
+      hash: md5
+      md5: fcf8eafaad9dbec222c60b1385af4f6b
+      size: 1573
+    - path: sharded_index/graph
+      hash: md5
+      md5: b83e6dbb34f6df140b22871cdff2f5db.dir
+      size: 11052
+      nfiles: 3
+    - path: sharded_index/index/ranking.py
+      hash: md5
+      md5: dccfc838c0fb0ae6b2d0af0e85b1f362
+      size: 5717
+    - path: sharded_index/partition
+      hash: md5
+      md5: 64f1753deffb06a10f2bbf404441d558.dir
+      size: 23702
+      nfiles: 7
+    - path: sharded_index/pipeline/evaluate.py
+      hash: md5
+      md5: 6c4e05b209f80b1b7de318edc8549c2a
+      size: 2505
+    - path: sharded_index/routing.py
+      hash: md5
+      md5: 2113d7610b4b15cf3f91d0e694557d92
+      size: 2894
+    - path: sharded_index/storage.py
+      hash: md5
+      md5: c3715042d73e354fd9ca5d4fb6bf2f8b
+      size: 1740
+    - path: sharded_index/text.py
+      hash: md5
+      md5: 8cf058a157dbbf8c4050fe7ef02f6f2c
+      size: 1003
+    params:
+      params.yaml:
+        evaluation.budgets:
+        - 1
+        - 2
+        - 3
+        - 5
+        evaluation.top_k: 10
+        partition.strategies:
+        - hash_base
+        - base
+        - base_r2
+        - base_r3
+        - hash_aff
+        - aff
+        - aff_r2
+        - aff_r3
+        - hash_bal
+        - bal
+        queries:
+          train_ratio: 0.95
+          sample_seed: 42
+          train_size: 10000
+          holdout_size:
+          ood:
+            size: 10000
+            dataset: google-research-datasets/nq_open
+            config:
+            split: train
+            column: question
+          synthetic:
+            size: 2000
+            kinds:
+            - connected
+            - frequent
+            arities:
+            - 2
+            - 3
+        routing:
+          cover_weight: idf
+        text:
+          stop_words:
+          - i
+          - me
+          - my
+          - myself
+          - we
+          - our
+          - ours
+          - ourselves
+          - you
+          - your
+          - yours
+          - yourself
+          - yourselves
+          - he
+          - him
+          - his
+          - himself
+          - she
+          - her
+          - hers
+          - herself
+          - it
+          - its
+          - itself
+          - they
+          - them
+          - their
+          - theirs
+          - themselves
+          - what
+          - which
+          - who
+          - whom
+          - this
+          - that
+          - these
+          - those
+          - am
+          - is
+          - are
+          - was
+          - were
+          - be
+          - been
+          - being
+          - have
+          - has
+          - had
+          - having
+          - do
+          - does
+          - did
+          - doing
+          - a
+          - an
+          - the
+          - and
+          - but
+          - if
+          - or
+          - because
+          - as
+          - until
+          - while
+          - of
+          - at
+          - by
+          - for
+          - with
+          - about
+          - against
+          - between
+          - into
+          - through
+          - during
+          - before
+          - after
+          - above
+          - below
+          - to
+          - from
+          - up
+          - down
+          - in
+          - out
+          - on
+          - off
+          - over
+          - under
+          - again
+          - further
+          - then
+          - once
+          - here
+          - there
+          - when
+          - where
+          - why
+          - how
+          - all
+          - any
+          - both
+          - each
+          - few
+          - more
+          - most
+          - other
+          - some
+          - such
+          - no
+          - nor
+          - not
+          - only
+          - own
+          - same
+          - so
+          - than
+          - too
+          - very
+          - s
+          - t
+          - can
+          - will
+          - just
+          - don
+          - should
+          - now
+          - d
+          - ll
+          - m
+          - o
+          - re
+          - ve
+          - y
+          - ain
+          - aren
+          - couldn
+          - didn
+          - doesn
+          - hadn
+          - hasn
+          - haven
+          - isn
+          - mightn
+          - mustn
+          - needn
+          - shan
+          - shouldn
+          - wasn
+          - weren
+          - wouldn
+    outs:
+    - path: data/interim/evaluation/cpm
+      hash: md5
+      md5: a66714b8395de998538a90807b88d00e.dir
+      size: 9158860
+      nfiles: 2
+  evaluate@infomap:
+    cmd: python -m sharded_index.pipeline.evaluate --method infomap
+    deps:
+    - path: data/interim/assignments/infomap
+      hash: md5
+      md5: 6d0b26caeb55138715f17c0a8ad02330.dir
+      size: 102071499
+      nfiles: 10
+    - path: data/interim/corpus
+      hash: md5
+      md5: c66366fe16a0a9f6b7f53225bbf30e9a.dir
+      size: 23758442
+      nfiles: 3
+    - path: data/interim/rankings
+      hash: md5
+      md5: 2a1c6ae2fa71bc31f9e01337253bcc43.dir
+      size: 86442810
+      nfiles: 7
+    - path: models/clusterings/infomap.parquet
+      hash: md5
+      md5: aa6dadde286af97ce2b148fa8a9be761
+      size: 116885
+    - path: models/graph.parquet
+      hash: md5
+      md5: 456a403bc8f404bcb896fcb006200073
+      size: 503352
+    - path: models/partitions/infomap
+      hash: md5
+      md5: 69b71f6a2503c46de44174f5c8bb9475.dir
+      size: 16410130
+      nfiles: 10
+    - path: sharded_index/data/corpus.py
+      hash: md5
+      md5: d97fb1176ef635b3afa710337838c367
+      size: 3084
+    - path: sharded_index/evaluation/measure.py
+      hash: md5
+      md5: 496865360ec14ca4025790f0a40bc224
+      size: 6622
+    - path: sharded_index/evaluation/membership.py
+      hash: md5
+      md5: fcf8eafaad9dbec222c60b1385af4f6b
+      size: 1573
+    - path: sharded_index/graph
+      hash: md5
+      md5: b83e6dbb34f6df140b22871cdff2f5db.dir
+      size: 11052
+      nfiles: 3
+    - path: sharded_index/index/ranking.py
+      hash: md5
+      md5: dccfc838c0fb0ae6b2d0af0e85b1f362
+      size: 5717
+    - path: sharded_index/partition
+      hash: md5
+      md5: 64f1753deffb06a10f2bbf404441d558.dir
+      size: 23702
+      nfiles: 7
+    - path: sharded_index/pipeline/evaluate.py
+      hash: md5
+      md5: 6c4e05b209f80b1b7de318edc8549c2a
+      size: 2505
+    - path: sharded_index/routing.py
+      hash: md5
+      md5: 2113d7610b4b15cf3f91d0e694557d92
+      size: 2894
+    - path: sharded_index/storage.py
+      hash: md5
+      md5: c3715042d73e354fd9ca5d4fb6bf2f8b
+      size: 1740
+    - path: sharded_index/text.py
+      hash: md5
+      md5: 8cf058a157dbbf8c4050fe7ef02f6f2c
+      size: 1003
+    params:
+      params.yaml:
+        evaluation.budgets:
+        - 1
+        - 2
+        - 3
+        - 5
+        evaluation.top_k: 10
+        partition.strategies:
+        - hash_base
+        - base
+        - base_r2
+        - base_r3
+        - hash_aff
+        - aff
+        - aff_r2
+        - aff_r3
+        - hash_bal
+        - bal
+        queries:
+          train_ratio: 0.95
+          sample_seed: 42
+          train_size: 10000
+          holdout_size:
+          ood:
+            size: 10000
+            dataset: google-research-datasets/nq_open
+            config:
+            split: train
+            column: question
+          synthetic:
+            size: 2000
+            kinds:
+            - connected
+            - frequent
+            arities:
+            - 2
+            - 3
+        routing:
+          cover_weight: idf
+        text:
+          stop_words:
+          - i
+          - me
+          - my
+          - myself
+          - we
+          - our
+          - ours
+          - ourselves
+          - you
+          - your
+          - yours
+          - yourself
+          - yourselves
+          - he
+          - him
+          - his
+          - himself
+          - she
+          - her
+          - hers
+          - herself
+          - it
+          - its
+          - itself
+          - they
+          - them
+          - their
+          - theirs
+          - themselves
+          - what
+          - which
+          - who
+          - whom
+          - this
+          - that
+          - these
+          - those
+          - am
+          - is
+          - are
+          - was
+          - were
+          - be
+          - been
+          - being
+          - have
+          - has
+          - had
+          - having
+          - do
+          - does
+          - did
+          - doing
+          - a
+          - an
+          - the
+          - and
+          - but
+          - if
+          - or
+          - because
+          - as
+          - until
+          - while
+          - of
+          - at
+          - by
+          - for
+          - with
+          - about
+          - against
+          - between
+          - into
+          - through
+          - during
+          - before
+          - after
+          - above
+          - below
+          - to
+          - from
+          - up
+          - down
+          - in
+          - out
+          - on
+          - off
+          - over
+          - under
+          - again
+          - further
+          - then
+          - once
+          - here
+          - there
+          - when
+          - where
+          - why
+          - how
+          - all
+          - any
+          - both
+          - each
+          - few
+          - more
+          - most
+          - other
+          - some
+          - such
+          - no
+          - nor
+          - not
+          - only
+          - own
+          - same
+          - so
+          - than
+          - too
+          - very
+          - s
+          - t
+          - can
+          - will
+          - just
+          - don
+          - should
+          - now
+          - d
+          - ll
+          - m
+          - o
+          - re
+          - ve
+          - y
+          - ain
+          - aren
+          - couldn
+          - didn
+          - doesn
+          - hadn
+          - hasn
+          - haven
+          - isn
+          - mightn
+          - mustn
+          - needn
+          - shan
+          - shouldn
+          - wasn
+          - weren
+          - wouldn
+    outs:
+    - path: data/interim/evaluation/infomap
+      hash: md5
+      md5: bd4e2f36d3a64ec0914b50e22e3959fa.dir
+      size: 9710162
+      nfiles: 2
+  evaluate@metis:
+    cmd: python -m sharded_index.pipeline.evaluate --method metis
+    deps:
+    - path: data/interim/assignments/metis
+      hash: md5
+      md5: 9ae4a3e69a8472bb21a4ad47ba191d02.dir
+      size: 98142698
+      nfiles: 10
+    - path: data/interim/corpus
+      hash: md5
+      md5: c66366fe16a0a9f6b7f53225bbf30e9a.dir
+      size: 23758442
+      nfiles: 3
+    - path: data/interim/rankings
+      hash: md5
+      md5: 2a1c6ae2fa71bc31f9e01337253bcc43.dir
+      size: 86442810
+      nfiles: 7
+    - path: models/clusterings/metis.parquet
+      hash: md5
+      md5: 95f945452307b3fec2a3715ab6349964
+      size: 111499
+    - path: models/graph.parquet
+      hash: md5
+      md5: 456a403bc8f404bcb896fcb006200073
+      size: 503352
+    - path: models/partitions/metis
+      hash: md5
+      md5: cd39551a05e5eaa55dd0da5f6752d47b.dir
+      size: 16091805
+      nfiles: 10
+    - path: sharded_index/data/corpus.py
+      hash: md5
+      md5: d97fb1176ef635b3afa710337838c367
+      size: 3084
+    - path: sharded_index/evaluation/measure.py
+      hash: md5
+      md5: 496865360ec14ca4025790f0a40bc224
+      size: 6622
+    - path: sharded_index/evaluation/membership.py
+      hash: md5
+      md5: fcf8eafaad9dbec222c60b1385af4f6b
+      size: 1573
+    - path: sharded_index/graph
+      hash: md5
+      md5: b83e6dbb34f6df140b22871cdff2f5db.dir
+      size: 11052
+      nfiles: 3
+    - path: sharded_index/index/ranking.py
+      hash: md5
+      md5: dccfc838c0fb0ae6b2d0af0e85b1f362
+      size: 5717
+    - path: sharded_index/partition
+      hash: md5
+      md5: 64f1753deffb06a10f2bbf404441d558.dir
+      size: 23702
+      nfiles: 7
+    - path: sharded_index/pipeline/evaluate.py
+      hash: md5
+      md5: 6c4e05b209f80b1b7de318edc8549c2a
+      size: 2505
+    - path: sharded_index/routing.py
+      hash: md5
+      md5: 2113d7610b4b15cf3f91d0e694557d92
+      size: 2894
+    - path: sharded_index/storage.py
+      hash: md5
+      md5: c3715042d73e354fd9ca5d4fb6bf2f8b
+      size: 1740
+    - path: sharded_index/text.py
+      hash: md5
+      md5: 8cf058a157dbbf8c4050fe7ef02f6f2c
+      size: 1003
+    params:
+      params.yaml:
+        evaluation.budgets:
+        - 1
+        - 2
+        - 3
+        - 5
+        evaluation.top_k: 10
+        partition.strategies:
+        - hash_base
+        - base
+        - base_r2
+        - base_r3
+        - hash_aff
+        - aff
+        - aff_r2
+        - aff_r3
+        - hash_bal
+        - bal
+        queries:
+          train_ratio: 0.95
+          sample_seed: 42
+          train_size: 10000
+          holdout_size:
+          ood:
+            size: 10000
+            dataset: google-research-datasets/nq_open
+            config:
+            split: train
+            column: question
+          synthetic:
+            size: 2000
+            kinds:
+            - connected
+            - frequent
+            arities:
+            - 2
+            - 3
+        routing:
+          cover_weight: idf
+        text:
+          stop_words:
+          - i
+          - me
+          - my
+          - myself
+          - we
+          - our
+          - ours
+          - ourselves
+          - you
+          - your
+          - yours
+          - yourself
+          - yourselves
+          - he
+          - him
+          - his
+          - himself
+          - she
+          - her
+          - hers
+          - herself
+          - it
+          - its
+          - itself
+          - they
+          - them
+          - their
+          - theirs
+          - themselves
+          - what
+          - which
+          - who
+          - whom
+          - this
+          - that
+          - these
+          - those
+          - am
+          - is
+          - are
+          - was
+          - were
+          - be
+          - been
+          - being
+          - have
+          - has
+          - had
+          - having
+          - do
+          - does
+          - did
+          - doing
+          - a
+          - an
+          - the
+          - and
+          - but
+          - if
+          - or
+          - because
+          - as
+          - until
+          - while
+          - of
+          - at
+          - by
+          - for
+          - with
+          - about
+          - against
+          - between
+          - into
+          - through
+          - during
+          - before
+          - after
+          - above
+          - below
+          - to
+          - from
+          - up
+          - down
+          - in
+          - out
+          - on
+          - off
+          - over
+          - under
+          - again
+          - further
+          - then
+          - once
+          - here
+          - there
+          - when
+          - where
+          - why
+          - how
+          - all
+          - any
+          - both
+          - each
+          - few
+          - more
+          - most
+          - other
+          - some
+          - such
+          - no
+          - nor
+          - not
+          - only
+          - own
+          - same
+          - so
+          - than
+          - too
+          - very
+          - s
+          - t
+          - can
+          - will
+          - just
+          - don
+          - should
+          - now
+          - d
+          - ll
+          - m
+          - o
+          - re
+          - ve
+          - y
+          - ain
+          - aren
+          - couldn
+          - didn
+          - doesn
+          - hadn
+          - hasn
+          - haven
+          - isn
+          - mightn
+          - mustn
+          - needn
+          - shan
+          - shouldn
+          - wasn
+          - weren
+          - wouldn
+    outs:
+    - path: data/interim/evaluation/metis
+      hash: md5
+      md5: 69bde381cac9e9c77443c9629bc133a8.dir
+      size: 10130292
+      nfiles: 2
+  verify@leiden:
+    cmd: python -m sharded_index.pipeline.verify --method leiden
+    deps:
+    - path: data/interim/assignments/leiden
+      hash: md5
+      md5: 02a4fcd2937d03a49b0819d369f17a68.dir
+      size: 48079577
+      nfiles: 10
+    - path: data/interim/corpus
+      hash: md5
+      md5: c66366fe16a0a9f6b7f53225bbf30e9a.dir
+      size: 23758442
+      nfiles: 3
+    - path: data/interim/index
+      hash: md5
+      md5: 749ecab75430f698ee590c01b806bf38.dir
+      size: 228601131
+      nfiles: 4
+    - path: data/interim/rankings
+      hash: md5
+      md5: 2a1c6ae2fa71bc31f9e01337253bcc43.dir
+      size: 86442810
+      nfiles: 7
+    - path: data/processed/pairs.parquet
+      hash: md5
+      md5: 98a214c2393745523e78ee89a0fa9113
+      size: 57962340
+    - path: models/graph.parquet
+      hash: md5
+      md5: 456a403bc8f404bcb896fcb006200073
+      size: 503352
+    - path: models/partitions/leiden
+      hash: md5
+      md5: 5ffd966dac2bb5523483fe37e2696e39.dir
+      size: 15955387
+      nfiles: 10
+    - path: sharded_index/data/corpus.py
+      hash: md5
+      md5: d97fb1176ef635b3afa710337838c367
+      size: 3084
+    - path: sharded_index/data/queries.py
+      hash: md5
+      md5: 1c765589aec6e7a8fedbfdbbee3941ce
+      size: 4466
+    - path: sharded_index/evaluation/measure.py
+      hash: md5
+      md5: 496865360ec14ca4025790f0a40bc224
+      size: 6622
+    - path: sharded_index/evaluation/membership.py
+      hash: md5
+      md5: fcf8eafaad9dbec222c60b1385af4f6b
+      size: 1573
+    - path: sharded_index/evaluation/verification.py
+      hash: md5
+      md5: d45cbea3b24878708226384e1ff65b56
+      size: 7315
+    - path: sharded_index/graph/cooccurrence.py
+      hash: md5
+      md5: 50dd13b477eeb3caec96b4b5f4d09fb6
+      size: 5146
+    - path: sharded_index/index
+      hash: md5
+      md5: af98ba80552768ef27692bd3fd6f3d8b.dir
+      size: 11659
+      nfiles: 5
+    - path: sharded_index/partition/model.py
+      hash: md5
+      md5: d3b84b04c431b6690c27b83802ab5f56
+      size: 3271
+    - path: sharded_index/pipeline/verify.py
+      hash: md5
+      md5: 2b4779761d381be55e82c651563a98d6
+      size: 4000
+    - path: sharded_index/routing.py
+      hash: md5
+      md5: 2113d7610b4b15cf3f91d0e694557d92
+      size: 2894
+    - path: sharded_index/storage.py
+      hash: md5
+      md5: c3715042d73e354fd9ca5d4fb6bf2f8b
+      size: 1740
+    - path: sharded_index/text.py
+      hash: md5
+      md5: 8cf058a157dbbf8c4050fe7ef02f6f2c
+      size: 1003
+    params:
+      params.yaml:
+        bm25:
+          k1: 1.2
+          b: 0.75
+        evaluation.budgets:
+        - 1
+        - 2
+        - 3
+        - 5
+        partition.strategies:
+        - hash_base
+        - base
+        - base_r2
+        - base_r3
+        - hash_aff
+        - aff
+        - aff_r2
+        - aff_r3
+        - hash_bal
+        - bal
+        queries:
+          train_ratio: 0.95
+          sample_seed: 42
+          train_size: 10000
+          holdout_size:
+          ood:
+            size: 10000
+            dataset: google-research-datasets/nq_open
+            config:
+            split: train
+            column: question
+          synthetic:
+            size: 2000
+            kinds:
+            - connected
+            - frequent
+            arities:
+            - 2
+            - 3
+        routing:
+          cover_weight: idf
+        text:
+          stop_words:
+          - i
+          - me
+          - my
+          - myself
+          - we
+          - our
+          - ours
+          - ourselves
+          - you
+          - your
+          - yours
+          - yourself
+          - yourselves
+          - he
+          - him
+          - his
+          - himself
+          - she
+          - her
+          - hers
+          - herself
+          - it
+          - its
+          - itself
+          - they
+          - them
+          - their
+          - theirs
+          - themselves
+          - what
+          - which
+          - who
+          - whom
+          - this
+          - that
+          - these
+          - those
+          - am
+          - is
+          - are
+          - was
+          - were
+          - be
+          - been
+          - being
+          - have
+          - has
+          - had
+          - having
+          - do
+          - does
+          - did
+          - doing
+          - a
+          - an
+          - the
+          - and
+          - but
+          - if
+          - or
+          - because
+          - as
+          - until
+          - while
+          - of
+          - at
+          - by
+          - for
+          - with
+          - about
+          - against
+          - between
+          - into
+          - through
+          - during
+          - before
+          - after
+          - above
+          - below
+          - to
+          - from
+          - up
+          - down
+          - in
+          - out
+          - on
+          - off
+          - over
+          - under
+          - again
+          - further
+          - then
+          - once
+          - here
+          - there
+          - when
+          - where
+          - why
+          - how
+          - all
+          - any
+          - both
+          - each
+          - few
+          - more
+          - most
+          - other
+          - some
+          - such
+          - no
+          - nor
+          - not
+          - only
+          - own
+          - same
+          - so
+          - than
+          - too
+          - very
+          - s
+          - t
+          - can
+          - will
+          - just
+          - don
+          - should
+          - now
+          - d
+          - ll
+          - m
+          - o
+          - re
+          - ve
+          - y
+          - ain
+          - aren
+          - couldn
+          - didn
+          - doesn
+          - hadn
+          - hasn
+          - haven
+          - isn
+          - mightn
+          - mustn
+          - needn
+          - shan
+          - shouldn
+          - wasn
+          - weren
+          - wouldn
+        verification:
+          sample: holdout
+          queries: 5
+          seed: 42
+          score_tolerance: 1e-09
+          workers:
+    outs:
+    - path: data/interim/verification/leiden.json
+      hash: md5
+      md5: 2b8417a0dbe60932eeca3cf277ad4bcf
+      size: 7906
+  verify@cpm:
+    cmd: python -m sharded_index.pipeline.verify --method cpm
+    deps:
+    - path: data/interim/assignments/cpm
+      hash: md5
+      md5: dee8f740ba7135661ce1539ec42f4501.dir
+      size: 117598903
+      nfiles: 10
+    - path: data/interim/corpus
+      hash: md5
+      md5: c66366fe16a0a9f6b7f53225bbf30e9a.dir
+      size: 23758442
+      nfiles: 3
+    - path: data/interim/index
+      hash: md5
+      md5: 749ecab75430f698ee590c01b806bf38.dir
+      size: 228601131
+      nfiles: 4
+    - path: data/interim/rankings
+      hash: md5
+      md5: 2a1c6ae2fa71bc31f9e01337253bcc43.dir
+      size: 86442810
+      nfiles: 7
+    - path: data/processed/pairs.parquet
+      hash: md5
+      md5: 98a214c2393745523e78ee89a0fa9113
+      size: 57962340
+    - path: models/graph.parquet
+      hash: md5
+      md5: 456a403bc8f404bcb896fcb006200073
+      size: 503352
+    - path: models/partitions/cpm
+      hash: md5
+      md5: 4a588c24b3d01bf7b0553ea7e1cf744f.dir
+      size: 16649351
+      nfiles: 10
+    - path: sharded_index/data/corpus.py
+      hash: md5
+      md5: d97fb1176ef635b3afa710337838c367
+      size: 3084
+    - path: sharded_index/data/queries.py
+      hash: md5
+      md5: 1c765589aec6e7a8fedbfdbbee3941ce
+      size: 4466
+    - path: sharded_index/evaluation/measure.py
+      hash: md5
+      md5: 496865360ec14ca4025790f0a40bc224
+      size: 6622
+    - path: sharded_index/evaluation/membership.py
+      hash: md5
+      md5: fcf8eafaad9dbec222c60b1385af4f6b
+      size: 1573
+    - path: sharded_index/evaluation/verification.py
+      hash: md5
+      md5: d45cbea3b24878708226384e1ff65b56
+      size: 7315
+    - path: sharded_index/graph/cooccurrence.py
+      hash: md5
+      md5: 50dd13b477eeb3caec96b4b5f4d09fb6
+      size: 5146
+    - path: sharded_index/index
+      hash: md5
+      md5: af98ba80552768ef27692bd3fd6f3d8b.dir
+      size: 11659
+      nfiles: 5
+    - path: sharded_index/partition/model.py
+      hash: md5
+      md5: d3b84b04c431b6690c27b83802ab5f56
+      size: 3271
+    - path: sharded_index/pipeline/verify.py
+      hash: md5
+      md5: 2b4779761d381be55e82c651563a98d6
+      size: 4000
+    - path: sharded_index/routing.py
+      hash: md5
+      md5: 2113d7610b4b15cf3f91d0e694557d92
+      size: 2894
+    - path: sharded_index/storage.py
+      hash: md5
+      md5: c3715042d73e354fd9ca5d4fb6bf2f8b
+      size: 1740
+    - path: sharded_index/text.py
+      hash: md5
+      md5: 8cf058a157dbbf8c4050fe7ef02f6f2c
+      size: 1003
+    params:
+      params.yaml:
+        bm25:
+          k1: 1.2
+          b: 0.75
+        evaluation.budgets:
+        - 1
+        - 2
+        - 3
+        - 5
+        partition.strategies:
+        - hash_base
+        - base
+        - base_r2
+        - base_r3
+        - hash_aff
+        - aff
+        - aff_r2
+        - aff_r3
+        - hash_bal
+        - bal
+        queries:
+          train_ratio: 0.95
+          sample_seed: 42
+          train_size: 10000
+          holdout_size:
+          ood:
+            size: 10000
+            dataset: google-research-datasets/nq_open
+            config:
+            split: train
+            column: question
+          synthetic:
+            size: 2000
+            kinds:
+            - connected
+            - frequent
+            arities:
+            - 2
+            - 3
+        routing:
+          cover_weight: idf
+        text:
+          stop_words:
+          - i
+          - me
+          - my
+          - myself
+          - we
+          - our
+          - ours
+          - ourselves
+          - you
+          - your
+          - yours
+          - yourself
+          - yourselves
+          - he
+          - him
+          - his
+          - himself
+          - she
+          - her
+          - hers
+          - herself
+          - it
+          - its
+          - itself
+          - they
+          - them
+          - their
+          - theirs
+          - themselves
+          - what
+          - which
+          - who
+          - whom
+          - this
+          - that
+          - these
+          - those
+          - am
+          - is
+          - are
+          - was
+          - were
+          - be
+          - been
+          - being
+          - have
+          - has
+          - had
+          - having
+          - do
+          - does
+          - did
+          - doing
+          - a
+          - an
+          - the
+          - and
+          - but
+          - if
+          - or
+          - because
+          - as
+          - until
+          - while
+          - of
+          - at
+          - by
+          - for
+          - with
+          - about
+          - against
+          - between
+          - into
+          - through
+          - during
+          - before
+          - after
+          - above
+          - below
+          - to
+          - from
+          - up
+          - down
+          - in
+          - out
+          - on
+          - off
+          - over
+          - under
+          - again
+          - further
+          - then
+          - once
+          - here
+          - there
+          - when
+          - where
+          - why
+          - how
+          - all
+          - any
+          - both
+          - each
+          - few
+          - more
+          - most
+          - other
+          - some
+          - such
+          - no
+          - nor
+          - not
+          - only
+          - own
+          - same
+          - so
+          - than
+          - too
+          - very
+          - s
+          - t
+          - can
+          - will
+          - just
+          - don
+          - should
+          - now
+          - d
+          - ll
+          - m
+          - o
+          - re
+          - ve
+          - y
+          - ain
+          - aren
+          - couldn
+          - didn
+          - doesn
+          - hadn
+          - hasn
+          - haven
+          - isn
+          - mightn
+          - mustn
+          - needn
+          - shan
+          - shouldn
+          - wasn
+          - weren
+          - wouldn
+        verification:
+          sample: holdout
+          queries: 5
+          seed: 42
+          score_tolerance: 1e-09
+          workers:
+    outs:
+    - path: data/interim/verification/cpm.json
+      hash: md5
+      md5: 50fb9d71eef12448bda9e85a24f5a279
+      size: 8014
+  verify@infomap:
+    cmd: python -m sharded_index.pipeline.verify --method infomap
+    deps:
+    - path: data/interim/assignments/infomap
+      hash: md5
+      md5: 6d0b26caeb55138715f17c0a8ad02330.dir
+      size: 102071499
+      nfiles: 10
+    - path: data/interim/corpus
+      hash: md5
+      md5: c66366fe16a0a9f6b7f53225bbf30e9a.dir
+      size: 23758442
+      nfiles: 3
+    - path: data/interim/index
+      hash: md5
+      md5: 749ecab75430f698ee590c01b806bf38.dir
+      size: 228601131
+      nfiles: 4
+    - path: data/interim/rankings
+      hash: md5
+      md5: 2a1c6ae2fa71bc31f9e01337253bcc43.dir
+      size: 86442810
+      nfiles: 7
+    - path: data/processed/pairs.parquet
+      hash: md5
+      md5: 98a214c2393745523e78ee89a0fa9113
+      size: 57962340
+    - path: models/graph.parquet
+      hash: md5
+      md5: 456a403bc8f404bcb896fcb006200073
+      size: 503352
+    - path: models/partitions/infomap
+      hash: md5
+      md5: 69b71f6a2503c46de44174f5c8bb9475.dir
+      size: 16410130
+      nfiles: 10
+    - path: sharded_index/data/corpus.py
+      hash: md5
+      md5: d97fb1176ef635b3afa710337838c367
+      size: 3084
+    - path: sharded_index/data/queries.py
+      hash: md5
+      md5: 1c765589aec6e7a8fedbfdbbee3941ce
+      size: 4466
+    - path: sharded_index/evaluation/measure.py
+      hash: md5
+      md5: 496865360ec14ca4025790f0a40bc224
+      size: 6622
+    - path: sharded_index/evaluation/membership.py
+      hash: md5
+      md5: fcf8eafaad9dbec222c60b1385af4f6b
+      size: 1573
+    - path: sharded_index/evaluation/verification.py
+      hash: md5
+      md5: d45cbea3b24878708226384e1ff65b56
+      size: 7315
+    - path: sharded_index/graph/cooccurrence.py
+      hash: md5
+      md5: 50dd13b477eeb3caec96b4b5f4d09fb6
+      size: 5146
+    - path: sharded_index/index
+      hash: md5
+      md5: af98ba80552768ef27692bd3fd6f3d8b.dir
+      size: 11659
+      nfiles: 5
+    - path: sharded_index/partition/model.py
+      hash: md5
+      md5: d3b84b04c431b6690c27b83802ab5f56
+      size: 3271
+    - path: sharded_index/pipeline/verify.py
+      hash: md5
+      md5: 2b4779761d381be55e82c651563a98d6
+      size: 4000
+    - path: sharded_index/routing.py
+      hash: md5
+      md5: 2113d7610b4b15cf3f91d0e694557d92
+      size: 2894
+    - path: sharded_index/storage.py
+      hash: md5
+      md5: c3715042d73e354fd9ca5d4fb6bf2f8b
+      size: 1740
+    - path: sharded_index/text.py
+      hash: md5
+      md5: 8cf058a157dbbf8c4050fe7ef02f6f2c
+      size: 1003
+    params:
+      params.yaml:
+        bm25:
+          k1: 1.2
+          b: 0.75
+        evaluation.budgets:
+        - 1
+        - 2
+        - 3
+        - 5
+        partition.strategies:
+        - hash_base
+        - base
+        - base_r2
+        - base_r3
+        - hash_aff
+        - aff
+        - aff_r2
+        - aff_r3
+        - hash_bal
+        - bal
+        queries:
+          train_ratio: 0.95
+          sample_seed: 42
+          train_size: 10000
+          holdout_size:
+          ood:
+            size: 10000
+            dataset: google-research-datasets/nq_open
+            config:
+            split: train
+            column: question
+          synthetic:
+            size: 2000
+            kinds:
+            - connected
+            - frequent
+            arities:
+            - 2
+            - 3
+        routing:
+          cover_weight: idf
+        text:
+          stop_words:
+          - i
+          - me
+          - my
+          - myself
+          - we
+          - our
+          - ours
+          - ourselves
+          - you
+          - your
+          - yours
+          - yourself
+          - yourselves
+          - he
+          - him
+          - his
+          - himself
+          - she
+          - her
+          - hers
+          - herself
+          - it
+          - its
+          - itself
+          - they
+          - them
+          - their
+          - theirs
+          - themselves
+          - what
+          - which
+          - who
+          - whom
+          - this
+          - that
+          - these
+          - those
+          - am
+          - is
+          - are
+          - was
+          - were
+          - be
+          - been
+          - being
+          - have
+          - has
+          - had
+          - having
+          - do
+          - does
+          - did
+          - doing
+          - a
+          - an
+          - the
+          - and
+          - but
+          - if
+          - or
+          - because
+          - as
+          - until
+          - while
+          - of
+          - at
+          - by
+          - for
+          - with
+          - about
+          - against
+          - between
+          - into
+          - through
+          - during
+          - before
+          - after
+          - above
+          - below
+          - to
+          - from
+          - up
+          - down
+          - in
+          - out
+          - on
+          - off
+          - over
+          - under
+          - again
+          - further
+          - then
+          - once
+          - here
+          - there
+          - when
+          - where
+          - why
+          - how
+          - all
+          - any
+          - both
+          - each
+          - few
+          - more
+          - most
+          - other
+          - some
+          - such
+          - no
+          - nor
+          - not
+          - only
+          - own
+          - same
+          - so
+          - than
+          - too
+          - very
+          - s
+          - t
+          - can
+          - will
+          - just
+          - don
+          - should
+          - now
+          - d
+          - ll
+          - m
+          - o
+          - re
+          - ve
+          - y
+          - ain
+          - aren
+          - couldn
+          - didn
+          - doesn
+          - hadn
+          - hasn
+          - haven
+          - isn
+          - mightn
+          - mustn
+          - needn
+          - shan
+          - shouldn
+          - wasn
+          - weren
+          - wouldn
+        verification:
+          sample: holdout
+          queries: 5
+          seed: 42
+          score_tolerance: 1e-09
+          workers:
+    outs:
+    - path: data/interim/verification/infomap.json
+      hash: md5
+      md5: 531e70f6dfe31eb5e4c08dfbb0222f7e
+      size: 8018
+  verify@metis:
+    cmd: python -m sharded_index.pipeline.verify --method metis
+    deps:
+    - path: data/interim/assignments/metis
+      hash: md5
+      md5: 9ae4a3e69a8472bb21a4ad47ba191d02.dir
+      size: 98142698
+      nfiles: 10
+    - path: data/interim/corpus
+      hash: md5
+      md5: c66366fe16a0a9f6b7f53225bbf30e9a.dir
+      size: 23758442
+      nfiles: 3
+    - path: data/interim/index
+      hash: md5
+      md5: 749ecab75430f698ee590c01b806bf38.dir
+      size: 228601131
+      nfiles: 4
+    - path: data/interim/rankings
+      hash: md5
+      md5: 2a1c6ae2fa71bc31f9e01337253bcc43.dir
+      size: 86442810
+      nfiles: 7
+    - path: data/processed/pairs.parquet
+      hash: md5
+      md5: 98a214c2393745523e78ee89a0fa9113
+      size: 57962340
+    - path: models/graph.parquet
+      hash: md5
+      md5: 456a403bc8f404bcb896fcb006200073
+      size: 503352
+    - path: models/partitions/metis
+      hash: md5
+      md5: cd39551a05e5eaa55dd0da5f6752d47b.dir
+      size: 16091805
+      nfiles: 10
+    - path: sharded_index/data/corpus.py
+      hash: md5
+      md5: d97fb1176ef635b3afa710337838c367
+      size: 3084
+    - path: sharded_index/data/queries.py
+      hash: md5
+      md5: 1c765589aec6e7a8fedbfdbbee3941ce
+      size: 4466
+    - path: sharded_index/evaluation/measure.py
+      hash: md5
+      md5: 496865360ec14ca4025790f0a40bc224
+      size: 6622
+    - path: sharded_index/evaluation/membership.py
+      hash: md5
+      md5: fcf8eafaad9dbec222c60b1385af4f6b
+      size: 1573
+    - path: sharded_index/evaluation/verification.py
+      hash: md5
+      md5: d45cbea3b24878708226384e1ff65b56
+      size: 7315
+    - path: sharded_index/graph/cooccurrence.py
+      hash: md5
+      md5: 50dd13b477eeb3caec96b4b5f4d09fb6
+      size: 5146
+    - path: sharded_index/index
+      hash: md5
+      md5: af98ba80552768ef27692bd3fd6f3d8b.dir
+      size: 11659
+      nfiles: 5
+    - path: sharded_index/partition/model.py
+      hash: md5
+      md5: d3b84b04c431b6690c27b83802ab5f56
+      size: 3271
+    - path: sharded_index/pipeline/verify.py
+      hash: md5
+      md5: 2b4779761d381be55e82c651563a98d6
+      size: 4000
+    - path: sharded_index/routing.py
+      hash: md5
+      md5: 2113d7610b4b15cf3f91d0e694557d92
+      size: 2894
+    - path: sharded_index/storage.py
+      hash: md5
+      md5: c3715042d73e354fd9ca5d4fb6bf2f8b
+      size: 1740
+    - path: sharded_index/text.py
+      hash: md5
+      md5: 8cf058a157dbbf8c4050fe7ef02f6f2c
+      size: 1003
+    params:
+      params.yaml:
+        bm25:
+          k1: 1.2
+          b: 0.75
+        evaluation.budgets:
+        - 1
+        - 2
+        - 3
+        - 5
+        partition.strategies:
+        - hash_base
+        - base
+        - base_r2
+        - base_r3
+        - hash_aff
+        - aff
+        - aff_r2
+        - aff_r3
+        - hash_bal
+        - bal
+        queries:
+          train_ratio: 0.95
+          sample_seed: 42
+          train_size: 10000
+          holdout_size:
+          ood:
+            size: 10000
+            dataset: google-research-datasets/nq_open
+            config:
+            split: train
+            column: question
+          synthetic:
+            size: 2000
+            kinds:
+            - connected
+            - frequent
+            arities:
+            - 2
+            - 3
+        routing:
+          cover_weight: idf
+        text:
+          stop_words:
+          - i
+          - me
+          - my
+          - myself
+          - we
+          - our
+          - ours
+          - ourselves
+          - you
+          - your
+          - yours
+          - yourself
+          - yourselves
+          - he
+          - him
+          - his
+          - himself
+          - she
+          - her
+          - hers
+          - herself
+          - it
+          - its
+          - itself
+          - they
+          - them
+          - their
+          - theirs
+          - themselves
+          - what
+          - which
+          - who
+          - whom
+          - this
+          - that
+          - these
+          - those
+          - am
+          - is
+          - are
+          - was
+          - were
+          - be
+          - been
+          - being
+          - have
+          - has
+          - had
+          - having
+          - do
+          - does
+          - did
+          - doing
+          - a
+          - an
+          - the
+          - and
+          - but
+          - if
+          - or
+          - because
+          - as
+          - until
+          - while
+          - of
+          - at
+          - by
+          - for
+          - with
+          - about
+          - against
+          - between
+          - into
+          - through
+          - during
+          - before
+          - after
+          - above
+          - below
+          - to
+          - from
+          - up
+          - down
+          - in
+          - out
+          - on
+          - off
+          - over
+          - under
+          - again
+          - further
+          - then
+          - once
+          - here
+          - there
+          - when
+          - where
+          - why
+          - how
+          - all
+          - any
+          - both
+          - each
+          - few
+          - more
+          - most
+          - other
+          - some
+          - such
+          - no
+          - nor
+          - not
+          - only
+          - own
+          - same
+          - so
+          - than
+          - too
+          - very
+          - s
+          - t
+          - can
+          - will
+          - just
+          - don
+          - should
+          - now
+          - d
+          - ll
+          - m
+          - o
+          - re
+          - ve
+          - y
+          - ain
+          - aren
+          - couldn
+          - didn
+          - doesn
+          - hadn
+          - hasn
+          - haven
+          - isn
+          - mightn
+          - mustn
+          - needn
+          - shan
+          - shouldn
+          - wasn
+          - weren
+          - wouldn
+        verification:
+          sample: holdout
+          queries: 5
+          seed: 42
+          score_tolerance: 1e-09
+          workers:
+    outs:
+    - path: data/interim/verification/metis.json
+      hash: md5
+      md5: 5720f4b249ee91e71cf4433e715258ba
+      size: 7947
+  sensitivity@leiden:
+    cmd: python -m sharded_index.pipeline.sensitivity --method leiden
+    deps:
+    - path: data/interim/corpus
+      hash: md5
+      md5: c66366fe16a0a9f6b7f53225bbf30e9a.dir
+      size: 23758442
+      nfiles: 3
+    - path: data/interim/rankings
+      hash: md5
+      md5: 2a1c6ae2fa71bc31f9e01337253bcc43.dir
+      size: 86442810
+      nfiles: 7
+    - path: data/processed/pairs.parquet
+      hash: md5
+      md5: 98a214c2393745523e78ee89a0fa9113
+      size: 57962340
+    - path: sharded_index/data/corpus.py
+      hash: md5
+      md5: d97fb1176ef635b3afa710337838c367
+      size: 3084
+    - path: sharded_index/data/msmarco.py
+      hash: md5
+      md5: f56edef6271143c67df92018dfc63583
+      size: 2939
+    - path: sharded_index/evaluation/measure.py
+      hash: md5
+      md5: 496865360ec14ca4025790f0a40bc224
+      size: 6622
+    - path: sharded_index/evaluation/membership.py
+      hash: md5
+      md5: fcf8eafaad9dbec222c60b1385af4f6b
+      size: 1573
+    - path: sharded_index/evaluation/statistics.py
+      hash: md5
+      md5: 2a9a3ec1d4229c50f9773c55be47c074
+      size: 2960
+    - path: sharded_index/evaluation/variants.py
+      hash: md5
+      md5: 6f215d71b075b381fb4a412250a1bb45
+      size: 5377
+    - path: sharded_index/graph
+      hash: md5
+      md5: b83e6dbb34f6df140b22871cdff2f5db.dir
+      size: 11052
+      nfiles: 3
+    - path: sharded_index/index/ranking.py
+      hash: md5
+      md5: dccfc838c0fb0ae6b2d0af0e85b1f362
+      size: 5717
+    - path: sharded_index/partition
+      hash: md5
+      md5: 64f1753deffb06a10f2bbf404441d558.dir
+      size: 23702
+      nfiles: 7
+    - path: sharded_index/pipeline/sensitivity.py
+      hash: md5
+      md5: 5d7ad9f4280a1a6c225bb92e9d769379
+      size: 2566
+    - path: sharded_index/routing.py
+      hash: md5
+      md5: 2113d7610b4b15cf3f91d0e694557d92
+      size: 2894
+    - path: sharded_index/storage.py
+      hash: md5
+      md5: c3715042d73e354fd9ca5d4fb6bf2f8b
+      size: 1740
+    - path: sharded_index/text.py
+      hash: md5
+      md5: 8cf058a157dbbf8c4050fe7ef02f6f2c
+      size: 1003
+    params:
+      params.yaml:
+        clustering.methods.leiden:
+          algorithm: leiden
+          resolution: 1.0
+          iterations: convergence
+          max_iterations: 200
+        clustering.seed: 42
+        evaluation.budgets:
+        - 1
+        - 2
+        - 3
+        - 5
+        evaluation.top_k: 10
+        graph:
+          min_df: 2
+          max_df_ratio: 0.5
+          min_pair_count: 2
+          min_npmi: 0.0
+          edge_weight: npmi
+          stop_words:
+          - mean
+          - meaning
+          - define
+          - definition
+          - stand
+          - happens
+          - used
+          - long
+          - good
+          - number
+          - types
+          - average
+          - difference
+          - largest
+          - old
+          - different
+          - common
+          - normal
+          - considered
+          - worth
+          - word
+          - means
+          - cost
+          - price
+          - age
+          - much
+          - many
+          - name
+          - take
+        partition:
+          strategies:
+          - hash_base
+          - base
+          - base_r2
+          - base_r3
+          - hash_aff
+          - aff
+          - aff_r2
+          - aff_r3
+          - hash_bal
+          - bal
+          affinity_vote: llr
+          replica_affinity_quantile:
+          balance:
+            volume_cap: 0.15
+            max_depth: 12
+            max_refinements: 5
+        queries:
+          train_ratio: 0.95
+          sample_seed: 42
+          train_size: 10000
+          holdout_size:
+          ood:
+            size: 10000
+            dataset: google-research-datasets/nq_open
+            config:
+            split: train
+            column: question
+          synthetic:
+            size: 2000
+            kinds:
+            - connected
+            - frequent
+            arities:
+            - 2
+            - 3
+        routing:
+          cover_weight: idf
+        sensitivity.parameters.leiden:
+          resolution:
+          - 2
+          - 5
+          - 10
+          - 20
+          - 50
+        sensitivity.sample: holdout
+        sensitivity.seeds:
+        - 1
+        - 2
+        - 3
+        sensitivity.train_sizes:
+        - 10000
+        - 30000
+        - 70000
+        text:
+          stop_words:
+          - i
+          - me
+          - my
+          - myself
+          - we
+          - our
+          - ours
+          - ourselves
+          - you
+          - your
+          - yours
+          - yourself
+          - yourselves
+          - he
+          - him
+          - his
+          - himself
+          - she
+          - her
+          - hers
+          - herself
+          - it
+          - its
+          - itself
+          - they
+          - them
+          - their
+          - theirs
+          - themselves
+          - what
+          - which
+          - who
+          - whom
+          - this
+          - that
+          - these
+          - those
+          - am
+          - is
+          - are
+          - was
+          - were
+          - be
+          - been
+          - being
+          - have
+          - has
+          - had
+          - having
+          - do
+          - does
+          - did
+          - doing
+          - a
+          - an
+          - the
+          - and
+          - but
+          - if
+          - or
+          - because
+          - as
+          - until
+          - while
+          - of
+          - at
+          - by
+          - for
+          - with
+          - about
+          - against
+          - between
+          - into
+          - through
+          - during
+          - before
+          - after
+          - above
+          - below
+          - to
+          - from
+          - up
+          - down
+          - in
+          - out
+          - on
+          - off
+          - over
+          - under
+          - again
+          - further
+          - then
+          - once
+          - here
+          - there
+          - when
+          - where
+          - why
+          - how
+          - all
+          - any
+          - both
+          - each
+          - few
+          - more
+          - most
+          - other
+          - some
+          - such
+          - no
+          - nor
+          - not
+          - only
+          - own
+          - same
+          - so
+          - than
+          - too
+          - very
+          - s
+          - t
+          - can
+          - will
+          - just
+          - don
+          - should
+          - now
+          - d
+          - ll
+          - m
+          - o
+          - re
+          - ve
+          - y
+          - ain
+          - aren
+          - couldn
+          - didn
+          - doesn
+          - hadn
+          - hasn
+          - haven
+          - isn
+          - mightn
+          - mustn
+          - needn
+          - shan
+          - shouldn
+          - wasn
+          - weren
+          - wouldn
+    outs:
+    - path: data/interim/sensitivity/leiden.parquet
+      hash: md5
+      md5: d15586086f296aeb35bc7e7c85f8e25b
+      size: 26136
+  sensitivity@cpm:
+    cmd: python -m sharded_index.pipeline.sensitivity --method cpm
+    deps:
+    - path: data/interim/corpus
+      hash: md5
+      md5: c66366fe16a0a9f6b7f53225bbf30e9a.dir
+      size: 23758442
+      nfiles: 3
+    - path: data/interim/rankings
+      hash: md5
+      md5: 2a1c6ae2fa71bc31f9e01337253bcc43.dir
+      size: 86442810
+      nfiles: 7
+    - path: data/processed/pairs.parquet
+      hash: md5
+      md5: 98a214c2393745523e78ee89a0fa9113
+      size: 57962340
+    - path: sharded_index/data/corpus.py
+      hash: md5
+      md5: d97fb1176ef635b3afa710337838c367
+      size: 3084
+    - path: sharded_index/data/msmarco.py
+      hash: md5
+      md5: f56edef6271143c67df92018dfc63583
+      size: 2939
+    - path: sharded_index/evaluation/measure.py
+      hash: md5
+      md5: 496865360ec14ca4025790f0a40bc224
+      size: 6622
+    - path: sharded_index/evaluation/membership.py
+      hash: md5
+      md5: fcf8eafaad9dbec222c60b1385af4f6b
+      size: 1573
+    - path: sharded_index/evaluation/statistics.py
+      hash: md5
+      md5: 2a9a3ec1d4229c50f9773c55be47c074
+      size: 2960
+    - path: sharded_index/evaluation/variants.py
+      hash: md5
+      md5: 6f215d71b075b381fb4a412250a1bb45
+      size: 5377
+    - path: sharded_index/graph
+      hash: md5
+      md5: b83e6dbb34f6df140b22871cdff2f5db.dir
+      size: 11052
+      nfiles: 3
+    - path: sharded_index/index/ranking.py
+      hash: md5
+      md5: dccfc838c0fb0ae6b2d0af0e85b1f362
+      size: 5717
+    - path: sharded_index/partition
+      hash: md5
+      md5: 64f1753deffb06a10f2bbf404441d558.dir
+      size: 23702
+      nfiles: 7
+    - path: sharded_index/pipeline/sensitivity.py
+      hash: md5
+      md5: 5d7ad9f4280a1a6c225bb92e9d769379
+      size: 2566
+    - path: sharded_index/routing.py
+      hash: md5
+      md5: 2113d7610b4b15cf3f91d0e694557d92
+      size: 2894
+    - path: sharded_index/storage.py
+      hash: md5
+      md5: c3715042d73e354fd9ca5d4fb6bf2f8b
+      size: 1740
+    - path: sharded_index/text.py
+      hash: md5
+      md5: 8cf058a157dbbf8c4050fe7ef02f6f2c
+      size: 1003
+    params:
+      params.yaml:
+        clustering.methods.cpm:
+          algorithm: cpm
+          resolution: 0.02
+          iterations: convergence
+          max_iterations: 200
+        clustering.seed: 42
+        evaluation.budgets:
+        - 1
+        - 2
+        - 3
+        - 5
+        evaluation.top_k: 10
+        graph:
+          min_df: 2
+          max_df_ratio: 0.5
+          min_pair_count: 2
+          min_npmi: 0.0
+          edge_weight: npmi
+          stop_words:
+          - mean
+          - meaning
+          - define
+          - definition
+          - stand
+          - happens
+          - used
+          - long
+          - good
+          - number
+          - types
+          - average
+          - difference
+          - largest
+          - old
+          - different
+          - common
+          - normal
+          - considered
+          - worth
+          - word
+          - means
+          - cost
+          - price
+          - age
+          - much
+          - many
+          - name
+          - take
+        partition:
+          strategies:
+          - hash_base
+          - base
+          - base_r2
+          - base_r3
+          - hash_aff
+          - aff
+          - aff_r2
+          - aff_r3
+          - hash_bal
+          - bal
+          affinity_vote: llr
+          replica_affinity_quantile:
+          balance:
+            volume_cap: 0.15
+            max_depth: 12
+            max_refinements: 5
+        queries:
+          train_ratio: 0.95
+          sample_seed: 42
+          train_size: 10000
+          holdout_size:
+          ood:
+            size: 10000
+            dataset: google-research-datasets/nq_open
+            config:
+            split: train
+            column: question
+          synthetic:
+            size: 2000
+            kinds:
+            - connected
+            - frequent
+            arities:
+            - 2
+            - 3
+        routing:
+          cover_weight: idf
+        sensitivity.parameters.cpm:
+          resolution:
+          - 0.005
+          - 0.01
+          - 0.05
+          - 0.1
+        sensitivity.sample: holdout
+        sensitivity.seeds:
+        - 1
+        - 2
+        - 3
+        sensitivity.train_sizes:
+        - 10000
+        - 30000
+        - 70000
+        text:
+          stop_words:
+          - i
+          - me
+          - my
+          - myself
+          - we
+          - our
+          - ours
+          - ourselves
+          - you
+          - your
+          - yours
+          - yourself
+          - yourselves
+          - he
+          - him
+          - his
+          - himself
+          - she
+          - her
+          - hers
+          - herself
+          - it
+          - its
+          - itself
+          - they
+          - them
+          - their
+          - theirs
+          - themselves
+          - what
+          - which
+          - who
+          - whom
+          - this
+          - that
+          - these
+          - those
+          - am
+          - is
+          - are
+          - was
+          - were
+          - be
+          - been
+          - being
+          - have
+          - has
+          - had
+          - having
+          - do
+          - does
+          - did
+          - doing
+          - a
+          - an
+          - the
+          - and
+          - but
+          - if
+          - or
+          - because
+          - as
+          - until
+          - while
+          - of
+          - at
+          - by
+          - for
+          - with
+          - about
+          - against
+          - between
+          - into
+          - through
+          - during
+          - before
+          - after
+          - above
+          - below
+          - to
+          - from
+          - up
+          - down
+          - in
+          - out
+          - on
+          - off
+          - over
+          - under
+          - again
+          - further
+          - then
+          - once
+          - here
+          - there
+          - when
+          - where
+          - why
+          - how
+          - all
+          - any
+          - both
+          - each
+          - few
+          - more
+          - most
+          - other
+          - some
+          - such
+          - no
+          - nor
+          - not
+          - only
+          - own
+          - same
+          - so
+          - than
+          - too
+          - very
+          - s
+          - t
+          - can
+          - will
+          - just
+          - don
+          - should
+          - now
+          - d
+          - ll
+          - m
+          - o
+          - re
+          - ve
+          - y
+          - ain
+          - aren
+          - couldn
+          - didn
+          - doesn
+          - hadn
+          - hasn
+          - haven
+          - isn
+          - mightn
+          - mustn
+          - needn
+          - shan
+          - shouldn
+          - wasn
+          - weren
+          - wouldn
+    outs:
+    - path: data/interim/sensitivity/cpm.parquet
+      hash: md5
+      md5: 019322600668ea5b05d8807e7bc4a0fc
+      size: 25332
+  sensitivity@infomap:
+    cmd: python -m sharded_index.pipeline.sensitivity --method infomap
+    deps:
+    - path: data/interim/corpus
+      hash: md5
+      md5: c66366fe16a0a9f6b7f53225bbf30e9a.dir
+      size: 23758442
+      nfiles: 3
+    - path: data/interim/rankings
+      hash: md5
+      md5: 2a1c6ae2fa71bc31f9e01337253bcc43.dir
+      size: 86442810
+      nfiles: 7
+    - path: data/processed/pairs.parquet
+      hash: md5
+      md5: 98a214c2393745523e78ee89a0fa9113
+      size: 57962340
+    - path: sharded_index/data/corpus.py
+      hash: md5
+      md5: d97fb1176ef635b3afa710337838c367
+      size: 3084
+    - path: sharded_index/data/msmarco.py
+      hash: md5
+      md5: f56edef6271143c67df92018dfc63583
+      size: 2939
+    - path: sharded_index/evaluation/measure.py
+      hash: md5
+      md5: 496865360ec14ca4025790f0a40bc224
+      size: 6622
+    - path: sharded_index/evaluation/membership.py
+      hash: md5
+      md5: fcf8eafaad9dbec222c60b1385af4f6b
+      size: 1573
+    - path: sharded_index/evaluation/statistics.py
+      hash: md5
+      md5: 2a9a3ec1d4229c50f9773c55be47c074
+      size: 2960
+    - path: sharded_index/evaluation/variants.py
+      hash: md5
+      md5: 6f215d71b075b381fb4a412250a1bb45
+      size: 5377
+    - path: sharded_index/graph
+      hash: md5
+      md5: b83e6dbb34f6df140b22871cdff2f5db.dir
+      size: 11052
+      nfiles: 3
+    - path: sharded_index/index/ranking.py
+      hash: md5
+      md5: dccfc838c0fb0ae6b2d0af0e85b1f362
+      size: 5717
+    - path: sharded_index/partition
+      hash: md5
+      md5: 64f1753deffb06a10f2bbf404441d558.dir
+      size: 23702
+      nfiles: 7
+    - path: sharded_index/pipeline/sensitivity.py
+      hash: md5
+      md5: 5d7ad9f4280a1a6c225bb92e9d769379
+      size: 2566
+    - path: sharded_index/routing.py
+      hash: md5
+      md5: 2113d7610b4b15cf3f91d0e694557d92
+      size: 2894
+    - path: sharded_index/storage.py
+      hash: md5
+      md5: c3715042d73e354fd9ca5d4fb6bf2f8b
+      size: 1740
+    - path: sharded_index/text.py
+      hash: md5
+      md5: 8cf058a157dbbf8c4050fe7ef02f6f2c
+      size: 1003
+    params:
+      params.yaml:
+        clustering.methods.infomap:
+          algorithm: infomap
+        clustering.seed: 42
+        evaluation.budgets:
+        - 1
+        - 2
+        - 3
+        - 5
+        evaluation.top_k: 10
+        graph:
+          min_df: 2
+          max_df_ratio: 0.5
+          min_pair_count: 2
+          min_npmi: 0.0
+          edge_weight: npmi
+          stop_words:
+          - mean
+          - meaning
+          - define
+          - definition
+          - stand
+          - happens
+          - used
+          - long
+          - good
+          - number
+          - types
+          - average
+          - difference
+          - largest
+          - old
+          - different
+          - common
+          - normal
+          - considered
+          - worth
+          - word
+          - means
+          - cost
+          - price
+          - age
+          - much
+          - many
+          - name
+          - take
+        partition:
+          strategies:
+          - hash_base
+          - base
+          - base_r2
+          - base_r3
+          - hash_aff
+          - aff
+          - aff_r2
+          - aff_r3
+          - hash_bal
+          - bal
+          affinity_vote: llr
+          replica_affinity_quantile:
+          balance:
+            volume_cap: 0.15
+            max_depth: 12
+            max_refinements: 5
+        queries:
+          train_ratio: 0.95
+          sample_seed: 42
+          train_size: 10000
+          holdout_size:
+          ood:
+            size: 10000
+            dataset: google-research-datasets/nq_open
+            config:
+            split: train
+            column: question
+          synthetic:
+            size: 2000
+            kinds:
+            - connected
+            - frequent
+            arities:
+            - 2
+            - 3
+        routing:
+          cover_weight: idf
+        sensitivity.parameters.infomap: {}
+        sensitivity.sample: holdout
+        sensitivity.seeds:
+        - 1
+        - 2
+        - 3
+        sensitivity.train_sizes:
+        - 10000
+        - 30000
+        - 70000
+        text:
+          stop_words:
+          - i
+          - me
+          - my
+          - myself
+          - we
+          - our
+          - ours
+          - ourselves
+          - you
+          - your
+          - yours
+          - yourself
+          - yourselves
+          - he
+          - him
+          - his
+          - himself
+          - she
+          - her
+          - hers
+          - herself
+          - it
+          - its
+          - itself
+          - they
+          - them
+          - their
+          - theirs
+          - themselves
+          - what
+          - which
+          - who
+          - whom
+          - this
+          - that
+          - these
+          - those
+          - am
+          - is
+          - are
+          - was
+          - were
+          - be
+          - been
+          - being
+          - have
+          - has
+          - had
+          - having
+          - do
+          - does
+          - did
+          - doing
+          - a
+          - an
+          - the
+          - and
+          - but
+          - if
+          - or
+          - because
+          - as
+          - until
+          - while
+          - of
+          - at
+          - by
+          - for
+          - with
+          - about
+          - against
+          - between
+          - into
+          - through
+          - during
+          - before
+          - after
+          - above
+          - below
+          - to
+          - from
+          - up
+          - down
+          - in
+          - out
+          - on
+          - off
+          - over
+          - under
+          - again
+          - further
+          - then
+          - once
+          - here
+          - there
+          - when
+          - where
+          - why
+          - how
+          - all
+          - any
+          - both
+          - each
+          - few
+          - more
+          - most
+          - other
+          - some
+          - such
+          - no
+          - nor
+          - not
+          - only
+          - own
+          - same
+          - so
+          - than
+          - too
+          - very
+          - s
+          - t
+          - can
+          - will
+          - just
+          - don
+          - should
+          - now
+          - d
+          - ll
+          - m
+          - o
+          - re
+          - ve
+          - y
+          - ain
+          - aren
+          - couldn
+          - didn
+          - doesn
+          - hadn
+          - hasn
+          - haven
+          - isn
+          - mightn
+          - mustn
+          - needn
+          - shan
+          - shouldn
+          - wasn
+          - weren
+          - wouldn
+    outs:
+    - path: data/interim/sensitivity/infomap.parquet
+      hash: md5
+      md5: 0bd0c3705831080e4d4b2d72d0a09fbf
+      size: 20555
+  sensitivity@metis:
+    cmd: python -m sharded_index.pipeline.sensitivity --method metis
+    deps:
+    - path: data/interim/corpus
+      hash: md5
+      md5: c66366fe16a0a9f6b7f53225bbf30e9a.dir
+      size: 23758442
+      nfiles: 3
+    - path: data/interim/rankings
+      hash: md5
+      md5: 2a1c6ae2fa71bc31f9e01337253bcc43.dir
+      size: 86442810
+      nfiles: 7
+    - path: data/processed/pairs.parquet
+      hash: md5
+      md5: 98a214c2393745523e78ee89a0fa9113
+      size: 57962340
+    - path: sharded_index/data/corpus.py
+      hash: md5
+      md5: d97fb1176ef635b3afa710337838c367
+      size: 3084
+    - path: sharded_index/data/msmarco.py
+      hash: md5
+      md5: f56edef6271143c67df92018dfc63583
+      size: 2939
+    - path: sharded_index/evaluation/measure.py
+      hash: md5
+      md5: 496865360ec14ca4025790f0a40bc224
+      size: 6622
+    - path: sharded_index/evaluation/membership.py
+      hash: md5
+      md5: fcf8eafaad9dbec222c60b1385af4f6b
+      size: 1573
+    - path: sharded_index/evaluation/statistics.py
+      hash: md5
+      md5: 2a9a3ec1d4229c50f9773c55be47c074
+      size: 2960
+    - path: sharded_index/evaluation/variants.py
+      hash: md5
+      md5: 6f215d71b075b381fb4a412250a1bb45
+      size: 5377
+    - path: sharded_index/graph
+      hash: md5
+      md5: b83e6dbb34f6df140b22871cdff2f5db.dir
+      size: 11052
+      nfiles: 3
+    - path: sharded_index/index/ranking.py
+      hash: md5
+      md5: dccfc838c0fb0ae6b2d0af0e85b1f362
+      size: 5717
+    - path: sharded_index/partition
+      hash: md5
+      md5: 64f1753deffb06a10f2bbf404441d558.dir
+      size: 23702
+      nfiles: 7
+    - path: sharded_index/pipeline/sensitivity.py
+      hash: md5
+      md5: 5d7ad9f4280a1a6c225bb92e9d769379
+      size: 2566
+    - path: sharded_index/routing.py
+      hash: md5
+      md5: 2113d7610b4b15cf3f91d0e694557d92
+      size: 2894
+    - path: sharded_index/storage.py
+      hash: md5
+      md5: c3715042d73e354fd9ca5d4fb6bf2f8b
+      size: 1740
+    - path: sharded_index/text.py
+      hash: md5
+      md5: 8cf058a157dbbf8c4050fe7ef02f6f2c
+      size: 1003
+    params:
+      params.yaml:
+        clustering.methods.metis:
+          algorithm: metis
+          n_parts: 341
+        clustering.seed: 42
+        evaluation.budgets:
+        - 1
+        - 2
+        - 3
+        - 5
+        evaluation.top_k: 10
+        graph:
+          min_df: 2
+          max_df_ratio: 0.5
+          min_pair_count: 2
+          min_npmi: 0.0
+          edge_weight: npmi
+          stop_words:
+          - mean
+          - meaning
+          - define
+          - definition
+          - stand
+          - happens
+          - used
+          - long
+          - good
+          - number
+          - types
+          - average
+          - difference
+          - largest
+          - old
+          - different
+          - common
+          - normal
+          - considered
+          - worth
+          - word
+          - means
+          - cost
+          - price
+          - age
+          - much
+          - many
+          - name
+          - take
+        partition:
+          strategies:
+          - hash_base
+          - base
+          - base_r2
+          - base_r3
+          - hash_aff
+          - aff
+          - aff_r2
+          - aff_r3
+          - hash_bal
+          - bal
+          affinity_vote: llr
+          replica_affinity_quantile:
+          balance:
+            volume_cap: 0.15
+            max_depth: 12
+            max_refinements: 5
+        queries:
+          train_ratio: 0.95
+          sample_seed: 42
+          train_size: 10000
+          holdout_size:
+          ood:
+            size: 10000
+            dataset: google-research-datasets/nq_open
+            config:
+            split: train
+            column: question
+          synthetic:
+            size: 2000
+            kinds:
+            - connected
+            - frequent
+            arities:
+            - 2
+            - 3
+        routing:
+          cover_weight: idf
+        sensitivity.parameters.metis:
+          n_parts:
+          - 361
+          - 444
+          - 569
+          - 754
+          - 1113
+        sensitivity.sample: holdout
+        sensitivity.seeds:
+        - 1
+        - 2
+        - 3
+        sensitivity.train_sizes:
+        - 10000
+        - 30000
+        - 70000
+        text:
+          stop_words:
+          - i
+          - me
+          - my
+          - myself
+          - we
+          - our
+          - ours
+          - ourselves
+          - you
+          - your
+          - yours
+          - yourself
+          - yourselves
+          - he
+          - him
+          - his
+          - himself
+          - she
+          - her
+          - hers
+          - herself
+          - it
+          - its
+          - itself
+          - they
+          - them
+          - their
+          - theirs
+          - themselves
+          - what
+          - which
+          - who
+          - whom
+          - this
+          - that
+          - these
+          - those
+          - am
+          - is
+          - are
+          - was
+          - were
+          - be
+          - been
+          - being
+          - have
+          - has
+          - had
+          - having
+          - do
+          - does
+          - did
+          - doing
+          - a
+          - an
+          - the
+          - and
+          - but
+          - if
+          - or
+          - because
+          - as
+          - until
+          - while
+          - of
+          - at
+          - by
+          - for
+          - with
+          - about
+          - against
+          - between
+          - into
+          - through
+          - during
+          - before
+          - after
+          - above
+          - below
+          - to
+          - from
+          - up
+          - down
+          - in
+          - out
+          - on
+          - off
+          - over
+          - under
+          - again
+          - further
+          - then
+          - once
+          - here
+          - there
+          - when
+          - where
+          - why
+          - how
+          - all
+          - any
+          - both
+          - each
+          - few
+          - more
+          - most
+          - other
+          - some
+          - such
+          - no
+          - nor
+          - not
+          - only
+          - own
+          - same
+          - so
+          - than
+          - too
+          - very
+          - s
+          - t
+          - can
+          - will
+          - just
+          - don
+          - should
+          - now
+          - d
+          - ll
+          - m
+          - o
+          - re
+          - ve
+          - y
+          - ain
+          - aren
+          - couldn
+          - didn
+          - doesn
+          - hadn
+          - hasn
+          - haven
+          - isn
+          - mightn
+          - mustn
+          - needn
+          - shan
+          - shouldn
+          - wasn
+          - weren
+          - wouldn
+    outs:
+    - path: data/interim/sensitivity/metis.parquet
+      hash: md5
+      md5: d3d1c1a12ff6d8fcc46340ee55dd08b2
+      size: 23807
+  ablations@leiden:
+    cmd: python -m sharded_index.pipeline.ablations --method leiden
+    deps:
+    - path: data/interim/corpus
+      hash: md5
+      md5: c66366fe16a0a9f6b7f53225bbf30e9a.dir
+      size: 23758442
+      nfiles: 3
+    - path: data/interim/rankings
+      hash: md5
+      md5: 2a1c6ae2fa71bc31f9e01337253bcc43.dir
+      size: 86442810
+      nfiles: 7
+    - path: data/processed/pairs.parquet
+      hash: md5
+      md5: 98a214c2393745523e78ee89a0fa9113
+      size: 57962340
+    - path: sharded_index/data/corpus.py
+      hash: md5
+      md5: d97fb1176ef635b3afa710337838c367
+      size: 3084
+    - path: sharded_index/data/msmarco.py
+      hash: md5
+      md5: f56edef6271143c67df92018dfc63583
+      size: 2939
+    - path: sharded_index/evaluation/measure.py
+      hash: md5
+      md5: 496865360ec14ca4025790f0a40bc224
+      size: 6622
+    - path: sharded_index/evaluation/membership.py
+      hash: md5
+      md5: fcf8eafaad9dbec222c60b1385af4f6b
+      size: 1573
+    - path: sharded_index/evaluation/statistics.py
+      hash: md5
+      md5: 2a9a3ec1d4229c50f9773c55be47c074
+      size: 2960
+    - path: sharded_index/evaluation/variants.py
+      hash: md5
+      md5: 6f215d71b075b381fb4a412250a1bb45
+      size: 5377
+    - path: sharded_index/graph
+      hash: md5
+      md5: b83e6dbb34f6df140b22871cdff2f5db.dir
+      size: 11052
+      nfiles: 3
+    - path: sharded_index/index/ranking.py
+      hash: md5
+      md5: dccfc838c0fb0ae6b2d0af0e85b1f362
+      size: 5717
+    - path: sharded_index/partition
+      hash: md5
+      md5: 64f1753deffb06a10f2bbf404441d558.dir
+      size: 23702
+      nfiles: 7
+    - path: sharded_index/pipeline/ablations.py
+      hash: md5
+      md5: b3338582269e613745c987fcff7a076f
+      size: 2234
+    - path: sharded_index/routing.py
+      hash: md5
+      md5: 2113d7610b4b15cf3f91d0e694557d92
+      size: 2894
+    - path: sharded_index/storage.py
+      hash: md5
+      md5: c3715042d73e354fd9ca5d4fb6bf2f8b
+      size: 1740
+    - path: sharded_index/text.py
+      hash: md5
+      md5: 8cf058a157dbbf8c4050fe7ef02f6f2c
+      size: 1003
+    params:
+      params.yaml:
+        ablations:
+          sample: holdout
+          variants:
+            baseline: {}
+            vote_raw:
+              partition:
+                affinity_vote: raw
+            cover_strength:
+              routing:
+                cover_weight: strength
+            no_frame_stops:
+              graph:
+                stop_words: []
+            edge_weight_llr:
+              graph:
+                edge_weight: llr
+            edge_weight_chi2:
+              graph:
+                edge_weight: chi2
+            min_npmi_01:
+              graph:
+                min_npmi: 0.1
+            min_npmi_02:
+              graph:
+                min_npmi: 0.2
+            min_npmi_03:
+              graph:
+                min_npmi: 0.3
+            min_pair_count_1:
+              graph:
+                min_pair_count: 1
+            min_pair_count_3:
+              graph:
+                min_pair_count: 3
+            min_pair_count_5:
+              graph:
+                min_pair_count: 5
+            min_df_3:
+              graph:
+                min_df: 3
+            min_df_5:
+              graph:
+                min_df: 5
+            max_df_001:
+              graph:
+                max_df_ratio: 0.01
+            max_df_0005:
+              graph:
+                max_df_ratio: 0.005
+        clustering.methods.leiden:
+          algorithm: leiden
+          resolution: 1.0
+          iterations: convergence
+          max_iterations: 200
+        clustering.seed: 42
+        evaluation.budgets:
+        - 1
+        - 2
+        - 3
+        - 5
+        evaluation.top_k: 10
+        graph:
+          min_df: 2
+          max_df_ratio: 0.5
+          min_pair_count: 2
+          min_npmi: 0.0
+          edge_weight: npmi
+          stop_words:
+          - mean
+          - meaning
+          - define
+          - definition
+          - stand
+          - happens
+          - used
+          - long
+          - good
+          - number
+          - types
+          - average
+          - difference
+          - largest
+          - old
+          - different
+          - common
+          - normal
+          - considered
+          - worth
+          - word
+          - means
+          - cost
+          - price
+          - age
+          - much
+          - many
+          - name
+          - take
+        partition:
+          strategies:
+          - hash_base
+          - base
+          - base_r2
+          - base_r3
+          - hash_aff
+          - aff
+          - aff_r2
+          - aff_r3
+          - hash_bal
+          - bal
+          affinity_vote: llr
+          replica_affinity_quantile:
+          balance:
+            volume_cap: 0.15
+            max_depth: 12
+            max_refinements: 5
+        queries:
+          train_ratio: 0.95
+          sample_seed: 42
+          train_size: 10000
+          holdout_size:
+          ood:
+            size: 10000
+            dataset: google-research-datasets/nq_open
+            config:
+            split: train
+            column: question
+          synthetic:
+            size: 2000
+            kinds:
+            - connected
+            - frequent
+            arities:
+            - 2
+            - 3
+        routing:
+          cover_weight: idf
+        text:
+          stop_words:
+          - i
+          - me
+          - my
+          - myself
+          - we
+          - our
+          - ours
+          - ourselves
+          - you
+          - your
+          - yours
+          - yourself
+          - yourselves
+          - he
+          - him
+          - his
+          - himself
+          - she
+          - her
+          - hers
+          - herself
+          - it
+          - its
+          - itself
+          - they
+          - them
+          - their
+          - theirs
+          - themselves
+          - what
+          - which
+          - who
+          - whom
+          - this
+          - that
+          - these
+          - those
+          - am
+          - is
+          - are
+          - was
+          - were
+          - be
+          - been
+          - being
+          - have
+          - has
+          - had
+          - having
+          - do
+          - does
+          - did
+          - doing
+          - a
+          - an
+          - the
+          - and
+          - but
+          - if
+          - or
+          - because
+          - as
+          - until
+          - while
+          - of
+          - at
+          - by
+          - for
+          - with
+          - about
+          - against
+          - between
+          - into
+          - through
+          - during
+          - before
+          - after
+          - above
+          - below
+          - to
+          - from
+          - up
+          - down
+          - in
+          - out
+          - on
+          - off
+          - over
+          - under
+          - again
+          - further
+          - then
+          - once
+          - here
+          - there
+          - when
+          - where
+          - why
+          - how
+          - all
+          - any
+          - both
+          - each
+          - few
+          - more
+          - most
+          - other
+          - some
+          - such
+          - no
+          - nor
+          - not
+          - only
+          - own
+          - same
+          - so
+          - than
+          - too
+          - very
+          - s
+          - t
+          - can
+          - will
+          - just
+          - don
+          - should
+          - now
+          - d
+          - ll
+          - m
+          - o
+          - re
+          - ve
+          - y
+          - ain
+          - aren
+          - couldn
+          - didn
+          - doesn
+          - hadn
+          - hasn
+          - haven
+          - isn
+          - mightn
+          - mustn
+          - needn
+          - shan
+          - shouldn
+          - wasn
+          - weren
+          - wouldn
+    outs:
+    - path: data/interim/ablations/leiden.parquet
+      hash: md5
+      md5: 571aac2aba7ffa69dd670610c71af2c9
+      size: 28756
+  ablations@cpm:
+    cmd: python -m sharded_index.pipeline.ablations --method cpm
+    deps:
+    - path: data/interim/corpus
+      hash: md5
+      md5: c66366fe16a0a9f6b7f53225bbf30e9a.dir
+      size: 23758442
+      nfiles: 3
+    - path: data/interim/rankings
+      hash: md5
+      md5: 2a1c6ae2fa71bc31f9e01337253bcc43.dir
+      size: 86442810
+      nfiles: 7
+    - path: data/processed/pairs.parquet
+      hash: md5
+      md5: 98a214c2393745523e78ee89a0fa9113
+      size: 57962340
+    - path: sharded_index/data/corpus.py
+      hash: md5
+      md5: d97fb1176ef635b3afa710337838c367
+      size: 3084
+    - path: sharded_index/data/msmarco.py
+      hash: md5
+      md5: f56edef6271143c67df92018dfc63583
+      size: 2939
+    - path: sharded_index/evaluation/measure.py
+      hash: md5
+      md5: 496865360ec14ca4025790f0a40bc224
+      size: 6622
+    - path: sharded_index/evaluation/membership.py
+      hash: md5
+      md5: fcf8eafaad9dbec222c60b1385af4f6b
+      size: 1573
+    - path: sharded_index/evaluation/statistics.py
+      hash: md5
+      md5: 2a9a3ec1d4229c50f9773c55be47c074
+      size: 2960
+    - path: sharded_index/evaluation/variants.py
+      hash: md5
+      md5: 6f215d71b075b381fb4a412250a1bb45
+      size: 5377
+    - path: sharded_index/graph
+      hash: md5
+      md5: b83e6dbb34f6df140b22871cdff2f5db.dir
+      size: 11052
+      nfiles: 3
+    - path: sharded_index/index/ranking.py
+      hash: md5
+      md5: dccfc838c0fb0ae6b2d0af0e85b1f362
+      size: 5717
+    - path: sharded_index/partition
+      hash: md5
+      md5: 64f1753deffb06a10f2bbf404441d558.dir
+      size: 23702
+      nfiles: 7
+    - path: sharded_index/pipeline/ablations.py
+      hash: md5
+      md5: b3338582269e613745c987fcff7a076f
+      size: 2234
+    - path: sharded_index/routing.py
+      hash: md5
+      md5: 2113d7610b4b15cf3f91d0e694557d92
+      size: 2894
+    - path: sharded_index/storage.py
+      hash: md5
+      md5: c3715042d73e354fd9ca5d4fb6bf2f8b
+      size: 1740
+    - path: sharded_index/text.py
+      hash: md5
+      md5: 8cf058a157dbbf8c4050fe7ef02f6f2c
+      size: 1003
+    params:
+      params.yaml:
+        ablations:
+          sample: holdout
+          variants:
+            baseline: {}
+            vote_raw:
+              partition:
+                affinity_vote: raw
+            cover_strength:
+              routing:
+                cover_weight: strength
+            no_frame_stops:
+              graph:
+                stop_words: []
+            edge_weight_llr:
+              graph:
+                edge_weight: llr
+            edge_weight_chi2:
+              graph:
+                edge_weight: chi2
+            min_npmi_01:
+              graph:
+                min_npmi: 0.1
+            min_npmi_02:
+              graph:
+                min_npmi: 0.2
+            min_npmi_03:
+              graph:
+                min_npmi: 0.3
+            min_pair_count_1:
+              graph:
+                min_pair_count: 1
+            min_pair_count_3:
+              graph:
+                min_pair_count: 3
+            min_pair_count_5:
+              graph:
+                min_pair_count: 5
+            min_df_3:
+              graph:
+                min_df: 3
+            min_df_5:
+              graph:
+                min_df: 5
+            max_df_001:
+              graph:
+                max_df_ratio: 0.01
+            max_df_0005:
+              graph:
+                max_df_ratio: 0.005
+        clustering.methods.cpm:
+          algorithm: cpm
+          resolution: 0.02
+          iterations: convergence
+          max_iterations: 200
+        clustering.seed: 42
+        evaluation.budgets:
+        - 1
+        - 2
+        - 3
+        - 5
+        evaluation.top_k: 10
+        graph:
+          min_df: 2
+          max_df_ratio: 0.5
+          min_pair_count: 2
+          min_npmi: 0.0
+          edge_weight: npmi
+          stop_words:
+          - mean
+          - meaning
+          - define
+          - definition
+          - stand
+          - happens
+          - used
+          - long
+          - good
+          - number
+          - types
+          - average
+          - difference
+          - largest
+          - old
+          - different
+          - common
+          - normal
+          - considered
+          - worth
+          - word
+          - means
+          - cost
+          - price
+          - age
+          - much
+          - many
+          - name
+          - take
+        partition:
+          strategies:
+          - hash_base
+          - base
+          - base_r2
+          - base_r3
+          - hash_aff
+          - aff
+          - aff_r2
+          - aff_r3
+          - hash_bal
+          - bal
+          affinity_vote: llr
+          replica_affinity_quantile:
+          balance:
+            volume_cap: 0.15
+            max_depth: 12
+            max_refinements: 5
+        queries:
+          train_ratio: 0.95
+          sample_seed: 42
+          train_size: 10000
+          holdout_size:
+          ood:
+            size: 10000
+            dataset: google-research-datasets/nq_open
+            config:
+            split: train
+            column: question
+          synthetic:
+            size: 2000
+            kinds:
+            - connected
+            - frequent
+            arities:
+            - 2
+            - 3
+        routing:
+          cover_weight: idf
+        text:
+          stop_words:
+          - i
+          - me
+          - my
+          - myself
+          - we
+          - our
+          - ours
+          - ourselves
+          - you
+          - your
+          - yours
+          - yourself
+          - yourselves
+          - he
+          - him
+          - his
+          - himself
+          - she
+          - her
+          - hers
+          - herself
+          - it
+          - its
+          - itself
+          - they
+          - them
+          - their
+          - theirs
+          - themselves
+          - what
+          - which
+          - who
+          - whom
+          - this
+          - that
+          - these
+          - those
+          - am
+          - is
+          - are
+          - was
+          - were
+          - be
+          - been
+          - being
+          - have
+          - has
+          - had
+          - having
+          - do
+          - does
+          - did
+          - doing
+          - a
+          - an
+          - the
+          - and
+          - but
+          - if
+          - or
+          - because
+          - as
+          - until
+          - while
+          - of
+          - at
+          - by
+          - for
+          - with
+          - about
+          - against
+          - between
+          - into
+          - through
+          - during
+          - before
+          - after
+          - above
+          - below
+          - to
+          - from
+          - up
+          - down
+          - in
+          - out
+          - on
+          - off
+          - over
+          - under
+          - again
+          - further
+          - then
+          - once
+          - here
+          - there
+          - when
+          - where
+          - why
+          - how
+          - all
+          - any
+          - both
+          - each
+          - few
+          - more
+          - most
+          - other
+          - some
+          - such
+          - no
+          - nor
+          - not
+          - only
+          - own
+          - same
+          - so
+          - than
+          - too
+          - very
+          - s
+          - t
+          - can
+          - will
+          - just
+          - don
+          - should
+          - now
+          - d
+          - ll
+          - m
+          - o
+          - re
+          - ve
+          - y
+          - ain
+          - aren
+          - couldn
+          - didn
+          - doesn
+          - hadn
+          - hasn
+          - haven
+          - isn
+          - mightn
+          - mustn
+          - needn
+          - shan
+          - shouldn
+          - wasn
+          - weren
+          - wouldn
+    outs:
+    - path: data/interim/ablations/cpm.parquet
+      hash: md5
+      md5: 1ad256cfcc5b2f060e1225f99758bce9
+      size: 28985
+  ablations@infomap:
+    cmd: python -m sharded_index.pipeline.ablations --method infomap
+    deps:
+    - path: data/interim/corpus
+      hash: md5
+      md5: c66366fe16a0a9f6b7f53225bbf30e9a.dir
+      size: 23758442
+      nfiles: 3
+    - path: data/interim/rankings
+      hash: md5
+      md5: 2a1c6ae2fa71bc31f9e01337253bcc43.dir
+      size: 86442810
+      nfiles: 7
+    - path: data/processed/pairs.parquet
+      hash: md5
+      md5: 98a214c2393745523e78ee89a0fa9113
+      size: 57962340
+    - path: sharded_index/data/corpus.py
+      hash: md5
+      md5: d97fb1176ef635b3afa710337838c367
+      size: 3084
+    - path: sharded_index/data/msmarco.py
+      hash: md5
+      md5: f56edef6271143c67df92018dfc63583
+      size: 2939
+    - path: sharded_index/evaluation/measure.py
+      hash: md5
+      md5: 496865360ec14ca4025790f0a40bc224
+      size: 6622
+    - path: sharded_index/evaluation/membership.py
+      hash: md5
+      md5: fcf8eafaad9dbec222c60b1385af4f6b
+      size: 1573
+    - path: sharded_index/evaluation/statistics.py
+      hash: md5
+      md5: 2a9a3ec1d4229c50f9773c55be47c074
+      size: 2960
+    - path: sharded_index/evaluation/variants.py
+      hash: md5
+      md5: 6f215d71b075b381fb4a412250a1bb45
+      size: 5377
+    - path: sharded_index/graph
+      hash: md5
+      md5: b83e6dbb34f6df140b22871cdff2f5db.dir
+      size: 11052
+      nfiles: 3
+    - path: sharded_index/index/ranking.py
+      hash: md5
+      md5: dccfc838c0fb0ae6b2d0af0e85b1f362
+      size: 5717
+    - path: sharded_index/partition
+      hash: md5
+      md5: 64f1753deffb06a10f2bbf404441d558.dir
+      size: 23702
+      nfiles: 7
+    - path: sharded_index/pipeline/ablations.py
+      hash: md5
+      md5: b3338582269e613745c987fcff7a076f
+      size: 2234
+    - path: sharded_index/routing.py
+      hash: md5
+      md5: 2113d7610b4b15cf3f91d0e694557d92
+      size: 2894
+    - path: sharded_index/storage.py
+      hash: md5
+      md5: c3715042d73e354fd9ca5d4fb6bf2f8b
+      size: 1740
+    - path: sharded_index/text.py
+      hash: md5
+      md5: 8cf058a157dbbf8c4050fe7ef02f6f2c
+      size: 1003
+    params:
+      params.yaml:
+        ablations:
+          sample: holdout
+          variants:
+            baseline: {}
+            vote_raw:
+              partition:
+                affinity_vote: raw
+            cover_strength:
+              routing:
+                cover_weight: strength
+            no_frame_stops:
+              graph:
+                stop_words: []
+            edge_weight_llr:
+              graph:
+                edge_weight: llr
+            edge_weight_chi2:
+              graph:
+                edge_weight: chi2
+            min_npmi_01:
+              graph:
+                min_npmi: 0.1
+            min_npmi_02:
+              graph:
+                min_npmi: 0.2
+            min_npmi_03:
+              graph:
+                min_npmi: 0.3
+            min_pair_count_1:
+              graph:
+                min_pair_count: 1
+            min_pair_count_3:
+              graph:
+                min_pair_count: 3
+            min_pair_count_5:
+              graph:
+                min_pair_count: 5
+            min_df_3:
+              graph:
+                min_df: 3
+            min_df_5:
+              graph:
+                min_df: 5
+            max_df_001:
+              graph:
+                max_df_ratio: 0.01
+            max_df_0005:
+              graph:
+                max_df_ratio: 0.005
+        clustering.methods.infomap:
+          algorithm: infomap
+        clustering.seed: 42
+        evaluation.budgets:
+        - 1
+        - 2
+        - 3
+        - 5
+        evaluation.top_k: 10
+        graph:
+          min_df: 2
+          max_df_ratio: 0.5
+          min_pair_count: 2
+          min_npmi: 0.0
+          edge_weight: npmi
+          stop_words:
+          - mean
+          - meaning
+          - define
+          - definition
+          - stand
+          - happens
+          - used
+          - long
+          - good
+          - number
+          - types
+          - average
+          - difference
+          - largest
+          - old
+          - different
+          - common
+          - normal
+          - considered
+          - worth
+          - word
+          - means
+          - cost
+          - price
+          - age
+          - much
+          - many
+          - name
+          - take
+        partition:
+          strategies:
+          - hash_base
+          - base
+          - base_r2
+          - base_r3
+          - hash_aff
+          - aff
+          - aff_r2
+          - aff_r3
+          - hash_bal
+          - bal
+          affinity_vote: llr
+          replica_affinity_quantile:
+          balance:
+            volume_cap: 0.15
+            max_depth: 12
+            max_refinements: 5
+        queries:
+          train_ratio: 0.95
+          sample_seed: 42
+          train_size: 10000
+          holdout_size:
+          ood:
+            size: 10000
+            dataset: google-research-datasets/nq_open
+            config:
+            split: train
+            column: question
+          synthetic:
+            size: 2000
+            kinds:
+            - connected
+            - frequent
+            arities:
+            - 2
+            - 3
+        routing:
+          cover_weight: idf
+        text:
+          stop_words:
+          - i
+          - me
+          - my
+          - myself
+          - we
+          - our
+          - ours
+          - ourselves
+          - you
+          - your
+          - yours
+          - yourself
+          - yourselves
+          - he
+          - him
+          - his
+          - himself
+          - she
+          - her
+          - hers
+          - herself
+          - it
+          - its
+          - itself
+          - they
+          - them
+          - their
+          - theirs
+          - themselves
+          - what
+          - which
+          - who
+          - whom
+          - this
+          - that
+          - these
+          - those
+          - am
+          - is
+          - are
+          - was
+          - were
+          - be
+          - been
+          - being
+          - have
+          - has
+          - had
+          - having
+          - do
+          - does
+          - did
+          - doing
+          - a
+          - an
+          - the
+          - and
+          - but
+          - if
+          - or
+          - because
+          - as
+          - until
+          - while
+          - of
+          - at
+          - by
+          - for
+          - with
+          - about
+          - against
+          - between
+          - into
+          - through
+          - during
+          - before
+          - after
+          - above
+          - below
+          - to
+          - from
+          - up
+          - down
+          - in
+          - out
+          - on
+          - off
+          - over
+          - under
+          - again
+          - further
+          - then
+          - once
+          - here
+          - there
+          - when
+          - where
+          - why
+          - how
+          - all
+          - any
+          - both
+          - each
+          - few
+          - more
+          - most
+          - other
+          - some
+          - such
+          - no
+          - nor
+          - not
+          - only
+          - own
+          - same
+          - so
+          - than
+          - too
+          - very
+          - s
+          - t
+          - can
+          - will
+          - just
+          - don
+          - should
+          - now
+          - d
+          - ll
+          - m
+          - o
+          - re
+          - ve
+          - y
+          - ain
+          - aren
+          - couldn
+          - didn
+          - doesn
+          - hadn
+          - hasn
+          - haven
+          - isn
+          - mightn
+          - mustn
+          - needn
+          - shan
+          - shouldn
+          - wasn
+          - weren
+          - wouldn
+    outs:
+    - path: data/interim/ablations/infomap.parquet
+      hash: md5
+      md5: 261728ddd9b87fa6bd7305e10558595a
+      size: 29036
+  ablations@metis:
+    cmd: python -m sharded_index.pipeline.ablations --method metis
+    deps:
+    - path: data/interim/corpus
+      hash: md5
+      md5: c66366fe16a0a9f6b7f53225bbf30e9a.dir
+      size: 23758442
+      nfiles: 3
+    - path: data/interim/rankings
+      hash: md5
+      md5: 2a1c6ae2fa71bc31f9e01337253bcc43.dir
+      size: 86442810
+      nfiles: 7
+    - path: data/processed/pairs.parquet
+      hash: md5
+      md5: 98a214c2393745523e78ee89a0fa9113
+      size: 57962340
+    - path: sharded_index/data/corpus.py
+      hash: md5
+      md5: d97fb1176ef635b3afa710337838c367
+      size: 3084
+    - path: sharded_index/data/msmarco.py
+      hash: md5
+      md5: f56edef6271143c67df92018dfc63583
+      size: 2939
+    - path: sharded_index/evaluation/measure.py
+      hash: md5
+      md5: 496865360ec14ca4025790f0a40bc224
+      size: 6622
+    - path: sharded_index/evaluation/membership.py
+      hash: md5
+      md5: fcf8eafaad9dbec222c60b1385af4f6b
+      size: 1573
+    - path: sharded_index/evaluation/statistics.py
+      hash: md5
+      md5: 2a9a3ec1d4229c50f9773c55be47c074
+      size: 2960
+    - path: sharded_index/evaluation/variants.py
+      hash: md5
+      md5: 6f215d71b075b381fb4a412250a1bb45
+      size: 5377
+    - path: sharded_index/graph
+      hash: md5
+      md5: b83e6dbb34f6df140b22871cdff2f5db.dir
+      size: 11052
+      nfiles: 3
+    - path: sharded_index/index/ranking.py
+      hash: md5
+      md5: dccfc838c0fb0ae6b2d0af0e85b1f362
+      size: 5717
+    - path: sharded_index/partition
+      hash: md5
+      md5: 64f1753deffb06a10f2bbf404441d558.dir
+      size: 23702
+      nfiles: 7
+    - path: sharded_index/pipeline/ablations.py
+      hash: md5
+      md5: b3338582269e613745c987fcff7a076f
+      size: 2234
+    - path: sharded_index/routing.py
+      hash: md5
+      md5: 2113d7610b4b15cf3f91d0e694557d92
+      size: 2894
+    - path: sharded_index/storage.py
+      hash: md5
+      md5: c3715042d73e354fd9ca5d4fb6bf2f8b
+      size: 1740
+    - path: sharded_index/text.py
+      hash: md5
+      md5: 8cf058a157dbbf8c4050fe7ef02f6f2c
+      size: 1003
+    params:
+      params.yaml:
+        ablations:
+          sample: holdout
+          variants:
+            baseline: {}
+            vote_raw:
+              partition:
+                affinity_vote: raw
+            cover_strength:
+              routing:
+                cover_weight: strength
+            no_frame_stops:
+              graph:
+                stop_words: []
+            edge_weight_llr:
+              graph:
+                edge_weight: llr
+            edge_weight_chi2:
+              graph:
+                edge_weight: chi2
+            min_npmi_01:
+              graph:
+                min_npmi: 0.1
+            min_npmi_02:
+              graph:
+                min_npmi: 0.2
+            min_npmi_03:
+              graph:
+                min_npmi: 0.3
+            min_pair_count_1:
+              graph:
+                min_pair_count: 1
+            min_pair_count_3:
+              graph:
+                min_pair_count: 3
+            min_pair_count_5:
+              graph:
+                min_pair_count: 5
+            min_df_3:
+              graph:
+                min_df: 3
+            min_df_5:
+              graph:
+                min_df: 5
+            max_df_001:
+              graph:
+                max_df_ratio: 0.01
+            max_df_0005:
+              graph:
+                max_df_ratio: 0.005
+        clustering.methods.metis:
+          algorithm: metis
+          n_parts: 341
+        clustering.seed: 42
+        evaluation.budgets:
+        - 1
+        - 2
+        - 3
+        - 5
+        evaluation.top_k: 10
+        graph:
+          min_df: 2
+          max_df_ratio: 0.5
+          min_pair_count: 2
+          min_npmi: 0.0
+          edge_weight: npmi
+          stop_words:
+          - mean
+          - meaning
+          - define
+          - definition
+          - stand
+          - happens
+          - used
+          - long
+          - good
+          - number
+          - types
+          - average
+          - difference
+          - largest
+          - old
+          - different
+          - common
+          - normal
+          - considered
+          - worth
+          - word
+          - means
+          - cost
+          - price
+          - age
+          - much
+          - many
+          - name
+          - take
+        partition:
+          strategies:
+          - hash_base
+          - base
+          - base_r2
+          - base_r3
+          - hash_aff
+          - aff
+          - aff_r2
+          - aff_r3
+          - hash_bal
+          - bal
+          affinity_vote: llr
+          replica_affinity_quantile:
+          balance:
+            volume_cap: 0.15
+            max_depth: 12
+            max_refinements: 5
+        queries:
+          train_ratio: 0.95
+          sample_seed: 42
+          train_size: 10000
+          holdout_size:
+          ood:
+            size: 10000
+            dataset: google-research-datasets/nq_open
+            config:
+            split: train
+            column: question
+          synthetic:
+            size: 2000
+            kinds:
+            - connected
+            - frequent
+            arities:
+            - 2
+            - 3
+        routing:
+          cover_weight: idf
+        text:
+          stop_words:
+          - i
+          - me
+          - my
+          - myself
+          - we
+          - our
+          - ours
+          - ourselves
+          - you
+          - your
+          - yours
+          - yourself
+          - yourselves
+          - he
+          - him
+          - his
+          - himself
+          - she
+          - her
+          - hers
+          - herself
+          - it
+          - its
+          - itself
+          - they
+          - them
+          - their
+          - theirs
+          - themselves
+          - what
+          - which
+          - who
+          - whom
+          - this
+          - that
+          - these
+          - those
+          - am
+          - is
+          - are
+          - was
+          - were
+          - be
+          - been
+          - being
+          - have
+          - has
+          - had
+          - having
+          - do
+          - does
+          - did
+          - doing
+          - a
+          - an
+          - the
+          - and
+          - but
+          - if
+          - or
+          - because
+          - as
+          - until
+          - while
+          - of
+          - at
+          - by
+          - for
+          - with
+          - about
+          - against
+          - between
+          - into
+          - through
+          - during
+          - before
+          - after
+          - above
+          - below
+          - to
+          - from
+          - up
+          - down
+          - in
+          - out
+          - on
+          - off
+          - over
+          - under
+          - again
+          - further
+          - then
+          - once
+          - here
+          - there
+          - when
+          - where
+          - why
+          - how
+          - all
+          - any
+          - both
+          - each
+          - few
+          - more
+          - most
+          - other
+          - some
+          - such
+          - no
+          - nor
+          - not
+          - only
+          - own
+          - same
+          - so
+          - than
+          - too
+          - very
+          - s
+          - t
+          - can
+          - will
+          - just
+          - don
+          - should
+          - now
+          - d
+          - ll
+          - m
+          - o
+          - re
+          - ve
+          - y
+          - ain
+          - aren
+          - couldn
+          - didn
+          - doesn
+          - hadn
+          - hasn
+          - haven
+          - isn
+          - mightn
+          - mustn
+          - needn
+          - shan
+          - shouldn
+          - wasn
+          - weren
+          - wouldn
+    outs:
+    - path: data/interim/ablations/metis.parquet
+      hash: md5
+      md5: 7dde6212e94d9b7c324742ad52e3a191
+      size: 28264
+  report:
+    cmd: python -m sharded_index.pipeline.report
+    deps:
+    - path: data/interim/ablations
+      hash: md5
+      md5: fda1af4e4bd65a2fccc6553f92520835.dir
+      size: 115041
+      nfiles: 4
+    - path: data/interim/evaluation
+      hash: md5
+      md5: e015ab2d2d24d129986589708fcd9922.dir
+      size: 37325874
+      nfiles: 8
+    - path: data/interim/queries.parquet
+      hash: md5
+      md5: a6707b3c986a106f93527a9dd1a149b5
+      size: 910138
+    - path: data/interim/sensitivity
+      hash: md5
+      md5: 5961cfbab99e8f4ba9ffb54939ecf61b.dir
+      size: 95830
+      nfiles: 4
+    - path: data/interim/verification
+      hash: md5
+      md5: ee89e06548ddc5f2cda8de990aeb42f4.dir
+      size: 31885
+      nfiles: 4
+    - path: models/graph.parquet
+      hash: md5
+      md5: 456a403bc8f404bcb896fcb006200073
+      size: 503352
+    - path: sharded_index/data/corpus.py
+      hash: md5
+      md5: d97fb1176ef635b3afa710337838c367
+      size: 3084
+    - path: sharded_index/evaluation/measure.py
+      hash: md5
+      md5: 496865360ec14ca4025790f0a40bc224
+      size: 6622
+    - path: sharded_index/evaluation/membership.py
+      hash: md5
+      md5: fcf8eafaad9dbec222c60b1385af4f6b
+      size: 1573
+    - path: sharded_index/evaluation/slices.py
+      hash: md5
+      md5: b878a9c131076eded627234f96c34717
+      size: 3021
+    - path: sharded_index/evaluation/statistics.py
+      hash: md5
+      md5: 2a9a3ec1d4229c50f9773c55be47c074
+      size: 2960
+    - path: sharded_index/graph/cooccurrence.py
+      hash: md5
+      md5: 50dd13b477eeb3caec96b4b5f4d09fb6
+      size: 5146
+    - path: sharded_index/index/ranking.py
+      hash: md5
+      md5: dccfc838c0fb0ae6b2d0af0e85b1f362
+      size: 5717
+    - path: sharded_index/partition/model.py
+      hash: md5
+      md5: d3b84b04c431b6690c27b83802ab5f56
+      size: 3271
+    - path: sharded_index/pipeline/report.py
+      hash: md5
+      md5: 35729d78c393a283805fd48d6d8cdc7a
+      size: 4050
+    - path: sharded_index/reporting/tables.py
+      hash: md5
+      md5: be95223f9fb373df6100f1c613d899f8
+      size: 12080
+    - path: sharded_index/routing.py
+      hash: md5
+      md5: 2113d7610b4b15cf3f91d0e694557d92
+      size: 2894
+    - path: sharded_index/storage.py
+      hash: md5
+      md5: c3715042d73e354fd9ca5d4fb6bf2f8b
+      size: 1740
+    - path: sharded_index/text.py
+      hash: md5
+      md5: 8cf058a157dbbf8c4050fe7ef02f6f2c
+      size: 1003
+    params:
+      params.yaml:
+        clustering.methods:
+          leiden:
+            algorithm: leiden
+            resolution: 1.0
+            iterations: convergence
+            max_iterations: 200
+          cpm:
+            algorithm: cpm
+            resolution: 0.02
+            iterations: convergence
+            max_iterations: 200
+          infomap:
+            algorithm: infomap
+          metis:
+            algorithm: metis
+            n_parts: 341
+        evaluation:
+          top_k: 10
+          budgets:
+          - 1
+          - 2
+          - 3
+          - 5
+          ranking_depth: 1000
+          bootstrap:
+            samples: 1000
+            seed: 42
+            confidence: 0.95
+          comparisons:
+            pairs:
+            - - aff
+              - base
+            - - aff_r2
+              - base_r2
+            - - aff_r3
+              - base_r3
+            - - base_r2
+              - base
+            - - base_r3
+              - base
+            - - aff_r2
+              - aff
+            - - aff_r3
+              - aff
+            - - bal
+              - aff
+            reference_method: leiden
+          slices:
+            sample: holdout
+            connectivity_quantiles: 4
+            max_terms: 5
+        partition.strategies:
+        - hash_base
+        - base
+        - base_r2
+        - base_r3
+        - hash_aff
+        - aff
+        - aff_r2
+        - aff_r3
+        - hash_bal
+        - bal
+        queries:
+          train_ratio: 0.95
+          sample_seed: 42
+          train_size: 10000
+          holdout_size:
+          ood:
+            size: 10000
+            dataset: google-research-datasets/nq_open
+            config:
+            split: train
+            column: question
+          synthetic:
+            size: 2000
+            kinds:
+            - connected
+            - frequent
+            arities:
+            - 2
+            - 3
+        text:
+          stop_words:
+          - i
+          - me
+          - my
+          - myself
+          - we
+          - our
+          - ours
+          - ourselves
+          - you
+          - your
+          - yours
+          - yourself
+          - yourselves
+          - he
+          - him
+          - his
+          - himself
+          - she
+          - her
+          - hers
+          - herself
+          - it
+          - its
+          - itself
+          - they
+          - them
+          - their
+          - theirs
+          - themselves
+          - what
+          - which
+          - who
+          - whom
+          - this
+          - that
+          - these
+          - those
+          - am
+          - is
+          - are
+          - was
+          - were
+          - be
+          - been
+          - being
+          - have
+          - has
+          - had
+          - having
+          - do
+          - does
+          - did
+          - doing
+          - a
+          - an
+          - the
+          - and
+          - but
+          - if
+          - or
+          - because
+          - as
+          - until
+          - while
+          - of
+          - at
+          - by
+          - for
+          - with
+          - about
+          - against
+          - between
+          - into
+          - through
+          - during
+          - before
+          - after
+          - above
+          - below
+          - to
+          - from
+          - up
+          - down
+          - in
+          - out
+          - on
+          - off
+          - over
+          - under
+          - again
+          - further
+          - then
+          - once
+          - here
+          - there
+          - when
+          - where
+          - why
+          - how
+          - all
+          - any
+          - both
+          - each
+          - few
+          - more
+          - most
+          - other
+          - some
+          - such
+          - no
+          - nor
+          - not
+          - only
+          - own
+          - same
+          - so
+          - than
+          - too
+          - very
+          - s
+          - t
+          - can
+          - will
+          - just
+          - don
+          - should
+          - now
+          - d
+          - ll
+          - m
+          - o
+          - re
+          - ve
+          - y
+          - ain
+          - aren
+          - couldn
+          - didn
+          - doesn
+          - hadn
+          - hasn
+          - haven
+          - isn
+          - mightn
+          - mustn
+          - needn
+          - shan
+          - shouldn
+          - wasn
+          - weren
+          - wouldn
+    outs:
+    - path: metrics/ablations.csv
+      hash: md5
+      md5: 965b798f9b8ece1ac8a0abb601575186
+      size: 93140
+    - path: metrics/comparisons.csv
+      hash: md5
+      md5: c90f04a44936afc38a0245897a7aff18
+      size: 568559
+    - path: metrics/partitions.csv
+      hash: md5
+      md5: b19f497e36da3eb8569fc807978c799c
+      size: 2600
+    - path: metrics/retrieval.csv
+      hash: md5
+      md5: e6ae0d9a942f5a1ddf1ac29915b7eec6
+      size: 99096
+    - path: metrics/routing.csv
+      hash: md5
+      md5: b1773c6dda87441df07fad4f6ea99a18
+      size: 29979
+    - path: metrics/sensitivity.csv
+      hash: md5
+      md5: c5d934fe3358c98b40b1ca5278a4e8bc
+      size: 71448
+    - path: metrics/slices.csv
+      hash: md5
+      md5: 817d74266aec2ac5ae79a88d8c0e8173
+      size: 53945
+    - path: metrics/verification.csv
+      hash: md5
+      md5: 8ec9f3e655741ff8b877d4d7a65f8d68
+      size: 3373
+  describe:
+    cmd: python -m sharded_index.pipeline.describe
+    deps:
+    - path: data/interim/corpus
+      hash: md5
+      md5: c66366fe16a0a9f6b7f53225bbf30e9a.dir
+      size: 23758442
+      nfiles: 3
+    - path: data/processed/pairs.parquet
+      hash: md5
+      md5: 98a214c2393745523e78ee89a0fa9113
+      size: 57962340
+    - path: models/clusterings
+      hash: md5
+      md5: 7d08f3730fc63bf1b2e73a758830f747.dir
+      size: 462556
+      nfiles: 4
+    - path: models/graph.parquet
+      hash: md5
+      md5: 456a403bc8f404bcb896fcb006200073
+      size: 503352
+    - path: sharded_index/data/corpus.py
+      hash: md5
+      md5: d97fb1176ef635b3afa710337838c367
+      size: 3084
+    - path: sharded_index/data/msmarco.py
+      hash: md5
+      md5: f56edef6271143c67df92018dfc63583
+      size: 2939
+    - path: sharded_index/evaluation/measure.py
+      hash: md5
+      md5: 496865360ec14ca4025790f0a40bc224
+      size: 6622
+    - path: sharded_index/evaluation/membership.py
+      hash: md5
+      md5: fcf8eafaad9dbec222c60b1385af4f6b
+      size: 1573
+    - path: sharded_index/evaluation/statistics.py
+      hash: md5
+      md5: 2a9a3ec1d4229c50f9773c55be47c074
+      size: 2960
+    - path: sharded_index/graph
+      hash: md5
+      md5: b83e6dbb34f6df140b22871cdff2f5db.dir
+      size: 11052
+      nfiles: 3
+    - path: sharded_index/index/ranking.py
+      hash: md5
+      md5: dccfc838c0fb0ae6b2d0af0e85b1f362
+      size: 5717
+    - path: sharded_index/partition/model.py
+      hash: md5
+      md5: d3b84b04c431b6690c27b83802ab5f56
+      size: 3271
+    - path: sharded_index/pipeline/describe.py
+      hash: md5
+      md5: b15f79a16beb0cebd31daf3e7b74f26a
+      size: 2318
+    - path: sharded_index/reporting/describe.py
+      hash: md5
+      md5: 355a62469330b2545a97b7de1d1ba176
+      size: 7152
+    - path: sharded_index/reporting/tables.py
+      hash: md5
+      md5: be95223f9fb373df6100f1c613d899f8
+      size: 12080
+    - path: sharded_index/routing.py
+      hash: md5
+      md5: 2113d7610b4b15cf3f91d0e694557d92
+      size: 2894
+    - path: sharded_index/storage.py
+      hash: md5
+      md5: c3715042d73e354fd9ca5d4fb6bf2f8b
+      size: 1740
+    - path: sharded_index/text.py
+      hash: md5
+      md5: 8cf058a157dbbf8c4050fe7ef02f6f2c
+      size: 1003
+    params:
+      params.yaml:
+        clustering:
+          seed: 42
+          methods:
+            leiden:
+              algorithm: leiden
+              resolution: 1.0
+              iterations: convergence
+              max_iterations: 200
+            cpm:
+              algorithm: cpm
+              resolution: 0.02
+              iterations: convergence
+              max_iterations: 200
+            infomap:
+              algorithm: infomap
+            metis:
+              algorithm: metis
+              n_parts: 341
+        describe:
+          top_clusters: 25
+          top_terms: 10
+          frame_word_candidates: 80
+        graph.stop_words:
+        - mean
+        - meaning
+        - define
+        - definition
+        - stand
+        - happens
+        - used
+        - long
+        - good
+        - number
+        - types
+        - average
+        - difference
+        - largest
+        - old
+        - different
+        - common
+        - normal
+        - considered
+        - worth
+        - word
+        - means
+        - cost
+        - price
+        - age
+        - much
+        - many
+        - name
+        - take
+        queries.train_ratio: 0.95
+        text:
+          stop_words:
+          - i
+          - me
+          - my
+          - myself
+          - we
+          - our
+          - ours
+          - ourselves
+          - you
+          - your
+          - yours
+          - yourself
+          - yourselves
+          - he
+          - him
+          - his
+          - himself
+          - she
+          - her
+          - hers
+          - herself
+          - it
+          - its
+          - itself
+          - they
+          - them
+          - their
+          - theirs
+          - themselves
+          - what
+          - which
+          - who
+          - whom
+          - this
+          - that
+          - these
+          - those
+          - am
+          - is
+          - are
+          - was
+          - were
+          - be
+          - been
+          - being
+          - have
+          - has
+          - had
+          - having
+          - do
+          - does
+          - did
+          - doing
+          - a
+          - an
+          - the
+          - and
+          - but
+          - if
+          - or
+          - because
+          - as
+          - until
+          - while
+          - of
+          - at
+          - by
+          - for
+          - with
+          - about
+          - against
+          - between
+          - into
+          - through
+          - during
+          - before
+          - after
+          - above
+          - below
+          - to
+          - from
+          - up
+          - down
+          - in
+          - out
+          - on
+          - off
+          - over
+          - under
+          - again
+          - further
+          - then
+          - once
+          - here
+          - there
+          - when
+          - where
+          - why
+          - how
+          - all
+          - any
+          - both
+          - each
+          - few
+          - more
+          - most
+          - other
+          - some
+          - such
+          - no
+          - nor
+          - not
+          - only
+          - own
+          - same
+          - so
+          - than
+          - too
+          - very
+          - s
+          - t
+          - can
+          - will
+          - just
+          - don
+          - should
+          - now
+          - d
+          - ll
+          - m
+          - o
+          - re
+          - ve
+          - y
+          - ain
+          - aren
+          - couldn
+          - didn
+          - doesn
+          - hadn
+          - hasn
+          - haven
+          - isn
+          - mightn
+          - mustn
+          - needn
+          - shan
+          - shouldn
+          - wasn
+          - weren
+          - wouldn
+    outs:
+    - path: metrics/clusterings.csv
+      hash: md5
+      md5: 110a67045e3df6a7137a50e23d7741c4
+      size: 348
+    - path: metrics/clusters.csv
+      hash: md5
+      md5: ce15260c9e5d81ea5bc6a63d62c93c0e
+      size: 9389
+    - path: metrics/corpus.json
+      hash: md5
+      md5: 39fde51d461b89a4ef9491883f0334ab
+      size: 965
+    - path: metrics/frame_words.csv
+      hash: md5
+      md5: 6841cd8e4aa55831fd39d08538641d78
+      size: 3210
+  figures:
+    cmd: python -m sharded_index.pipeline.figures
+    deps:
+    - path: data/interim/evaluation
+      hash: md5
+      md5: e015ab2d2d24d129986589708fcd9922.dir
+      size: 37325874
+      nfiles: 8
+    - path: metrics/partitions.csv
+      hash: md5
+      md5: b19f497e36da3eb8569fc807978c799c
+      size: 2600
+    - path: metrics/retrieval.csv
+      hash: md5
+      md5: e6ae0d9a942f5a1ddf1ac29915b7eec6
+      size: 99096
+    - path: metrics/routing.csv
+      hash: md5
+      md5: b1773c6dda87441df07fad4f6ea99a18
+      size: 29979
+    - path: models/clusterings
+      hash: md5
+      md5: 7d08f3730fc63bf1b2e73a758830f747.dir
+      size: 462556
+      nfiles: 4
+    - path: models/graph.parquet
+      hash: md5
+      md5: 456a403bc8f404bcb896fcb006200073
+      size: 503352
+    - path: sharded_index/data/corpus.py
+      hash: md5
+      md5: d97fb1176ef635b3afa710337838c367
+      size: 3084
+    - path: sharded_index/evaluation/measure.py
+      hash: md5
+      md5: 496865360ec14ca4025790f0a40bc224
+      size: 6622
+    - path: sharded_index/evaluation/membership.py
+      hash: md5
+      md5: fcf8eafaad9dbec222c60b1385af4f6b
+      size: 1573
+    - path: sharded_index/graph/cooccurrence.py
+      hash: md5
+      md5: 50dd13b477eeb3caec96b4b5f4d09fb6
+      size: 5146
+    - path: sharded_index/index/ranking.py
+      hash: md5
+      md5: dccfc838c0fb0ae6b2d0af0e85b1f362
+      size: 5717
+    - path: sharded_index/partition/model.py
+      hash: md5
+      md5: d3b84b04c431b6690c27b83802ab5f56
+      size: 3271
+    - path: sharded_index/pipeline/figures.py
+      hash: md5
+      md5: d079fea0df334decf2df49d2b51eeb5b
+      size: 4961
+    - path: sharded_index/reporting/plots.py
+      hash: md5
+      md5: 2e7f8c718ecdac052a190874cd7983be
+      size: 16664
+    - path: sharded_index/routing.py
+      hash: md5
+      md5: 2113d7610b4b15cf3f91d0e694557d92
+      size: 2894
+    - path: sharded_index/storage.py
+      hash: md5
+      md5: c3715042d73e354fd9ca5d4fb6bf2f8b
+      size: 1740
+    - path: sharded_index/text.py
+      hash: md5
+      md5: 8cf058a157dbbf8c4050fe7ef02f6f2c
+      size: 1003
+    params:
+      params.yaml:
+        clustering.methods:
+          leiden:
+            algorithm: leiden
+            resolution: 1.0
+            iterations: convergence
+            max_iterations: 200
+          cpm:
+            algorithm: cpm
+            resolution: 0.02
+            iterations: convergence
+            max_iterations: 200
+          infomap:
+            algorithm: infomap
+          metis:
+            algorithm: metis
+            n_parts: 341
+        evaluation.budgets:
+        - 1
+        - 2
+        - 3
+        - 5
+        evaluation.top_k: 10
+        figures:
+          sample: holdout
+          top_clusters: 25
+          graph_max_nodes: 1000
+          layout_seed: 42
+        partition.strategies:
+        - hash_base
+        - base
+        - base_r2
+        - base_r3
+        - hash_aff
+        - aff
+        - aff_r2
+        - aff_r3
+        - hash_bal
+        - bal
+        queries:
+          train_ratio: 0.95
+          sample_seed: 42
+          train_size: 10000
+          holdout_size:
+          ood:
+            size: 10000
+            dataset: google-research-datasets/nq_open
+            config:
+            split: train
+            column: question
+          synthetic:
+            size: 2000
+            kinds:
+            - connected
+            - frequent
+            arities:
+            - 2
+            - 3
+    outs:
+    - path: reports/figures
+      hash: md5
+      md5: d40a733212b38bf6e07a1a01b3a9c3ad.dir
+      size: 11721438
+      nfiles: 37

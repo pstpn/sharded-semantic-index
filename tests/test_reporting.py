@@ -5,6 +5,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import pytest
+from matplotlib.figure import Figure
 
 from sharded_index.config import ComparisonsConfig
 from sharded_index.data.corpus import Corpus
@@ -143,6 +144,22 @@ def test_every_figure_renders(
     plots.plot_cluster_heatmap(edges, clustering, 3, "t", tmp_path / "j.pdf")
     for name in "abcdefghij":
         assert (tmp_path / f"{name}.pdf").stat().st_size > 0
+
+
+def test_point_labels_do_not_overlap_and_stay_inside_the_axes() -> None:
+    figure = Figure(figsize=(6, 4), layout="tight")
+    axis = figure.subplots()
+    points = [(3.0, 3.0), (3.0, 3.0), (3.02, 3.01), (3.0, 3.02), (1.0, 1.0), (5.0, 5.0)]
+    axis.scatter([x for x, _ in points], [y for _, y in points])
+    labels = [f"p{i}\noverlap 0.5" for i in range(len(points))]
+    boxes = plots._label_points(axis, figure, points, labels, ["k"] * len(points))
+    assert len(boxes) == len(points)
+    assert not any(a.overlaps(b) for i, a in enumerate(boxes) for b in boxes[i + 1 :])
+    inside = axis.bbox
+    assert all(
+        inside.x0 <= box.x0 and box.x1 <= inside.x1 and inside.y0 <= box.y0 and box.y1 <= inside.y1
+        for box in boxes
+    )
 
 
 @pytest.mark.parametrize("name", ["a", "b"])

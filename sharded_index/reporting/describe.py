@@ -92,6 +92,7 @@ def clusterings_table(
                 "algorithm": method.algorithm,
                 "resolution": method.resolution,
                 "iterations": method.iterations,
+                "max_iterations": method.max_iterations,
                 "n_parts": method.n_parts,
                 "seed": config.seed,
                 "graph_terms": len(clustering),

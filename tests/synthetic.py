@@ -100,7 +100,11 @@ def small_params() -> dict[str, Any]:
     params["ablations"]["variants"] = {
         "baseline": {},
         "vote_raw": {"partition": {"affinity_vote": "raw"}},
-        "cpm_fine": {"clustering": {"methods": {"cpm": {"resolution": 0.1, "iterations": 2}}}},
+        "cpm_fine": {
+            "clustering": {
+                "methods": {"cpm": {"resolution": 0.1, "iterations": 2, "max_iterations": None}}
+            }
+        },
     }
     params["describe"].update(top_clusters=3, top_terms=3, frame_word_candidates=5)
     params["figures"].update(top_clusters=3, graph_max_nodes=50)

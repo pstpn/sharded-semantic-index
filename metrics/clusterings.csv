@@ -1,0 +1,5 @@
+method,algorithm,resolution,iterations,max_iterations,n_parts,seed,graph_terms,clusters,largest_cluster,median_cluster,modularity
+leiden,leiden,1.0,convergence,200,,42,10567,340,1563,2.0,0.6008
+cpm,cpm,0.02,convergence,200,,42,10567,2211,53,2.0,0.4134
+infomap,infomap,,,,,42,10567,1119,395,6.0,0.4665
+metis,metis,,,,341,42,10567,335,58,31.0,0.1443

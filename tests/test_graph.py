@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+import logging
+
+import igraph as ig
+import leidenalg as la
 import pandas as pd
 import pytest
 
@@ -17,7 +21,9 @@ LOOSE = GraphConfig(
     stop_words=(),
 )
 METHODS = [
-    ClusteringMethod(algorithm="leiden", resolution=1.0, iterations="convergence"),
+    ClusteringMethod(
+        algorithm="leiden", resolution=1.0, iterations="convergence", max_iterations=100
+    ),
     ClusteringMethod(algorithm="cpm", resolution=0.05, iterations=2),
     ClusteringMethod(algorithm="infomap"),
     ClusteringMethod(algorithm="metis", n_parts=4),
@@ -70,6 +76,47 @@ def test_clustering_covers_the_graph_and_is_reproducible(
     assert set(clustering) == set(graph_terms(edges))
     assert len(set(clustering.values())) > 1
     assert clustering == cluster_graph(edges, method, SEED)
+
+
+def test_convergence_mode_matches_leidenalg(edges: pd.DataFrame, leiden: ClusteringMethod) -> None:
+    nodes = pd.unique(pd.concat([edges["src"], edges["dst"]], ignore_index=True))
+    index = {node: i for i, node in enumerate(nodes)}
+    graph = ig.Graph(
+        n=len(nodes),
+        edges=[(index[s], index[d]) for s, d in zip(edges["src"], edges["dst"], strict=True)],
+    )
+    graph.es["weight"] = edges["weight"].clip(lower=0).tolist()
+    expected = la.find_partition(
+        graph,
+        la.RBConfigurationVertexPartition,
+        weights="weight",
+        resolution_parameter=leiden.resolution,
+        n_iterations=-1,
+        seed=SEED,
+    ).membership
+
+    clustering = cluster_graph(edges, leiden, SEED)
+    assert [clustering[node] for node in nodes] == expected
+
+
+def test_convergence_mode_stops_at_max_iterations(
+    edges: pd.DataFrame, monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
+) -> None:
+    passes: list[int] = []
+
+    def never_converges(self: la.Optimiser, partition: object, n_iterations: int = 2) -> float:
+        passes.append(n_iterations)
+        return 1.0
+
+    monkeypatch.setattr(la.Optimiser, "optimise_partition", never_converges)
+    method = ClusteringMethod(
+        algorithm="leiden", resolution=1.0, iterations="convergence", max_iterations=7
+    )
+    with caplog.at_level(logging.WARNING):
+        clustering = cluster_graph(edges, method, SEED)
+    assert passes == [1] * 7
+    assert "did not converge in 7 passes" in caplog.text
+    assert set(clustering) == set(graph_terms(edges))
 
 
 def test_topics_are_recovered(edges: pd.DataFrame, clustering: dict[str, int]) -> None:
