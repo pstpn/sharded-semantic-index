@@ -1,6 +1,3 @@
-# Pipeline of the experiment. Stages with `foreach` run once per clustering
-# method of params.yaml (`cluster@leiden`, `cluster@cpm`, ...).
-
 stages:
   extract_pairs:
     cmd: python -m sharded_index.pipeline.extract_pairs

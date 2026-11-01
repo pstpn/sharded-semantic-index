@@ -1,7 +1,4 @@
-# Every setting of the experiment. The reference of the parameters is in README.md.
-
 text:
-  # Keep "on", "off", "no" and "y" quoted: bare YAML reads them as booleans.
   stop_words:
     [i, me, my, myself, we, our, ours, ourselves, you, your, yours, yourself,
      yourselves, he, him, his, himself, she, her, hers, herself, it, its, itself,
@@ -85,7 +82,6 @@ evaluation:
     seed: 42
     confidence: 0.95
   comparisons:
-    # Besides these, every strategy is compared with the hash baseline of its family.
     pairs:
       - [aff, base]
       - [aff_r2, base_r2]
@@ -152,6 +148,6 @@ figures:
   graph_max_nodes: 1000
   layout_seed: 42
   focus_strategies: [bal]
-  ablation_strategies: [bal, aff]
-  language: ru
+  unbudgeted_strategy: aff
+  languages: [ru, en]
   budgets: [1, 2]

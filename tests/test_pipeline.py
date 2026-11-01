@@ -133,22 +133,26 @@ def test_pipeline_runs_end_to_end(small_config: Config, paths: Paths) -> None:
         for field in fields:
             assert f"`{field}`" in _documented_section("corpus.json"), f"corpus.json: {section}"
 
-    overview_names = {path.name for path in paths.figures.glob("*.pdf")}
-    assert overview_names == {
-        "methods_overlap.pdf",
-        "overview_single_shard_by_sample.pdf",
-        "overview_fanout_by_sample.pdf",
-        "overview_gain_fanout.pdf",
-        "overview_quality_vs_cost.pdf",
-        "overview_budget_curves.pdf",
-        "overview_slices.pdf",
-        "overview_ablations.pdf",
-    }
-    assert all(f"`reports/figures/{name}`" in OUTPUTS for name in overview_names)
-    for method in methods:
-        figure_names = {path.name for path in (paths.figures / method).glob("*.pdf")}
-        assert len(figure_names) == 9
-        assert all(f"`reports/figures/<method>/{name}`" in OUTPUTS for name in figure_names)
+    for language in small_config.figures.languages:
+        root = paths.figures / language
+        overview_names = {path.name for path in root.glob("*.pdf")}
+        assert overview_names == {
+            "overview_quality_vs_cost.pdf",
+            "overview_parameter_sweeps.pdf",
+            "overview_variants_largest_shard.pdf",
+            "overview_budget_curves.pdf",
+            "overview_by_sample.pdf",
+            "overview_fanout_ecdf.pdf",
+            "overview_slices.pdf",
+            "overview_variants_overlap.pdf",
+        }
+        assert all(f"`reports/figures/<language>/{name}`" in OUTPUTS for name in overview_names)
+        for method in methods:
+            figure_names = {path.name for path in (root / method).glob("*.pdf")}
+            assert len(figure_names) == 5
+            assert all(
+                f"`reports/figures/<language>/<method>/{name}`" in OUTPUTS for name in figure_names
+            )
 
 
 def test_artefacts_are_byte_stable(small_config: Config, paths: Paths, tmp_path: Path) -> None:

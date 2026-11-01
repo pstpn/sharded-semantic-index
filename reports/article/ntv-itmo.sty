@@ -1,0 +1,159 @@
+% ntv-itmo.sty — вёрстка «Научно-технического вестника информационных технологий,
+% механики и оптики» (ntv.ifmo.ru) по опубликованным статьям 2025–2026 гг.
+% (статьи 23464, 24165, 24169, 24171, 24181), сборка: xelatex.
+%
+% Размеры сняты с PDF журнала (pdftohtml, масштаб 1:1, пункты):
+%   A4; полоса набора 484 pt (170,7 мм), две колонки по 235 pt, промежуток 14 pt;
+%   нечётные страницы — поле слева 71 pt, чётные — 57 pt; первая строка текста ~68 pt;
+%   основной текст Times New Roman 10/11,5 pt, абзацный отступ 14 pt;
+%   название 12 pt полужирное, авторы 10 pt полужирные, аффилиации и контакты 9 pt;
+%   аннотация и ключевые слова 9 pt; заголовки разделов 10 pt полужирные по центру колонки,
+%   подразделы — полужирный заголовок в начале абзаца; подписи 9 pt («Рис. 1.» курсивом,
+%   ниже английская строка «Fig. 1.»), заголовок таблицы над ней курсивом;
+%   литература 8 pt в две синхронные колонки «Литература | References», так же «Авторы | Authors»;
+%   колонтитулы рубленым шрифтом: сверху 9 pt с линейкой (чётные — авторы, нечётные —
+%   краткое название), снизу название журнала 8 pt в две строки и номер страницы 12 pt.
+% Логотипы и выходные данные номера (doi, том, страницы) ставит редакция.
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{ntv-itmo}[2026/10/27 NTV ITMO two-column layout]
+
+% ── страница и полоса набора
+\RequirePackage[a4paper, twoside, textwidth=484pt, textheight=700pt,
+  top=60pt, headheight=12pt, headsep=14pt, footskip=36pt, inner=71pt]{geometry}
+\AtBeginDocument{\setlength{\evensidemargin}{\dimexpr57pt-1in\relax}}
+\setlength{\columnsep}{14pt}
+
+% ── шрифты
+\RequirePackage{fontspec}
+\RequirePackage[english, russian]{babel}
+\RequirePackage{amsmath, amssymb}
+\RequirePackage[warnings-off={mathtools-colon,mathtools-overbracket}]{unicode-math}
+\setmainfont{Times New Roman}
+\setsansfont{Helvetica}
+\setmathfont{STIX Two Math}
+\renewcommand{\normalsize}{\fontsize{10pt}{11.5pt}\selectfont
+  \abovedisplayskip 6pt plus 2pt minus 2pt \belowdisplayskip \abovedisplayskip
+  \abovedisplayshortskip 3pt plus 1pt \belowdisplayshortskip 3pt plus 1pt}
+\renewcommand{\small}{\fontsize{9pt}{10.4pt}\selectfont}
+\renewcommand{\footnotesize}{\fontsize{8pt}{9.4pt}\selectfont}
+\newcommand{\ntvhead}{\sffamily\fontsize{9pt}{11pt}\selectfont}
+\newcommand{\ntvfoot}{\sffamily\fontsize{8pt}{11pt}\selectfont}
+\AtBeginDocument{\normalsize}
+
+\RequirePackage{indentfirst}
+\setlength{\parindent}{14pt}
+\setlength{\parskip}{0pt}
+\RequirePackage{graphicx, xcolor, multicol, paracol, enumitem, etoolbox}
+\setlist{nosep, leftmargin=*}
+\setlist[itemize]{label=---}
+\RequirePackage[hidelinks]{hyperref}
+\urlstyle{same}
+\sloppy
+
+% ── колонтитулы
+\RequirePackage{fancyhdr}
+\newcommand{\ntvshortauthors}[1]{\def\@ntvshortauthors{#1}}
+\newcommand{\ntvshorttitle}[1]{\def\@ntvshorttitle{#1}}
+\newcommand{\ntvissue}[2]{\def\@ntvissueru{#1}\def\@ntvissueen{#2}}
+\ntvshortauthors{}\ntvshorttitle{}
+\ntvissue{2026, том 26, № X}{2026, vol. 26, no X}
+\newcommand{\@ntvjournal}{%
+  Научно-технический вестник информационных технологий, механики и оптики, \@ntvissueru\\
+  Scientific and Technical Journal of Information Technologies, Mechanics and Optics, \@ntvissueen}
+\fancypagestyle{ntv}{%
+  \fancyhf{}
+  \renewcommand{\headrulewidth}{0.4pt}
+  \fancyhead[LE]{\ntvhead\@ntvshortauthors}
+  \fancyhead[RO]{\ntvhead\@ntvshorttitle}
+  \fancyfoot[LO]{\ntvfoot\begin{tabular}[b]{@{}l@{}}\@ntvjournal\end{tabular}}
+  \fancyfoot[RE]{\ntvfoot\begin{tabular}[b]{@{}l@{}}\@ntvjournal\end{tabular}}
+  \fancyfoot[RO,LE]{\sffamily\fontsize{12pt}{12pt}\selectfont\thepage}}
+\fancypagestyle{ntvfirst}{%
+  \fancyhf{}
+  \renewcommand{\headrulewidth}{0pt}
+  \fancyfoot[L]{\ntvfoot\begin{tabular}[b]{@{}l@{}}\@ntvjournal\end{tabular}}
+  \fancyfoot[R]{\sffamily\fontsize{12pt}{12pt}\selectfont\thepage}}
+\pagestyle{ntv}
+
+% ── заголовки: разделы без номеров по центру колонки, подразделы в начале абзаца
+\RequirePackage{titlesec}
+\setcounter{secnumdepth}{0}
+\titleformat{\section}{\normalsize\bfseries\centering}{}{0pt}{}
+\titlespacing*{\section}{0pt}{12pt plus 2pt}{6pt}
+\titleformat{\subsection}[runin]{\normalsize\bfseries}{}{0pt}{}[.]
+\titlespacing*{\subsection}{\parindent}{4pt plus 1pt}{0.5em}
+
+% ── подписи: «Рис. 1.» курсивом под рисунком, «Таблица 1.» курсивом над таблицей, 9 pt
+\RequirePackage{caption}
+\DeclareCaptionLabelFormat{ntv}{\textit{#1~#2}}
+\captionsetup{font=small, labelformat=ntv, labelsep=period, justification=centering,
+  skip=4pt, position=bottom}
+\captionsetup[table]{textfont=it, position=top}
+\addto\captionsrussian{\renewcommand{\figurename}{Рис.}\renewcommand{\tablename}{Таблица}}
+\def\@ntv@figtype{figure}
+% Двуязычная подпись: \ntvcaption{русская}{английская}
+\newcommand{\ntvcaption}[2]{%
+  \caption[#1]{#1\protect\\[2pt]\foreignlanguage{english}{%
+    \textit{\ifx\@captype\@ntv@figtype Fig.\else Table\fi~\csname the\@captype\endcsname.}~#2}}}
+\newcommand{\figref}[1]{рис.~\ref{#1}}
+\newcommand{\tabref}[1]{табл.~\ref{#1}}
+\setlength{\textfloatsep}{10pt plus 2pt minus 2pt}
+\setlength{\floatsep}{8pt plus 2pt minus 2pt}
+
+% ── заметки автору (красные; \draftnotesfalse перед подачей убирает их)
+\newif\ifdraftnotes \draftnotestrue
+\newcommand{\todo}[1]{\ifdraftnotes\par{\small\color{red!70!black}\textbf{TODO:} #1}\par\fi}
+\newcommand{\tbd}[1]{\ifdraftnotes{\color{red!70!black}[#1]}\fi}
+
+% ── титульная часть (одна колонка)
+\newcommand{\ntvrubric}[2]{{\centering\sffamily\fontsize{12pt}{15pt}\selectfont
+  \MakeUppercase{#1}\\#2\par}\vspace{24pt}}
+\newcommand{\ntvudc}[1]{\noindent{\small УДК~#1}\par\vspace{4pt}}
+\newcommand{\ntvtitle}[1]{{\centering\fontsize{12pt}{14pt}\selectfont\bfseries #1\par}\vspace{4pt}}
+\newcommand{\ntvauthors}[1]{{\centering\bfseries #1\par}\vspace{6pt}}
+\newcommand{\ntvaffiliation}[1]{{\small\noindent #1\par}}
+\newcommand{\ntvcontact}[1]{{\small\noindent #1\par}}
+\newenvironment{ntvabstract}[1]
+  {\vspace{6pt}\par\small\noindent\textbf{#1}\par\noindent\ignorespaces}
+  {\par\normalsize}
+\newcommand{\abstractpart}[1]{\textbf{#1.}~}
+\newcommand{\ntvkeywords}[2]{{\small\vspace{2pt}\noindent\textbf{#1}\par\noindent #2\par}}
+\newcommand{\ntvacknowledgments}[2]{{\small\vspace{2pt}\noindent\textbf{#1}\par\noindent #2\par}}
+\newcommand{\ntvcopyright}[1]{\begingroup\renewcommand{\thefootnote}{}%
+  \footnotetext{\copyright~#1}\endgroup}
+
+% ── основной текст в две колонки
+\newenvironment{ntvbody}{\vspace{12pt}\begin{multicols}{2}}{\end{multicols}}
+
+% ── ссылки на литературу: номера по порядку в списке, \cite{a,b} -> [1, 2]
+\newcounter{ntvref}
+\globalcounter{ntvref}
+\newcommand{\ntv@citeone}[1]{\ref{bib:#1}}
+\renewcommand{\cite}[1]{[\edef\@ntvkeys{\zap@space#1 \@empty}%
+  \def\@ntvsep{}\@for\@ntvk:=\@ntvkeys\do{\@ntvsep\ntv@citeone{\@ntvk}\def\@ntvsep{, }}]}
+\renewcommand{\nocite}[1]{}
+
+% ── параллельные списки «Литература | References» и «Авторы | Authors»
+\newcommand{\ntv@twoheads}[2]{%
+  {\centering\small\bfseries #1\par}\vspace{3pt}\switchcolumn
+  {\centering\small\bfseries #2\par}\vspace{3pt}\switchcolumn*}
+\newenvironment{ntvreferences}
+  {\par\vspace{10pt}\setcolumnwidth{235pt,235pt}%
+   \begin{paracol}{2}\footnotesize\setlength{\parindent}{0pt}%
+   \ntv@twoheads{Литература}{References}}
+  {\end{paracol}}
+% \ntvref{ключ}{запись по ГОСТ}{запись References}
+\newcommand{\ntvref}[3]{%
+  \refstepcounter{ntvref}\label{bib:#1}%
+  \hangindent=14pt\hangafter=1\noindent\makebox[14pt][l]{\arabic{ntvref}.}#2\par
+  \switchcolumn
+  \foreignlanguage{english}{\hangindent=14pt\hangafter=1\noindent\makebox[14pt][l]{\arabic{ntvref}.}#3\par}%
+  \switchcolumn*}
+\newenvironment{ntvauthorsinfo}
+  {\par\vspace{12pt}\setcolumnwidth{235pt,235pt}%
+   \begin{paracol}{2}\footnotesize\setlength{\parindent}{0pt}%
+   \ntv@twoheads{Авторы}{Authors}}
+  {\end{paracol}}
+% \ntvauthor{сведения на русском}{сведения на английском}
+\newcommand{\ntvauthor}[2]{#1\par\vspace{3pt}\switchcolumn\foreignlanguage{english}{#2}\par\vspace{3pt}\switchcolumn*}
+\endinput

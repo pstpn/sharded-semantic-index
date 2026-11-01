@@ -1,7 +1,8 @@
 """Visual language of the figures.
 
-The look is the ``science`` style of SciencePlots — framed axes, inward ticks,
-no grid, a serif face — with Paul Tol's colour-blind-safe *bright* palette.
+The look follows pgfplots, the plotting engine of the LaTeX reports, set in
+Times New Roman as the journal requires: a framed plot area with a light major
+grid, inward ticks, filled markers on saturated lines and a boxed legend.
 Colour carries one identity per figure: the clustering method in the overview
 figures, the strategy family in the per-method figures.  Replicas darken the
 family hue; hash baselines are grey, hollow and dashed.
@@ -12,7 +13,6 @@ from __future__ import annotations
 import logging
 from collections.abc import Callable, Iterable
 from functools import wraps
-from importlib.util import find_spec
 from pathlib import Path
 from typing import Any, Literal, TypeVar, cast
 
@@ -28,19 +28,20 @@ PAGE_WIDTH = 6.5
 COLUMN_WIDTH = 3.3
 """Width of a one-column figure in inches."""
 
-BLUE, RED, GREEN, YELLOW, CYAN, PURPLE, GREY = (
-    "#4477AA",
-    "#EE6677",
-    "#228833",
-    "#CCBB44",
-    "#66CCEE",
-    "#AA3377",
-    "#BBBBBB",
+BLUE, RED, GREEN, PURPLE, YELLOW, CYAN, GREY = (
+    "#0000B3",
+    "#B30000",
+    "#007A00",
+    "#7A0099",
+    "#B38600",
+    "#007A99",
+    "#808080",
 )
-"""Paul Tol's bright scheme."""
-HASH_COLOR = "#777777"
-INK_MUTED = "#777777"
+"""Saturated TikZ-like hues: ``blue!70!black``, ``red!70!black`` and their kin."""
+HASH_COLOR = "#808080"
+INK_MUTED = "#808080"
 SURFACE = "#ffffff"
+GRID_COLOR = "#D9D9D9"
 DIVERGING = "RdBu_r"
 SEQUENTIAL = "Blues"
 
@@ -53,50 +54,63 @@ FAMILY_MARKERS = {"base": "o", "aff": "s", "bal": "^"}
 REPLICA_SHADE = {1: 0.0, 2: 0.25, 3: 0.5}
 """How much darker than the family hue a strategy with that many replicas is drawn."""
 
-
-STYLE_SHEETS = ("science.mplstyle", "misc/no-latex.mplstyle", "color/bright.mplstyle")
-"""Sheets of SciencePlots that make up the base look, in the order they are applied."""
-
-
-def _style_sheet(relative: str) -> dict[Any, Any]:
-    """Settings of one SciencePlots sheet, read from the installed package without importing it."""
-    spec = find_spec("scienceplots")
-    if spec is None or not spec.submodule_search_locations:
-        msg = "the scienceplots package is not installed"
-        raise RuntimeError(msg)
-    path = Path(next(iter(spec.submodule_search_locations))) / "styles" / relative
-    return dict(mpl.rc_params_from_file(path, use_default_template=False))
+FONT_FAMILY = "Times New Roman"
+"""Body face of the journal; STIX (a Times design with Cyrillic) stands in where it is missing."""
 
 
 def _theme() -> dict[Any, Any]:
-    settings: dict[Any, Any] = {}
-    for sheet in STYLE_SHEETS:
-        settings.update(_style_sheet(sheet))
-    settings.update(
-        {
-            "font.serif": ["STIXGeneral", "DejaVu Serif"],
-            "mathtext.fontset": "stix",
-            "font.size": 8,
-            "axes.labelsize": 8,
-            "axes.titlesize": 8,
-            "axes.titleweight": "normal",
-            "xtick.labelsize": 7,
-            "ytick.labelsize": 7,
-            "legend.fontsize": 7,
-            "legend.title_fontsize": 7,
-            "legend.handlelength": 1.8,
-            "legend.columnspacing": 1.2,
-            "legend.handletextpad": 0.5,
-            "figure.titlesize": 9,
-            "figure.titleweight": "normal",
-            "lines.markersize": 4,
-            "lines.markeredgewidth": 0.8,
-            "axes.prop_cycle": cycler(color=[BLUE, RED, GREEN, PURPLE, CYAN, YELLOW, GREY]),
-            "savefig.pad_inches": 0.02,
-            "pdf.fonttype": 42,
-        }
-    )
-    return settings
+    return {
+        "font.family": "serif",
+        "font.serif": [FONT_FAMILY, "STIXGeneral", "DejaVu Serif"],
+        "mathtext.fontset": "stix",
+        "mathtext.fallback": "stix",
+        "font.size": 9,
+        "axes.labelsize": 9,
+        "axes.titlesize": 9,
+        "axes.titleweight": "normal",
+        "axes.titlelocation": "left",
+        "axes.linewidth": 0.6,
+        "axes.edgecolor": "black",
+        "axes.grid": True,
+        "axes.grid.which": "major",
+        "axes.axisbelow": True,
+        "grid.color": GRID_COLOR,
+        "grid.linewidth": 0.4,
+        "grid.linestyle": "-",
+        "axes.prop_cycle": cycler(color=[BLUE, RED, GREEN, PURPLE, CYAN, YELLOW, GREY]),
+        "axes.unicode_minus": True,
+        "xtick.direction": "in",
+        "ytick.direction": "in",
+        "xtick.top": True,
+        "ytick.right": True,
+        "xtick.minor.visible": False,
+        "ytick.minor.visible": False,
+        "xtick.major.size": 3,
+        "ytick.major.size": 3,
+        "xtick.major.width": 0.6,
+        "ytick.major.width": 0.6,
+        "xtick.labelsize": 8,
+        "ytick.labelsize": 8,
+        "lines.linewidth": 1.0,
+        "lines.markersize": 4.5,
+        "lines.markeredgewidth": 0.8,
+        "legend.fontsize": 8,
+        "legend.title_fontsize": 8,
+        "legend.frameon": True,
+        "legend.fancybox": False,
+        "legend.framealpha": 1.0,
+        "legend.edgecolor": "black",
+        "legend.borderpad": 0.4,
+        "legend.handlelength": 1.8,
+        "legend.columnspacing": 1.2,
+        "legend.handletextpad": 0.5,
+        "patch.linewidth": 0.6,
+        "figure.titlesize": 9,
+        "figure.titleweight": "normal",
+        "figure.dpi": 150,
+        "savefig.pad_inches": 0.02,
+        "pdf.fonttype": 42,
+    }
 
 
 THEME = _theme()

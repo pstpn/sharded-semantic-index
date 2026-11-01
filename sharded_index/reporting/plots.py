@@ -1,4 +1,8 @@
-"""Figures of one clustering method: its benchmark results and its cluster structure."""
+"""Figures of one clustering method: its cluster structure and its storage/routing trade-off.
+
+The figures carry no titles: which method and sample a figure shows is said
+by its file name and by the caption that embeds it.
+"""
 
 from __future__ import annotations
 
@@ -8,34 +12,23 @@ from typing import Any
 
 import matplotlib as mpl
 import networkx as nx
-import numpy as np
 import pandas as pd
 import seaborn as sns
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 from matplotlib.figure import Figure
-from matplotlib.lines import Line2D
 from matplotlib.transforms import Bbox
-from sklearn.manifold import TSNE
-from sklearn.preprocessing import normalize
 from wordcloud import WordCloud
 
 from sharded_index.config import Strategy
-from sharded_index.evaluation.measure import FULL
 from sharded_index.reporting.labels import Labels
 from sharded_index.reporting.style import (
     BLUE,
-    COLUMN_WIDTH,
     INK_MUTED,
     PAGE_WIDTH,
     SEQUENTIAL,
     SURFACE,
-    categorical_x,
-    marker_style,
-    method_colors,
-    method_markers,
     save,
     strategy_color,
-    strategy_line_style,
     strategy_marker,
     themed,
 )
@@ -75,73 +68,6 @@ def _largest_clusters(clustering: Mapping[str, int], top_n: int) -> list[int]:
 def term_graph(edges: pd.DataFrame) -> nx.Graph:
     """NetworkX view of the edge list."""
     return nx.from_pandas_edgelist(edges, source="src", target="dst", edge_attr=["weight", "count"])
-
-
-@themed
-def plot_fanout_ecdf(
-    fanouts: Mapping[str, np.ndarray], text: Labels, title: str, path: Path
-) -> None:
-    """Empirical CDF of the cover size per strategy; the value at 1 is the single-shard share."""
-    figure = Figure(figsize=(PAGE_WIDTH, 2.8), layout="constrained")
-    axis = figure.subplots()
-    upper = 1
-    for name, values in fanouts.items():
-        ordered = np.sort(np.asarray(values))
-        share = np.arange(1, len(ordered) + 1) / len(ordered)
-        axis.step(
-            ordered,
-            share,
-            where="post",
-            color=strategy_color(name),
-            linestyle=strategy_line_style(name),
-            label=f"{name} ({text('mean')} {ordered.mean():.2f})",
-        )
-        upper = max(upper, int(np.percentile(ordered, 99)))
-    axis.set_xlim(0.5, upper + 0.5)
-    axis.set_ylim(0, 1.02)
-    axis.set_xticks(range(1, upper + 1))
-    categorical_x(axis)
-    axis.set_xlabel(text("fanout"))
-    axis.set_ylabel(text("share_of_queries"))
-    axis.set_title(title, loc="left")
-    axis.legend(loc="lower right", ncol=2)
-    save(figure, path)
-
-
-@themed
-def plot_overlap_by_budget(
-    curves: Mapping[str, Mapping[str, float]],
-    top_k: int,
-    text: Labels,
-    title: str,
-    path: Path,
-) -> None:
-    """Overlap with the unsharded top-k as a function of the shard budget."""
-    figure = Figure(figsize=(COLUMN_WIDTH * 1.5, 2.8), layout="constrained")
-    axis = figure.subplots()
-    budgets = list(next(iter(curves.values())))
-    positions = list(range(len(budgets)))
-    lowest = 1.0
-    for name, curve in curves.items():
-        color = strategy_color(name)
-        values = [curve[budget] for budget in budgets]
-        lowest = min(lowest, *values)
-        axis.plot(
-            positions,
-            values,
-            color=color,
-            linestyle=strategy_line_style(name),
-            label=name,
-            **marker_style(name, color),
-        )
-    axis.set_xticks(positions, [text("full_cover") if b == FULL else b for b in budgets])
-    categorical_x(axis)
-    axis.set_xlabel(text("shards_probed"))
-    axis.set_ylabel(text("overlap_at_budget", k=top_k))
-    axis.set_ylim(max(0.0, lowest - 0.05), 1.01)
-    axis.set_title(title, loc="left")
-    axis.legend(loc="lower right", ncol=2)
-    save(figure, path)
 
 
 def _label_points(
@@ -208,7 +134,7 @@ def _label_points(
 
 
 @themed
-def plot_duplication_vs_fanout(points: pd.DataFrame, text: Labels, title: str, path: Path) -> None:
+def plot_duplication_vs_fanout(points: pd.DataFrame, text: Labels, path: Path) -> None:
     """Storage cost against routing cost, one point per strategy.
 
     ``points`` has columns ``strategy``, ``duplication``, ``fanout_mean`` and ``label``.
@@ -243,7 +169,6 @@ def plot_duplication_vs_fanout(points: pd.DataFrame, text: Labels, title: str, p
     axis.set_ylim(bottom=bottom, top=top + 0.25 * (top - bottom))
     axis.set_xlabel(text("duplication"))
     axis.set_ylabel(text("fanout_mean"))
-    axis.set_title(title, loc="left")
     _label_points(
         axis,
         figure,
@@ -255,133 +180,8 @@ def plot_duplication_vs_fanout(points: pd.DataFrame, text: Labels, title: str, p
 
 
 @themed
-def plot_fanout_by_sample(fanout: pd.DataFrame, text: Labels, title: str, path: Path) -> None:
-    """Mean cover size of every strategy (rows) on every query sample (columns).
-
-    Within a sample the strategies are spread side by side in table order.
-    """
-    strategies = list(fanout.index)
-    samples = list(fanout.columns)
-    figure = Figure(figsize=(PAGE_WIDTH, 3.0), layout="constrained")
-    axis = figure.subplots()
-    x = np.arange(len(samples))
-    dodge = 0.72 / max(len(strategies), 1)
-    for i, name in enumerate(strategies):
-        color = strategy_color(name)
-        axis.plot(
-            x + (i - (len(strategies) - 1) / 2) * dodge,
-            fanout.loc[name],
-            linestyle="",
-            color=color,
-            label=name,
-            **marker_style(name, color),
-        )
-    for boundary in range(1, len(samples)):
-        axis.axvline(boundary - 0.5, color="#dddddd", linewidth=0.5, zorder=0)
-    axis.set_xticks(x, [text.sample(sample) for sample in samples])
-    categorical_x(axis)
-    axis.set_xlim(-0.5, len(samples) - 0.5)
-    axis.set_ylim(bottom=0.9)
-    axis.set_ylabel(text("fanout_mean"))
-    axis.set_title(title, loc="left")
-    figure.legend(loc="outside upper center", ncol=5)
-    save(figure, path)
-
-
-@themed
-def plot_methods_comparison(
-    retrieval: pd.DataFrame,
-    top_k: int,
-    budgets: Sequence[int],
-    text: Labels,
-    title: str,
-    path: Path,
-) -> None:
-    """Overlap of every strategy under every method with confidence intervals, a panel per budget.
-
-    ``retrieval`` holds the rows of one sample of the retrieval table.
-    """
-    methods = list(dict.fromkeys(retrieval["method"]))
-    strategies = list(dict.fromkeys(retrieval["strategy"]))
-    colors, markers = method_colors(methods), method_markers(methods)
-    figure = Figure(figsize=(PAGE_WIDTH, 2.1 * len(budgets) + 0.6), layout="constrained")
-    axes = figure.subplots(len(budgets), 1, sharex=True, squeeze=False)[:, 0]
-    x = np.arange(len(strategies))
-    dodge = 0.7 / max(len(methods), 1)
-    hollow = np.array([Strategy.parse(name).is_hash for name in strategies])
-    for index, (axis, budget) in enumerate(zip(axes, budgets, strict=True)):
-        part = retrieval[retrieval["budget"] == str(budget)]
-        for k, method in enumerate(methods):
-            rows = part[part["method"] == method].set_index("strategy").reindex(strategies)
-            values = rows["overlap"].to_numpy(dtype=float)
-            low = rows["overlap_ci_low"].to_numpy(dtype=float)
-            high = rows["overlap_ci_high"].to_numpy(dtype=float)
-            offset = (k - (len(methods) - 1) / 2) * dodge
-            for mask, face in ((~hollow, colors[method]), (hollow, SURFACE)):
-                if mask.any():
-                    axis.errorbar(
-                        x[mask] + offset,
-                        values[mask],
-                        yerr=[values[mask] - low[mask], high[mask] - values[mask]],
-                        marker=markers[method],
-                        color=colors[method],
-                        markerfacecolor=face,
-                        elinewidth=0.6,
-                        capsize=0,
-                        linestyle="",
-                        markersize=3.5,
-                    )
-        for i in range(1, len(strategies)):
-            if Strategy.parse(strategies[i]).family != Strategy.parse(strategies[i - 1]).family:
-                axis.axvline(i - 0.5, color="#dddddd", linewidth=0.5, zorder=0)
-        axis.set_ylabel(text("overlap_at", k=top_k, shards=text.shards(budget)))
-        axis.set_title(
-            f"{text.panel(index)} {text('probing', shards=text.shards(budget))}", loc="left"
-        )
-    axes[-1].set_xticks(x, strategies)
-    categorical_x(axes[-1])
-    axes[-1].set_xlim(-0.6, len(strategies) - 0.4)
-    figure.suptitle(title)
-    handles = [
-        Line2D(
-            [],
-            [],
-            linestyle="",
-            marker=markers[name],
-            color=color,
-            markerfacecolor=color,
-            label=name,
-        )
-        for name, color in colors.items()
-    ] + [
-        Line2D(
-            [],
-            [],
-            linestyle="",
-            marker="o",
-            color=INK_MUTED,
-            markerfacecolor=INK_MUTED,
-            label=text("semantic_strategy"),
-        ),
-        Line2D(
-            [],
-            [],
-            linestyle="",
-            marker="o",
-            color=INK_MUTED,
-            markerfacecolor=SURFACE,
-            label=text("hash_baseline"),
-        ),
-    ]
-    figure.legend(handles=handles, loc="outside lower center", ncol=len(handles))
-    save(figure, path)
-
-
-@themed
-def plot_cluster_sizes(
-    clustering: Mapping[str, int], top_n: int, text: Labels, title: str, path: Path
-) -> None:
-    """Histogram of cluster sizes and the sizes of the largest clusters."""
+def plot_cluster_sizes(clustering: Mapping[str, int], top_n: int, text: Labels, path: Path) -> None:
+    """Histogram of cluster sizes (a) and the sizes of the largest clusters (b)."""
     sizes = pd.Series(clustering).value_counts()
     figure = Figure(figsize=(PAGE_WIDTH, 2.4), layout="constrained")
     histogram, largest = figure.subplots(1, 2)
@@ -389,7 +189,7 @@ def plot_cluster_sizes(
     histogram.set_xlabel(text("cluster_size"))
     histogram.set_ylabel(text("clusters"))
     histogram.set_yscale("log")
-    histogram.set_title(title, loc="left")
+    histogram.set_title(text.panel(0), loc="left")
 
     top = sizes.head(top_n)
     positions = range(len(top))
@@ -398,7 +198,7 @@ def plot_cluster_sizes(
     largest.tick_params(axis="y", which="minor", left=False, right=False)
     largest.set_xlabel(text("cluster_size"))
     largest.set_ylabel(text("cluster"))
-    largest.set_title(text("largest_clusters", n=len(top)), loc="left")
+    largest.set_title(text.panel(1), loc="left")
     largest.invert_yaxis()
     save(figure, path)
 
@@ -410,14 +210,13 @@ def plot_cluster_wordclouds(
     top_n: int,
     seed: int,
     text: Labels,
-    title: str,
     path: Path,
 ) -> None:
     """Word cloud of each of the largest clusters; word size follows node strength."""
     clusters = _largest_clusters(clustering, top_n)
     n_columns = 5
     n_rows = -(-len(clusters) // n_columns)
-    figure = Figure(figsize=(PAGE_WIDTH, 1.1 * n_rows + 0.3), layout="constrained")
+    figure = Figure(figsize=(PAGE_WIDTH, 1.1 * n_rows + 0.1), layout="constrained")
     axes = figure.subplots(n_rows, n_columns, squeeze=False).ravel()
     for axis in axes:
         axis.axis("off")
@@ -428,8 +227,8 @@ def plot_cluster_wordclouds(
             if term_cluster == cluster
         }
         cloud = WordCloud(
-            width=400,
-            height=300,
+            width=800,
+            height=600,
             background_color="white",
             max_words=50,
             colormap="viridis",
@@ -438,7 +237,6 @@ def plot_cluster_wordclouds(
         ).generate_from_frequencies(words)
         axis.imshow(cloud, interpolation="bilinear")
         axis.set_title(text("cluster_terms", c=cluster, n=len(words)), fontsize=6)
-    figure.suptitle(title)
     save(figure, path)
 
 
@@ -448,8 +246,6 @@ def plot_graph_clusters(
     clustering: Mapping[str, int],
     max_nodes: int,
     seed: int,
-    text: Labels,
-    title: str,
     path: Path,
     n_labels: int = 30,
 ) -> None:
@@ -477,70 +273,13 @@ def plot_graph_clusters(
     )
     labelled = sorted(nodes, key=lambda node: (-graph.degree(node), node))[:n_labels]
     nx.draw_networkx_labels(graph, layout, {node: node for node in labelled}, font_size=6, ax=axis)
-    axis.set_title(f"{title} ({text('terms_count', n=graph.number_of_nodes())})", loc="left")
     axis.axis("off")
     save(figure, path)
 
 
 @themed
-def plot_tsne(
-    edges: pd.DataFrame,
-    clustering: Mapping[str, int],
-    strength: Mapping[str, float],
-    top_n: int,
-    seed: int,
-    text: Labels,
-    title: str,
-    path: Path,
-    n_labels: int = 25,
-) -> None:
-    """t-SNE of the adjacency rows of the terms of the largest clusters (cosine metric)."""
-    graph = term_graph(edges)
-    kept = set(_largest_clusters(clustering, top_n))
-    nodes = sorted(node for node in graph.nodes() if clustering[node] in kept)
-    adjacency = nx.to_scipy_sparse_array(
-        graph.subgraph(nodes), nodelist=nodes, weight="weight", format="csr"
-    )
-    features = normalize(adjacency.astype(np.float32), norm="l2", axis=1)
-    points = TSNE(
-        n_components=2,
-        perplexity=min(30, len(nodes) - 1),
-        metric="cosine",
-        init="random",
-        random_state=seed,
-    ).fit_transform(features.toarray())
-
-    clusters = [clustering[node] for node in nodes]
-    colors = _cluster_colors(clusters)
-    strengths = np.array([strength.get(node, 1.0) for node in nodes])
-    figure = Figure(figsize=(PAGE_WIDTH, PAGE_WIDTH * 0.8), layout="constrained")
-    axis = figure.subplots()
-    axis.scatter(
-        points[:, 0],
-        points[:, 1],
-        c=[colors[cluster] for cluster in clusters],
-        s=np.clip(2 + strengths * 2, 3, 100),
-        alpha=0.8,
-        edgecolors=SURFACE,
-        linewidths=0.2,
-    )
-    for i in np.argsort(strengths, kind="stable")[-n_labels:]:
-        axis.annotate(nodes[i], (points[i, 0], points[i, 1]), fontsize=6)
-    axis.set_title(f"{title} ({text('clusters_terms', c=len(colors), n=len(nodes))})", loc="left")
-    axis.set_xticks([])
-    axis.set_yticks([])
-    axis.axis("equal")
-    save(figure, path)
-
-
-@themed
 def plot_cluster_heatmap(
-    edges: pd.DataFrame,
-    clustering: Mapping[str, int],
-    top_n: int,
-    text: Labels,
-    title: str,
-    path: Path,
+    edges: pd.DataFrame, clustering: Mapping[str, int], top_n: int, text: Labels, path: Path
 ) -> None:
     """Total edge weight between the largest clusters (diagonal: inside a cluster)."""
     clusters = _largest_clusters(clustering, top_n)
@@ -559,20 +298,20 @@ def plot_cluster_heatmap(
         if a != b:
             matrix.loc[b, a] += weight
 
-    figure = Figure(figsize=(PAGE_WIDTH, PAGE_WIDTH * 0.85), layout="constrained")
+    figure = Figure(figsize=(PAGE_WIDTH, PAGE_WIDTH), layout="constrained")
     axis = figure.subplots()
+    axis.grid(visible=False)
     sns.heatmap(
         matrix,
         annot=True,
         fmt=".0f",
-        annot_kws={"fontsize": 5},
+        annot_kws={"fontsize": 6.5},
         cmap=SEQUENTIAL,
         linewidths=0.5,
         linecolor=SURFACE,
         ax=axis,
         cbar_kws={"label": text("total_edge_weight")},
     )
-    axis.set_title(title, loc="left")
     axis.set_xlabel(text("cluster"))
     axis.set_ylabel(text("cluster"))
     axis.tick_params(which="both", length=0)

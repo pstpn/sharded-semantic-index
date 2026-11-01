@@ -1,0 +1,223 @@
+\documentclass[10pt, a4paper, twoside]{article}
+\usepackage{ntv-itmo}
+\graphicspath{{../figures/ru/}}
+\input{tables/numbers}
+\newcommand{\strategy}[1]{\texttt{#1}}
+
+\ntvshortauthors{С.А. Постнов, А.В. Платонов, Л.К. Саськов}
+\ntvshorttitle{Семантическое шардирование поискового индекса\dots}
+\ntvissue{2026, том 26, № X}{2026, vol. 26, no X}
+
+\begin{document}
+\thispagestyle{ntvfirst}
+
+\ntvrubric{Компьютерные системы и информационные технологии}{COMPUTER SCIENCE}
+
+\ntvudc{004.912}
+
+\ntvtitle{Метод построения распределенного поискового индекса\\на основе семантики запросов}
+% TODO(Степан): окончательное название — лаконично, без сокращений.
+
+\ntvauthors{Степан Андреевич Постнов$^{1}$, Алексей Владимирович Платонов$^{2}$, Лев Кириллович Саськов$^{3}$}
+\ntvaffiliation{$^{1,2,3}$~Университет ИТМО, Санкт-Петербург, 197101, Российская Федерация}
+\ntvcontact{$^{1}$~s@pstnv.ru, \tbd{ORCID}}
+\ntvcontact{$^{2}$~avplatonov@itmo.ru, https://orcid.org/0000-0002-8485-1296}
+\ntvcontact{$^{3}$~\tbd{e-mail, ORCID}}
+
+\begin{ntvabstract}{Аннотация}
+\abstractpart{Введение}\tbd{Проблема: шардирование индекса по словам, запрос из нескольких слов уходит в несколько шардов; цель работы.}
+\abstractpart{Метод}\tbd{Граф совстречаемости слов, кластеризация, голосование документов, бюджет объёма шарда, жадное покрытие.}
+\abstractpart{Основные результаты}\tbd{Вырождение без бюджета; \strategy{bal} против hash при равном числе шардов: \balOverlapAtOne{} против \hashBalOverlapAtOne, \balGainOne{} \balGainOneCI; OOD \balOodGainOne.}
+\abstractpart{Обсуждение}\tbd{Где применимо, ограничения, дальнейшая работа. Всего 250--400 слов, без сокращений.}
+\end{ntvabstract}
+\ntvkeywords{Ключевые слова}{инвертированный индекс, шардирование по словам, маршрутизация запросов, граф совстречаемости, кластеризация графов, балансировка шардов}
+% TODO(Степан): 5–10 ключевых слов, главное первым; каждое должно встречаться в тексте.
+\ntvacknowledgments{Благодарности}{\tbd{финансирование (организация, номер гранта) или удалить блок}}
+\ntvcopyright{Постнов С.А., Платонов А.В., Саськов Л.К., 2026}
+
+\vspace{14pt}
+\begin{otherlanguage}{english}
+\ntvtitle{Semantic term sharding of a search index under a shard-volume budget}
+\ntvauthors{Stepan A. Postnov$^{1}$, Alexey V. Platonov$^{2}$, Lev K. Saskov$^{3}$}
+\ntvaffiliation{$^{1,2,3}$~ITMO University, Saint Petersburg, 197101, Russian Federation}
+\ntvcontact{$^{1}$~stepaha78@gmail.com, \tbd{ORCID}}
+\ntvcontact{$^{2}$~avplatonov@itmo.ru, https://orcid.org/0000-0002-8485-1296}
+\ntvcontact{$^{3}$~\tbd{e-mail, ORCID}}
+\begin{ntvabstract}{Abstract}
+\tbd{Translation of the Russian abstract.}
+\end{ntvabstract}
+\ntvkeywords{Keywords}{inverted index, term sharding, query routing, co-occurrence graph, graph clustering, shard balancing}
+\ntvacknowledgments{Acknowledgements}{\tbd{funding or remove}}
+\end{otherlanguage}
+
+% ============================================================================
+\begin{ntvbody}
+
+\section{Введение}
+
+\todo{Шардирование по документам и по словам; почему hash-назначение слов ведёт запрос в несколько шардов; идея — класть в один шард слова, которые встречаются в одних запросах; без ограничения объёма кластеры вырождаются; решение — бюджет объёма шарда; цель работы (обязательна по правилам журнала) и вклад.}
+
+\section{Связанные работы}
+
+\todo{Выбор ресурсов и селективный поиск, разбиение по словам и репликация, веса совстречаемости, алгоритмы выделения сообществ, покрытие множеств. Строка \textbackslash nocite в исходнике держит 18 источников в нужном порядке; когда в тексте появятся \textbackslash cite, её нужно удалить.}
+\nocite{kulkarni2015,dai2016,risvik2013,moffat2007,moffat2006,bouma2009,williams2022,dunning1993,robertson2009,newman2004,reichardt2006,traag2019,traag2011,rosvall2008,karypis1998,chvatal1979,bajaj2016,kwiatkowski2019}
+
+\section{Метод}
+
+\subsection{Постановка задачи}
+\todo{Разбиение словаря по шардам и правило хранения документа (1), покрытие запроса, совпадение выдачи с полным индексом (2), нижняя граница объёма шарда и дублирование (3).}
+\begin{equation}
+	\sigma\colon T \to 2^{S}\setminus\{\varnothing\}, \quad D(d)=\bigcup_{t\in d}\sigma(t),
+	\label{eq:assignment}
+\end{equation}
+\begin{equation}
+	\mathrm{Top}_k\Bigl(\bigcup_{s\in S_q} R_s(q)\Bigr)=\mathrm{Top}_k\bigl(R(q)\bigr),
+	\label{eq:invariant}
+\end{equation}
+\begin{equation}
+	\mathrm{vol}(s) \ge \max_{t:\,s\in\sigma(t)}\mathrm{df}(t),
+	\quad
+	\mathrm{dup}=\frac{1}{|\mathcal{D}|}\sum_{d\in\mathcal{D}}|D(d)|.
+	\label{eq:lower-bound}
+\end{equation}
+
+\subsection{Граф совстречаемости слов}
+\todo{Вершины, пороги, слова вопросной рамки; ребро и вес NPMI (4); альтернативные веса $G^2$ и $\chi^2$.}
+\begin{equation}
+	\mathrm{NPMI}(a,b)=\ln\frac{n(a,b)\,N}{n(a)\,n(b)}\Bigm/\Bigl(-\ln\frac{n(a,b)}{N}\Bigr).
+	\label{eq:npmi}
+\end{equation}
+
+\subsection{Построение кластеров}
+\todo{Leiden с модулярностью (5), CPM, Infomap, METIS~--- по одной фразе; зачем четыре алгоритма.}
+\begin{equation}
+	Q_\gamma=\frac{1}{2m}\sum_{i,j}\Bigl[A_{ij}-\gamma\,\frac{k_i k_j}{2m}\Bigr]\,\delta(c_i,c_j).
+	\label{eq:modularity}
+\end{equation}
+
+\subsection{Шардирование документов на основе кластеров}
+\todo{Стратегии \strategy{base} и \strategy{aff} с голосованием документов (6), реплики по сродству (7), hash-разбиения на то же число шардов.}
+\begin{equation}
+	c^*(t)=\arg\max_{c}\;\operatorname{sgn}\Bigl(\frac{v(t,c)}{v(t)}-\frac{m(c)}{m}\Bigr)\,G^2(t,c),
+	\label{eq:vote}
+\end{equation}
+\begin{equation}
+	\mathrm{aff}(t,c)=\sum_{(t,u)\in E,\;u\in c} w_{tu}.
+	\label{eq:affinity}
+\end{equation}
+\todo{Бюджет объёма шарда, стратегия \strategy{bal}: единицы (дробление кластеров сверх бюджета тем же алгоритмом) и упаковка по наименьшему приросту объёма (8).}
+\begin{equation}
+	s^*(u)=\arg\min_{s:\,\mathrm{vol}(s)+\Delta(u,s)\le\beta|\mathcal{D}|}\Delta(u,s),
+	\label{eq:packing}
+\end{equation}
+где $\Delta(u,s)=\bigl|\mathcal{D}(u)\setminus\mathcal{D}(s)\bigr|$.
+
+\subsection{Маршрутизация запроса}
+\todo{Жадное покрытие с весом IDF (9), бюджет опрошенных шардов $b$.}
+\begin{equation}
+	s_i=\arg\max_{s\in S}\sum_{t\in q\setminus C_{i-1},\; s\in\sigma(t)} w(t),
+	\label{eq:routing}
+\end{equation}
+где $w(t)=\ln\bigl(|\mathcal{D}|/(\mathrm{df}(t)+1)\bigr)+1$.
+
+\section{Методика оценки}
+
+\subsection{Датасет}
+\todo{MS MARCO v2.1: \nDocs{} документов, из них \nDistractors{} дистракторов; \nQueries{} запросов, \nTrainQueries{} обучающих и \nHoldoutQueries{} отложенных; граф \nGraphTerms{} слов и \nGraphEdges{} рёбер.}
+
+\subsection{Оценочные выборки}
+\todo{train, holdout, OOD (Natural Questions), connected и frequent pairs и triples.}
+
+\subsection{Метрики}
+\todo{Эталон~--- top-10 полного индекса; overlap и объём опроса (10); среднее число шардов в покрытии, доля запросов в один шард, дублирование; бутстреп и парные разности; срезы по связности и длине запроса.}
+\begin{equation}
+	\mathrm{overlap}@k(q,b)=\frac{\bigl|R_k(q)\cap\mathcal{D}(S_q^{(b)})\bigr|}{k}.
+	\label{eq:metrics}
+\end{equation}
+
+\subsection{Сравниваемые конфигурации}
+\todo{10 стратегий на 4 алгоритма; основная конфигурация зафиксирована до измерений (бюджет 15\,\%, $\gamma$ равно 1, зерно 42); каждая стратегия сравнивается с hash-разбиением на то же число шардов.}
+
+\section{Результаты}
+
+\subsection{Структура графа и кластеров}
+\todo{Темы крупнейших кластеров и тяжёлый хвост размеров: у Leiden \leidenClusters{} кластеров, крупнейший \leidenLargestCluster{} слов.}
+
+\subsection{Борьба с вырожденным кластером}
+\todo{Без бюджета крупнейший шард \strategy{aff}~--- \affLargest\,\% корпуса; ужесточение параметра алгоритма и другие алгоритмы шард уменьшают, но не до бюджета (\figref{fig:sweeps}).}
+
+\begin{figure*}[!t]
+	\centering
+	\includegraphics[width=\textwidth]{overview_parameter_sweeps.pdf}
+	\ntvcaption{Крупнейший шард, дублирование и overlap@10 при опросе одного шарда в зависимости от параметра алгоритма кластеризации для стратегий \strategy{aff} и \strategy{bal}; пунктир~--- бюджет объёма шарда}
+	{Largest shard, duplication and overlap@10 with one shard probed against the clustering parameter for \strategy{aff} and \strategy{bal}; the dotted line is the shard-volume budget}
+	\label{fig:sweeps}
+\end{figure*}
+
+\subsection{Сравнение стратегий}
+\todo{Семейства стратегий на Leiden (\tabref{tab:strategies}): overlap без бюджета куплен объёмом опроса и гигантским шардом; единственная сбалансированная стратегия~--- \strategy{bal}.}
+
+\begin{table*}[!t]
+	\ntvcaption{Стратегии шардирования на отложенной выборке, алгоритм Leiden}
+	{Sharding strategies on the held-out sample, Leiden}
+	\label{tab:strategies}
+	\centering
+	\resizebox{\textwidth}{!}{\input{tables/strategies}}
+\end{table*}
+
+\subsection{Сравнение сбалансированной стратегии и хэш}
+\todo{При равном числе шардов \strategy{bal} лучше hash у всех алгоритмов (\tabref{tab:gains}); выборки и частые запросы (\figref{fig:samples}); прирост растёт со связностью и длиной запроса (\figref{fig:slices}).}
+
+\begin{table*}[!t]
+	\ntvcaption{Парные разности \strategy{bal} и \strategy{hash\_bal}: среднее и 95\,\%-й доверительный интервал}
+	{Paired differences of \strategy{bal} and \strategy{hash\_bal}: mean and 95\,\% confidence interval}
+	\label{tab:gains}
+	\centering
+	\resizebox{\textwidth}{!}{\input{tables/gains}}
+\end{table*}
+
+\begin{figure*}[!t]
+	\centering
+	\includegraphics[width=\textwidth]{overview_by_sample.pdf}
+	\ntvcaption{Доля запросов, покрываемых одним шардом (\emph{а}), и среднее число шардов в покрытии (\emph{б}) по выборкам запросов: закрашенные маркеры~--- \strategy{bal}, полые~--- \strategy{hash\_bal}}
+	{Share of queries covered by one shard (a) and mean cover size (b) across query samples: filled markers are \strategy{bal}, hollow ones \strategy{hash\_bal}}
+	\label{fig:samples}
+\end{figure*}
+
+\begin{figure*}[!t]
+	\centering
+	\includegraphics[width=\textwidth]{overview_slices.pdf}
+	\ntvcaption{Overlap@10 при опросе одного и двух шардов по срезам отложенной выборки: связность слов запроса (\emph{а}) и число слов в запросе (\emph{б})}
+	{Overlap@10 with one and two shards probed on slices of the held-out sample: connectivity of the query terms (a) and query length (b)}
+	\label{fig:slices}
+\end{figure*}
+
+\subsection{Корректность и воспроизводимость}
+\todo{Сверка с настоящими индексами Whoosh: \verifScores{} оценок, максимальное расхождение \verifMaxDelta, \verifMismatches{} расхождений выдачи; код и данные открыты.}
+
+\subsection{Влияние гиперпараметров}
+\todo{Зерно, объём журнала, параметр алгоритма, 19 вариантов настроек~--- эффекты для \strategy{bal} в пределах 1--2~п.\,п.; бюджет 5--30\,\%: прирост над hash сохраняется.}
+
+\section{Ограничения}
+\todo{Глобальная статистика BM25, один корпус и язык, дублирование около 20, оценка по прокси-стоимости, а не по задержкам.}
+
+\section{Заключение}
+\todo{Основные выводы с числами, без пересказа содержания; направления дальнейшей работы.}
+
+\end{ntvbody}
+
+% ============================================================================
+\begin{ntvreferences}
+\input{tables/references}
+\end{ntvreferences}
+
+\begin{ntvauthorsinfo}
+\ntvauthor{\textbf{Постнов Степан Андреевич}~--- студент, Университет ИТМО, Санкт-Петербург, 197101, Российская Федерация, stepaha78@gmail.com \tbd{ORCID}}
+{\textbf{Stepan A. Postnov}~--- Student, ITMO University, Saint Petersburg, 197101, Russian Federation, stepaha78@gmail.com}
+\ntvauthor{\textbf{Платонов Алексей Владимирович}~--- кандидат технических наук, доцент, доцент, Университет ИТМО, Санкт-Петербург, 197101, Российская Федерация, https://orcid.org/0000-0002-8485-1296, avplatonov@itmo.ru}
+{\textbf{Alexey V. Platonov}~--- PhD, Associate Professor, ITMO University, Saint Petersburg, 197101, Russian Federation, https://orcid.org/0000-0002-8485-1296, avplatonov@itmo.ru}
+\ntvauthor{\textbf{Саськов Лев Кириллович}~--- Университет ИТМО, Санкт-Петербург, 197101, Российская Федерация \tbd{должность, ORCID, e-mail}}
+{\textbf{Lev K. Saskov}~--- ITMO University, Saint Petersburg, 197101, Russian Federation}
+\end{ntvauthorsinfo}
+
+\end{document}

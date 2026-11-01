@@ -215,10 +215,17 @@ ablations:
 | `metrics/ablations.csv` | варианты с одной изменённой настройкой |
 | `metrics/verification.csv` | результаты проверок корректности |
 | `metrics/corpus.json`, `clusterings.csv`, `clusters.csv`, `frame_words.csv` | описание корпуса, графа и кластеров |
-| `reports/figures/` | графики в стиле SciencePlots: обзорные `overview_*.pdf` по всем алгоритмам, стратегиям и выборкам сразу и по каталогу на алгоритм; язык подписей — `figures.language` |
+| `reports/figures/<язык>/` | графики в стиле pgfplots (шрифт Times New Roman) на каждом языке из `figures.languages`: обзорные `overview_*.pdf` по всем алгоритмам, стратегиям и выборкам сразу и по каталогу на алгоритм |
 
 Каждая таблица устроена одинаково: строка — конфигурация (`method`, `strategy`, `sample`),
 столбцы — метрики. Описание всех столбцов — в [docs/outputs.md](docs/outputs.md).
+
+### Статья
+
+`reports/article/` — рукопись для «Научно-технического вестника ИТМО»: `article.tex` с оформлением
+`ntv-itmo.sty` (XeLaTeX, Times New Roman, правила журнала). `make article` пересобирает из
+`metrics/*.csv` таблицы `tables/*.tex` и макросы чисел `tables/numbers.tex`, из `references.bib` —
+списки «Литература» (ГОСТ 7.0.5) и References в порядке цитирования, затем PDF.
 
 ```python
 import pandas as pd
@@ -275,7 +282,7 @@ print(table.to_latex(float_format="%.3f"))
 ├── tests/                 тесты, включая прогон всего конвейера на синтетических данных
 ├── docs/                  метод, справочники параметров и выходных файлов
 ├── metrics/               таблицы результатов (в git)
-├── reports/               figures/ — графики (в git); отчёты и статья
+├── reports/               figures/ — графики (в git); article/ — статья (tex, таблицы, литература)
 ├── references/            данные и литература
 ├── models/                граф, кластеры, разбиения (кэш DVC)
 └── data/                  исходные и промежуточные данные (кэш DVC)

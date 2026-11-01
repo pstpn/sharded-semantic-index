@@ -17,7 +17,7 @@ def significant_choice(votes: sp.spmatrix, mass: np.ndarray, method: str) -> np.
 
     ``votes[t, g]`` counts (document, graph term of group ``g``) pairs over
     the documents holding ``t``; ``mass[g]`` is the same count over the whole
-    corpus.  ``raw`` picks the group with the most votes, which favours groups
+    corpus. ``raw`` picks the group with the most votes, which favours groups
     of ubiquitous terms.  ``llr`` picks the group in which the term is most
     significantly over-represented (Dunning's G², negated for
     under-representation).  Ties go to the smaller group id; a row without
@@ -58,7 +58,7 @@ def with_affinity_fallback(
 
     Every document of an out-of-graph term votes with the clusters of its
     graph terms, one vote per graph term; :func:`significant_choice` picks
-    the cluster.  Only terms that never share a document with a graph term
+    the cluster. Only terms that never share a document with a graph term
     are hashed into the separate id space ``[n, 2n)``.
     """
     n = id_space(clustering)

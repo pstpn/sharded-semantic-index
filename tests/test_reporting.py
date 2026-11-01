@@ -10,7 +10,7 @@ from matplotlib.figure import Figure
 from sharded_index.config import ComparisonsConfig
 from sharded_index.data.corpus import Corpus
 from sharded_index.graph.cooccurrence import node_strength
-from sharded_index.reporting import plots, style
+from sharded_index.reporting import overview, plots, style
 from sharded_index.reporting.describe import (
     clusters_table,
     collection_description,
@@ -111,8 +111,6 @@ def test_every_figure_renders(
     edges: pd.DataFrame, clustering: dict[str, int], tmp_path: Path
 ) -> None:
     strength = node_strength(edges)
-    fanouts = {"hash_bal": np.array([3, 4, 2, 3]), "bal": np.array([1, 2, 2, 1])}
-    curve = {"1": 0.5, "2": 0.8, "full": 1.0}
     points = pd.DataFrame(
         {
             "strategy": ["hash_bal", "bal"],
@@ -121,32 +119,113 @@ def test_every_figure_renders(
             "label": ["hash_bal\n@1 0.60", "bal\n@1 0.80"],
         }
     )
-    by_sample = pd.DataFrame(
-        {"train": [3.0, 1.5], "holdout": [3.1, 1.6]}, index=["hash_bal", "bal"]
-    )
-    retrieval = pd.DataFrame(
+    text = Labels("ru")
+    plots.plot_duplication_vs_fanout(points, text, tmp_path / "a.pdf")
+    plots.plot_cluster_sizes(clustering, 3, text, tmp_path / "b.pdf")
+    plots.plot_cluster_wordclouds(clustering, strength, 4, 1, text, tmp_path / "c.pdf")
+    plots.plot_graph_clusters(edges, clustering, 50, 1, tmp_path / "d.pdf")
+    plots.plot_cluster_heatmap(edges, clustering, 3, text, tmp_path / "e.pdf")
+
+    fanouts = {
+        "leiden": {"bal": np.array([1, 2, 2, 1]), "hash_bal": np.array([3, 4, 2, 3])},
+        "cpm": {"bal": np.array([1, 2, 3, 1]), "hash_bal": np.array([3, 3, 2, 3])},
+    }
+    overview.plot_fanout_ecdf(fanouts, text, tmp_path / "f.pdf")
+    routing = pd.DataFrame(
         {
-            "method": ["leiden", "leiden", "cpm", "cpm"],
-            "strategy": ["hash_bal", "bal"] * 2,
-            "budget": ["1"] * 4,
-            "overlap": [0.6, 0.8, 0.6, 0.7],
-            "overlap_ci_low": [0.55, 0.75, 0.55, 0.65],
-            "overlap_ci_high": [0.65, 0.85, 0.65, 0.75],
+            "method": ["leiden"] * 4 + ["cpm"] * 4,
+            "strategy": ["bal", "bal", "hash_bal", "hash_bal"] * 2,
+            "sample": ["train", "holdout"] * 4,
+            "single_shard_share": [0.1, 0.09, 0.06, 0.07, 0.1, 0.08, 0.06, 0.07],
+            "single_shard_ci_low": [0.09, 0.08, 0.05, 0.06, 0.09, 0.07, 0.05, 0.06],
+            "single_shard_ci_high": [0.11, 0.1, 0.07, 0.08, 0.11, 0.09, 0.07, 0.08],
+            "fanout_mean": [2.8, 2.9, 3.2, 3.2, 2.9, 2.9, 3.2, 3.2],
+            "fanout_ci_low": [2.7, 2.8, 3.1, 3.1, 2.8, 2.8, 3.1, 3.1],
+            "fanout_ci_high": [2.9, 3.0, 3.3, 3.3, 3.0, 3.0, 3.3, 3.3],
         }
     )
-    text = Labels("ru")
-    plots.plot_fanout_ecdf(fanouts, text, "t", tmp_path / "a.pdf")
-    plots.plot_overlap_by_budget(
-        {"hash_bal": curve, "bal": curve}, 10, text, "t", tmp_path / "b.pdf"
+    overview.plot_by_sample(
+        routing,
+        ["bal"],
+        ["train", "holdout"],
+        {"train": 10, "holdout": 6},
+        text,
+        tmp_path / "g.pdf",
     )
-    plots.plot_duplication_vs_fanout(points, text, "t", tmp_path / "c.pdf")
-    plots.plot_fanout_by_sample(by_sample, text, "t", tmp_path / "d.pdf")
-    plots.plot_methods_comparison(retrieval, 10, [1], text, "t", tmp_path / "e.pdf")
-    plots.plot_cluster_sizes(clustering, 3, text, "t", tmp_path / "f.pdf")
-    plots.plot_cluster_wordclouds(clustering, strength, 4, 1, text, "t", tmp_path / "g.pdf")
-    plots.plot_graph_clusters(edges, clustering, 50, 1, text, "t", tmp_path / "h.pdf")
-    plots.plot_tsne(edges, clustering, strength, 3, 1, text, "t", tmp_path / "i.pdf")
-    plots.plot_cluster_heatmap(edges, clustering, 3, text, "t", tmp_path / "j.pdf")
+    sensitivity = pd.DataFrame(
+        {
+            "sweep": ["resolution"] * 4 + ["n_parts"] * 4 + ["seed"] * 2 + ["train_size"] * 4,
+            "method": ["leiden"] * 4 + ["metis"] * 4 + ["leiden"] * 2 + ["infomap"] * 4,
+            "value": [1.0, 2.0, 1.0, 2.0, 4.0, 8.0, 4.0, 8.0, 1.0, 1.0, 10.0, 40.0, 10.0, 40.0],
+            "strategy": ["aff", "aff", "bal", "bal"] * 2
+            + ["aff", "bal"]
+            + ["aff", "aff", "bal", "bal"],
+            "largest_shard": [
+                0.8,
+                0.6,
+                0.15,
+                0.15,
+                0.3,
+                0.25,
+                0.15,
+                0.15,
+                0.8,
+                0.15,
+                0.4,
+                0.36,
+                0.15,
+                0.15,
+            ],
+            "duplication": [
+                10.0,
+                14.0,
+                20.0,
+                20.0,
+                21.0,
+                22.0,
+                20.0,
+                20.0,
+                10.0,
+                20.0,
+                20.0,
+                20.6,
+                20.0,
+                20.1,
+            ],
+            "overlap_1": [
+                0.9,
+                0.85,
+                0.78,
+                0.77,
+                0.7,
+                0.72,
+                0.74,
+                0.75,
+                0.9,
+                0.78,
+                0.74,
+                0.75,
+                0.77,
+                0.77,
+            ],
+        }
+    )
+    overview.plot_parameter_sweeps(
+        sensitivity, ["aff", "bal"], 0.15, 1, 10, text, tmp_path / "h.pdf"
+    )
+    ablations = pd.DataFrame(
+        {
+            "variant": ["baseline", "baseline", "v1", "v1"] * 2,
+            "method": ["leiden", "cpm"] * 4,
+            "strategy": ["bal"] * 4 + ["aff"] * 4,
+            "overlap_1": [0.78, 0.76, 0.79, 0.75, 0.92, 0.73, 0.9, 0.74],
+            "largest_shard": [0.15] * 4 + [0.83, 0.32, 0.8, 0.3],
+        }
+    )
+    overview.plot_variant_heatmap(ablations, "bal", "overlap_1", "delta", "Δ", tmp_path / "i.pdf")
+    overview.plot_variant_heatmap(
+        ablations, "aff", "largest_shard", "value", "%", tmp_path / "j.pdf"
+    )
     for name in "abcdefghij":
         assert (tmp_path / f"{name}.pdf").stat().st_size > 0
 
@@ -202,10 +281,11 @@ def test_point_labels_do_not_overlap_and_stay_inside_the_axes() -> None:
 
 @pytest.mark.parametrize("name", ["a", "b"])
 def test_figures_are_byte_stable(name: str, tmp_path: Path) -> None:
+    points = pd.DataFrame(
+        {"strategy": ["bal"], "duplication": [19.0], "fanout_mean": [2.9], "label": [name]}
+    )
     for run in ("first", "second"):
-        plots.plot_fanout_ecdf(
-            {"bal": np.array([1, 2, 2])}, Labels("en"), name, tmp_path / run / "x.pdf"
-        )
+        plots.plot_duplication_vs_fanout(points, Labels("en"), tmp_path / run / "x.pdf")
     assert (tmp_path / "first" / "x.pdf").read_bytes() == (
         tmp_path / "second" / "x.pdf"
     ).read_bytes()

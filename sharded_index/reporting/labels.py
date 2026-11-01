@@ -1,9 +1,10 @@
 """Wording of the figures in the configured language.
 
-Every axis label, legend entry and panel title of the figures is looked up
-here, so switching ``figures.language`` redraws the same figures in the other
+Every axis label, legend entry and panel letter of the figures is looked up
+here, so switching ``figures.languages`` redraws the same figures in the other
 language.  Names of strategies, algorithms and query samples stay as they are
-in the tables.
+in the tables; the figures carry no titles — what a figure shows belongs to
+its caption.
 """
 
 from __future__ import annotations
@@ -50,11 +51,15 @@ _PHRASES: dict[str, dict[str, str]] = {
     },
     "volume": {"ru": "Объём опроса (доля корпуса)", "en": "Probed volume (share of corpus)"},
     "one_shard_line": {"ru": "один шард на запрос", "en": "one shard per query"},
-    "probing": {"ru": "при опросе {shards}", "en": "{shards} probed"},
-    "delta_fanout": {
-        "ru": "Δ среднего числа шардов к hash",
-        "en": "Δ mean cover size vs hash",
+    "largest_shard_short": {
+        "ru": "Крупнейший шард (доля корпуса)",
+        "en": "Largest shard (share of corpus)",
     },
+    "largest_shard_pct": {"ru": "Крупнейший шард, % корпуса", "en": "Largest shard, % of corpus"},
+    "budget_line": {"ru": "бюджет объёма шарда", "en": "shard-volume budget"},
+    "resolution": {"ru": "Разрешение γ", "en": "Resolution γ"},
+    "n_parts": {"ru": "Число частей k", "en": "Number of parts k"},
+    "no_parameter": {"ru": "Без параметра", "en": "No parameter"},
     "queries": {"ru": "запросов", "en": "queries"},
     "method": {"ru": "алгоритм", "en": "method"},
     "semantic_strategy": {"ru": "семантическая стратегия", "en": "semantic strategy"},
@@ -74,12 +79,8 @@ _PHRASES: dict[str, dict[str, str]] = {
     "cluster_size": {"ru": "Размер кластера (слов)", "en": "Cluster size (terms)"},
     "clusters": {"ru": "Кластеров", "en": "Clusters"},
     "cluster": {"ru": "Кластер", "en": "Cluster"},
-    "largest_clusters": {"ru": "{n} крупнейших кластеров", "en": "{n} largest clusters"},
     "cluster_terms": {"ru": "кластер {c} ({n} слов)", "en": "cluster {c} ({n} terms)"},
     "total_edge_weight": {"ru": "Суммарный вес рёбер", "en": "Total edge weight"},
-    "terms_count": {"ru": "{n} слов", "en": "{n} terms"},
-    "clusters_terms": {"ru": "{c} кластеров, {n} слов", "en": "{c} clusters, {n} terms"},
-    "mean": {"ru": "в среднем", "en": "mean"},
 }
 
 _SAMPLES = {

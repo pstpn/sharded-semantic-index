@@ -44,9 +44,10 @@ clean:       ## remove caches and LaTeX by-products
 	find . -name ".DS_Store" -not -path "./.venv/*" -delete
 	find reports -type f \( -name "*.aux" -o -name "*.log" -o -name "*.toc" \
 		-o -name "*.out" -o -name "*.mtoc" -o -name "*.synctex.gz" \
-		-o -name "*.fls" -o -name "*.fdb_latexmk" \) -delete
+		-o -name "*.fls" -o -name "*.fdb_latexmk" -o -name "*.xdv" -o -name "*.bbl" -o -name "*.blg" \) -delete
 	rm -rf sharded_index.egg-info .mypy_cache .pytest_cache .ruff_cache
 
-article:     ## rebuild the article tables and both PDFs
+article:     ## rebuild the article tables, number macros, reference lists and PDF (xelatex, NTV ITMO format)
 	$(VENV)/python reports/article/build_tables.py
-	cd reports/article && latexmk -pdf -interaction=nonstopmode article.tex article_en.tex
+	$(VENV)/python reports/article/build_references.py
+	latexmk -cd -xelatex -interaction=nonstopmode -halt-on-error reports/article/article.tex

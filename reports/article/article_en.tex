@@ -1,0 +1,467 @@
+% ============================================================================
+% English version: the same sections as article.tex in a generic single-column
+% layout for a Scopus-indexed venue chosen later. Switching venues = replacing the
+% preamble and \bibliographystyle (sections, tables and figures stay): e.g. llncs +
+% splncs04 (Springer CCIS/LNCS),
+% elsarticle + elsarticle-num (Elsevier), or the journal's own class.
+% Tables: tables/*_en.tex (booktabs, decimal point); numbers: tables/numbers_en.tex;
+% figures: ../figures/en/; references: references.bib (DOI fields kept for the venue style).
+% Before submission: \draftnotesfalse hides every \todo.
+% ============================================================================
+\documentclass[11pt, a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+
+\usepackage[left=28mm, right=28mm, top=25mm, bottom=28mm]{geometry}
+\usepackage{amsmath, amssymb}
+\usepackage{graphicx}
+\graphicspath{{../figures/en/}}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{caption}
+\captionsetup{labelfont=bf, labelsep=period}
+\emergencystretch=1.5em
+
+\usepackage[hidelinks]{hyperref}
+
+\input{tables/numbers_en}
+
+\newif\ifdraftnotes
+\draftnotestrue
+\newcommand{\todo}[1]{\ifdraftnotes\par\noindent{\small\color{red!75!black}\textbf{TODO:} #1}\par\fi}
+\newcommand{\strategy}[1]{\texttt{#1}}
+
+\title{Semantic Term Sharding of a Search Index\\ under a Shard-Volume Budget}
+% TODO(Stepan): final title = translation of the Russian one
+\author{Stepan A. Postnov \and Alexey V. Platonov\\
+	\small ITMO University, Saint Petersburg, Russia}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\todo{Abstract (150--250 words): subject, method, main results with numbers (see the Russian abstract notes in \texttt{article.tex}), significance.}
+\end{abstract}
+
+\noindent\textbf{Keywords:} information retrieval, inverted index, term sharding, query routing, set cover, co-occurrence graph, NPMI, graph clustering, Leiden, load balancing, shard-volume budget, MS~MARCO.
+
+\section{Introduction}
+
+\todo{Text: context (document and term sharding), the problem of hash assignment (a multi-term query hits several shards), the idea (clusters of the co-occurrence graph), the main motivation (clusters degenerate without a volume budget), the solution (shard-volume budget), the result in one sentence, paper outline. Materials: none.}
+
+The contributions of this work are the following:
+\begin{enumerate}
+	\item a semantic term-sharding scheme: an NPMI co-occurrence graph of query-log terms, graph clustering (Leiden; also CPM, Infomap and METIS), assignment of out-of-graph terms by a document vote under the $G^2$ criterion, affinity-based term replication and greedy weighted set-cover routing;
+	\item evidence that without a volume constraint semantic grouping degenerates: the best routing figures are reached with a shard holding \affRthreeLargest\,\% of the corpus, and an explanation of why this follows from the storage rule and the skewed document-frequency distribution rather than from the clustering algorithm;
+	\item a shard-volume budget: clusters above the budget are split by the same algorithm and the pieces are packed by the smallest volume increment, so that the number of shards follows from the budget and every shard is filled to 92--100\,\% of it;
+	\item an evaluation methodology without relevance judgements: agreement with the full index under a shard budget (overlap@$k$), probed volume, paired bootstrap, seven query samples (including synthetic connected and frequent term combinations), slices by connectivity and query length, and verification on real shard indexes;
+	\item experimental evidence that, at an equal number of shards, the balanced semantic strategy beats random partitioning on every measured metric, with the advantage growing with query length and connectivity and persisting on queries from another source; the result is stable across seeds, resolution, log size and 19~configuration variants for each of four algorithms.
+\end{enumerate}
+
+\section{Related Work}
+
+\todo{Text: distributed inverted indexes, resource selection, selective search, term-partitioned systems, co-occurrence weights, community detection and the resolution parameter, set cover and bin packing, rank-agreement measures, bootstrap. Draft and citations: \texttt{article.tex}, section 2. Materials: none.}
+\nocite{manning2008,reichardt2006,gravano1999,callan1995,si2003,aly2013,kulkarni2015,kulkarni2010,dai2016,goodwin2017,risvik2013,moffat2007,moffat2006,huang2020,church1990,bouma2009,williams2022,dunning1993,robertson2009,traag2019,newman2004,traag2011,rosvall2008,karypis1998,fortunato2010,lancichinetti2009,chvatal1979,johnson1974,webber2010,efron1993,bajaj2016,kwiatkowski2019,lee2019,dean2013,csardi2006}
+% The \nocite keeps every reference in the draft bibliography; remove it once the prose cites them.
+
+\section{Method}
+
+\subsection{Problem Statement}
+
+\todo{Text: term partitioning and the query cover (Eq.~\eqref{eq:assignment}), the completeness invariant (Eq.~\eqref{eq:invariant}) and its role, the lower bound of the shard volume and duplication (Eq.~\eqref{eq:lower-bound}) as the cause of degeneration. Materials: none.}
+
+Let $T$ be the vocabulary, $\mathcal{D}$ the documents and $S=\{1,\dots,M\}$ the shards.
+A partition is a map $\sigma$ from terms to non-empty sets of shards; a document is stored in every shard of every one of its terms:
+\begin{equation}
+	\sigma\colon T \to 2^{S}\setminus\{\varnothing\}, \qquad D(d)=\bigcup_{t\in d}\sigma(t).
+	\label{eq:assignment}
+\end{equation}
+A cover of a query $q$ is an ordered set of shards $S_q=(s_1,\dots,s_{f})$ in which every query term is represented, $\sigma(t)\cap S_q\neq\varnothing$ for all $t\in q$; its length $f=\mathrm{fanout}(q)$.
+
+The union of the results of the cover equals the result of the full index:
+\begin{equation}
+	\mathrm{Top}_k\Bigl(\bigcup_{s\in S_q} R_s(q)\Bigr)=\mathrm{Top}_k\bigl(R(q)\bigr),
+	\label{eq:invariant}
+\end{equation}
+where $R(q)$ is the result of the full index and $R_s(q)$ the result of shard $s$ scored with collection-wide BM25 statistics.
+The storage rule also bounds the shard volume from below and defines duplication:
+\begin{equation}
+	\mathrm{vol}(s)=\bigl|\{d\in\mathcal{D}: s\in D(d)\}\bigr| \;\ge\; \max_{t:\,s\in\sigma(t)}\mathrm{df}(t),
+	\qquad
+	\mathrm{dup}=\frac{1}{|\mathcal{D}|}\sum_{d\in\mathcal{D}}|D(d)|.
+	\label{eq:lower-bound}
+\end{equation}
+
+\subsection{Term Co-occurrence Graph}
+
+\todo{Text: vertices (training-query terms, document-frequency thresholds, stop words and \nFrameWords{} question-frame words), edges and weights (Eq.~\eqref{eq:npmi}), the resulting graph size (Table~\ref{tab:corpus}). Materials: none.}
+
+Let $N$ be the number of distinct sets of graph terms among the training queries, $n(a)$ the number of sets containing term $a$ and $n(a,b)$ the number containing both.
+Terms $a$ and $b$ are joined by an edge if $n(a,b)\ge m_{\min}$ and
+\begin{equation}
+	\mathrm{NPMI}(a,b)=\frac{\ln\dfrac{n(a,b)\,N}{n(a)\,n(b)}}{-\ln\dfrac{n(a,b)}{N}}\;\ge\;0,
+	\qquad \mathrm{NPMI}\in[-1,1];
+	\label{eq:npmi}
+\end{equation}
+the edge weight is the NPMI value ($m_{\min}=2$ in the main configuration).
+
+\subsubsection{Edge Weights}
+Dunning's log-likelihood ratio $G^2$~\cite{dunning1993} and the $\chi^2$ statistic of the same $2\times2$ contingency table are used as alternative weights of the same edge set.
+
+\subsection{Building the Clusters}
+
+\todo{Text: why four algorithms (interchangeable components under one budget), the main configuration ($\gamma=1$ for Leiden, $\gamma=0.02$ for CPM, $k=341$ for METIS, seed 42, up to 200 passes to convergence). Materials: Table~\ref{tab:clusterings} is given in Section~4.4.}
+
+\subsubsection{Clustering Algorithms}
+Leiden~\cite{traag2019} maximises modularity~\cite{newman2004} with the resolution parameter $\gamma$~\cite{reichardt2006}:
+\begin{equation}
+	Q_\gamma=\frac{1}{2m}\sum_{i,j}\Bigl[A_{ij}-\gamma\,\frac{k_i k_j}{2m}\Bigr]\,\delta(c_i,c_j),
+	\label{eq:modularity}
+\end{equation}
+where $A_{ij}$ is the edge weight, $k_i$ the weighted degree, $m$ the total edge weight and $c_i$ the cluster of vertex $i$.
+CPM~\cite{traag2011} replaces the expected weight $\gamma k_ik_j/2m$ by the constant $\gamma$; Infomap~\cite{rosvall2008} minimises the description length of a random walk; METIS~\cite{karypis1998} builds a $k$-way partition of near-equal parts with minimum cut.
+
+\subsection{Sharding the Documents by Clusters}
+
+\todo{Text: a cluster becomes a shard and a document is stored in every shard of its terms (Eq.~\eqref{eq:assignment}); the graph covers only \graphVocabularyShare\,\% of the vocabulary, so the strategies differ in the assignment of out-of-graph terms, replication and the budget. Materials: none.}
+
+\subsubsection{Routing Variants}
+\label{sec:affinity}
+
+\todo{Text: \strategy{base}~--- out-of-graph terms hashed into a separate shard range; \strategy{aff}~--- the document vote under the $G^2$ criterion (Eq.~\eqref{eq:vote}), hashing only for orphan terms; replicas \strategy{base\_r$k$}, \strategy{aff\_r$k$} (Eq.~\eqref{eq:affinity}); \strategy{hash\_*}~--- random partitions with the same number of shards. Materials: none; the strategies are summarised in Table~\ref{tab:strategies} (Section~5.3).}
+
+Let $v(t,c)$ be the number of pairs (document containing $t$, graph term of cluster $c$ in that document), $v(t)=\sum_c v(t,c)$, and $m(c)$, $m$ the same counts over the whole corpus.
+A term joins the cluster in which it is most significantly over-represented:
+\begin{equation}
+	c^*(t)=\arg\max_{c}\;\operatorname{sgn}\!\Bigl(\frac{v(t,c)}{v(t)}-\frac{m(c)}{m}\Bigr)\,G^2(t,c),
+	\qquad
+	G^2=2\sum_{i,j} O_{ij}\ln\frac{O_{ij}}{E_{ij}},
+	\label{eq:vote}
+\end{equation}
+where $O_{ij}$ and $E_{ij}$ are the observed and expected counts of the $2\times2$ table ``term $t$ / other terms'' $\times$ ``cluster $c$ / other clusters''.
+A term that never co-occurs with a graph term in any document is hashed.
+
+The affinity of a graph term $t$ to a cluster $c$ is the total weight of its edges into that cluster; with replication of multiplicity $k$ a term gets its own cluster and up to $k-1$ others of highest affinity:
+\begin{equation}
+	\mathrm{aff}(t,c)=\sum_{(t,u)\in E,\;u\in c} w_{tu},
+	\qquad
+	\sigma(t)=\{c(t)\}\cup\operatorname{top}_{k-1}\{c\neq c(t):\mathrm{aff}(t,c)>0\}.
+	\label{eq:affinity}
+\end{equation}
+
+\subsubsection{Shard-Volume Budget}
+\label{sec:budget}
+
+\todo{Text: why a budget (by Eq.~\eqref{eq:lower-bound} a cluster of frequent terms gathers most of the corpus), the two steps~--- units and packing (Eq.~\eqref{eq:packing}), the number of shards follows from the budget. Materials: none.}
+
+The budget bounds the share of the corpus in one shard, $\mathrm{vol}(s)\le\beta\,|\mathcal{D}|$, with $\beta=0.15$ in the main configuration.
+The \strategy{aff} partition is rebuilt under the budget in two steps.
+\begin{enumerate}
+	\item \emph{Units.} A cluster within the budget is one unit. A cluster above it is split: its graph terms are clustered by the same algorithm run on the cluster's own edges, with the parameter tightened progressively if the cluster stays in one piece (resolution $\gamma\cdot2^{j}$, $j=0,\dots,4$; the number of parts for METIS); the cluster's out-of-graph terms join the communities by the vote~\eqref{eq:vote}. A piece still above the budget is split again; a piece without internal edges falls apart into single terms.
+	\item \emph{Packing.} Units, largest first, are placed by best fit~\cite{johnson1974}: unit $u$ goes to the shard whose volume it increases least among the shards that stay within the budget,
+	\begin{equation}
+		s^*(u)=\arg\min_{s:\;\mathrm{vol}(s)+\Delta(u,s)\le\beta|\mathcal{D}|}\Delta(u,s),
+		\qquad
+		\Delta(u,s)=\bigl|\mathcal{D}(u)\setminus\mathcal{D}(s)\bigr|,
+		\label{eq:packing}
+	\end{equation}
+	where $\mathcal{D}(u)$ and $\mathcal{D}(s)$ are the document sets of the unit and the shard; a new shard opens only when none fits.
+\end{enumerate}
+The number of shards thus follows from the budget rather than being a parameter; a term more frequent than the budget would occupy a shard of its own.
+
+\subsection{Query Routing}
+
+\todo{Text: greedy cover (Eq.~\eqref{eq:routing}), IDF weights (the shard of the rarest terms is probed first), determinism, shard budget $b$. Materials: none.}
+
+\begin{equation}
+	s_i=\arg\max_{s\in S}\sum_{t\in q\setminus C_{i-1},\; s\in\sigma(t)} w(t),
+	\qquad
+	w(t)=\ln\frac{|\mathcal{D}|}{\mathrm{df}(t)+1}+1,
+	\label{eq:routing}
+\end{equation}
+where $C_{i-1}$ are the terms covered by the first $i-1$ shards and $w(t)$ is the inverse document frequency (IDF) of the term in the form the index uses for BM25; ties go to the smaller shard id.
+A term found in one document out of \nDocs{} weighs about 12.7, a term found in 1\,\% of the documents about 5.6, the most frequent term of the corpus (11\,\% of the documents) about 3.2, so the cover starts with the shard of the rarest query terms, which contribute most to the BM25 score.
+Under a budget $b$ the first $b$ shards of the cover are probed.
+
+\section{Evaluation Methodology}
+
+\subsection{Dataset}
+
+\todo{Text: MS~MARCO v2.1, passage selection and distractors, text normalisation and the analyser shared with the index, the 95/5 query split in dataset order. Materials: Table~\ref{tab:corpus}~--- corpus and graph characteristics.}
+
+\begin{table}[H]
+	\caption{Corpus and term-graph characteristics}
+	\label{tab:corpus}
+	\centering
+	\small
+	\input{tables/corpus_en}
+\end{table}
+
+\subsection{Evaluation Samples}
+
+\todo{Text: what each of the seven samples measures; the synthetic ones depend only on the graph and are shared by all algorithms. Materials: the list below; sample sizes~--- Table~\ref{tab:samples} in Section~5.4.}
+
+\begin{itemize}
+	\item \textbf{train}~--- \nTrain{} random training queries: an upper bound, queries that built the graph;
+	\item \textbf{holdout}~--- all \nHoldout{} held-out queries: the main result, new queries from the same source;
+	\item \textbf{OOD}~--- \nOod{} questions of Natural Questions~\cite{kwiatkowski2019,lee2019}: transfer to another query source;
+	\item \textbf{connected pairs, connected triples}~--- \nConnectedPairs{} graph-term pairs with the heaviest edges and triples built from a pair and its common neighbour: terms that almost always occur together;
+	\item \textbf{frequent pairs, frequent triples}~--- \nFrequentPairs{} graph-term pairs with the most shared queries and the corresponding triples: popular combinations of frequent terms.
+\end{itemize}
+
+\subsection{Metrics}
+
+\todo{Text: the reference is the top-10 of the full index rather than judgements; overlap and probed volume (Eq.~\eqref{eq:metrics}); cover length, single-shard share, duplication, largest shard; the analytic duplication of a hash partition (Eq.~\eqref{eq:birthday}); bootstrap and paired differences; slices by connectivity and length. Materials: none.}
+
+Let $R_k(q)$ be the top-$k$ result of the full index, $S_q^{(b)}$ the first $b$ shards of the cover and $\mathcal{D}(S)$ the documents stored in the shards of $S$.
+Quality and cost under a budget $b$ are
+\begin{equation}
+	\mathrm{overlap}@k(q,b)=\frac{\bigl|R_k(q)\cap\mathcal{D}(S_q^{(b)})\bigr|}{k},
+	\qquad
+	\mathrm{volume}(q,b)=\frac{1}{|\mathcal{D}|}\sum_{i\le b}\mathrm{vol}(s_i),
+	\label{eq:metrics}
+\end{equation}
+with $k=10$; for $b\ge\mathrm{fanout}(q)$, by~\eqref{eq:invariant}, $\mathrm{overlap}@k=1$ for every strategy.
+For random partitioning the duplication is predicted analytically: a document with $m_d$ distinct terms occupies on average
+\begin{equation}
+	\mathbb{E}\,|D(d)|=M\Bigl(1-\bigl(1-\tfrac{1}{M}\bigr)^{m_d}\Bigr)
+	\label{eq:birthday}
+\end{equation}
+of $M$ shards.
+Confidence intervals of means are percentile bootstrap intervals over queries (1000 resamples, 95\,\%); differences between configurations use the paired bootstrap on shared queries~\cite{efron1993}.
+
+\subsection{Compared Configurations}
+
+\todo{Text: the main configuration (Table~\ref{tab:configuration}) was fixed before the measurements and not changed afterwards; every result of Sections~5.1--5.5 is obtained with it, and Section~5.6 checks its robustness (seed, log size, the algorithm's own parameter, one setting changed at a time); ten strategies $\times$ four algorithms; every semantic strategy is compared with a hash partition of the same shard count; Leiden is the reference algorithm in the tables, the others appear in the figures and in Table~\ref{tab:methods}. Materials: Table~\ref{tab:configuration}~--- main configuration; Table~\ref{tab:clusterings}~--- clusterings of the graph.}
+
+\begin{table}[H]
+	\caption{Main configuration: the parameter values behind every result}
+	\label{tab:configuration}
+	\centering
+	\small
+	\resizebox{\textwidth}{!}{\input{tables/configuration_en}}
+\end{table}
+
+\begin{table}[H]
+	\caption{Clusterings of the term graph}
+	\label{tab:clusterings}
+	\centering
+	\small
+	\resizebox{\textwidth}{!}{\input{tables/clusterings_en}}
+\end{table}
+
+\section{Results}
+
+\subsection{Graph and Cluster Structure}
+
+\todo{Text: topical largest clusters, heavy-tailed sizes, edge weight concentrated inside clusters. Materials: Figure~\ref{fig:graph}~--- the graph coloured by cluster; Figure~\ref{fig:wordclouds}~--- word clouds of the largest clusters; Figure~\ref{fig:cluster-sizes}~--- size distribution (optional); Figure~\ref{fig:heatmap}~--- weights between clusters (optional).}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth]{leiden/graph_clusters.pdf}
+	\caption{Term co-occurrence graph: the 1000 highest-degree terms, colour = Leiden cluster, vertex size = weighted degree}
+	\label{fig:graph}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{leiden/cluster_wordclouds.pdf}
+	\caption{Word clouds of the 25 largest Leiden clusters (word size proportional to the sum of its edge weights)}
+	\label{fig:wordclouds}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{leiden/cluster_sizes.pdf}
+	\caption{Leiden cluster sizes: log-scale histogram (a) and the 25 largest clusters (b)}
+	\label{fig:cluster-sizes}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.85\textwidth]{leiden/cluster_heatmap.pdf}
+	\caption{Total edge weight within and between the 25 largest Leiden clusters}
+	\label{fig:heatmap}
+\end{figure}
+
+\subsection{Fighting the Degenerate Cluster}
+
+\todo{Text: by Eq.~\eqref{eq:lower-bound} a cluster of frequent terms gathers most of the corpus (Leiden \strategy{aff}: largest shard \affLargest\,\%); attempts without a budget~--- tightening the algorithm's own parameter (Figure~\ref{fig:sweeps}): the largest shard shrinks but never reaches the budget while duplication grows and overlap falls together with volume; changing graph thresholds, edge weights and the vote rule (Figure~\ref{fig:variants-largest}): none of the 19~variants under any algorithm brings the shard within the budget; other algorithms (figure columns, Table~\ref{tab:methods}) give smaller clusters, still above the budget. Conclusion: an explicit volume budget is needed. Materials: Figure~\ref{fig:sweeps}; Figure~\ref{fig:variants-largest}.}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{overview_parameter_sweeps.pdf}
+	\caption{Largest shard, duplication and overlap@10 when probing one shard against the clustering algorithm's own parameter for \strategy{aff} and \strategy{bal}: Leiden (a), CPM (b), Infomap (c; no parameter of its own, the main configuration is shown), METIS (d); the dotted line is the shard-volume budget; held-out sample}
+	\label{fig:sweeps}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.75\textwidth]{overview_variants_largest_shard.pdf}
+	\caption{Share of the corpus in the largest shard of \strategy{aff} by configuration variant (rows) and clustering algorithm (columns), \%; the volume budget is 15\,\%}
+	\label{fig:variants-largest}
+\end{figure}
+
+\subsection{Comparison of the Strategies}
+
+\todo{Text: the three strategy families under Leiden (Table~\ref{tab:strategies}); the overlap of the unbudgeted families is bought with probed volume and a giant shard (Figure~\ref{fig:quality-cost}); the same under the other algorithms (Table~\ref{tab:methods}); the duplication--cover trade-off (Figure~\ref{fig:tradeoff}); the only balanced strategy is \strategy{bal}, hence the detailed comparison with the hash partition of the same shard count. Materials: Table~\ref{tab:strategies}; Table~\ref{tab:methods}; Figure~\ref{fig:quality-cost}; Figure~\ref{fig:tradeoff}; Table~\ref{tab:budgets} (optional).}
+
+\begin{table}[H]
+	\caption{Sharding strategies on the held-out sample (Leiden): shards, duplication, share of the corpus in the largest shard, mean cover length, share of single-shard queries, overlap@10 and probed volume under a budget of $b$ shards}
+	\label{tab:strategies}
+	\centering
+	\small
+	\resizebox{\textwidth}{!}{\input{tables/strategies_en}}
+\end{table}
+
+\begin{table}[H]
+	\caption{Share of the corpus in the largest shard, overlap@10 and probed volume when probing one shard by strategy and clustering algorithm (held-out sample)}
+	\label{tab:methods}
+	\centering
+	\small
+	\resizebox{\textwidth}{!}{\input{tables/methods_en}}
+\end{table}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{overview_quality_vs_cost.pdf}
+	\caption{Overlap@10 when probing one (top row) and two (bottom row) shards against duplication, mean cover length and probed volume; all algorithms and strategies, held-out sample}
+	\label{fig:quality-cost}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{leiden/duplication_vs_fanout.pdf}
+	\caption{Document duplication and mean cover length by strategy (Leiden, held-out sample); labels give overlap@10 when probing one and two shards}
+	\label{fig:tradeoff}
+\end{figure}
+
+\begin{table}[H]
+	\caption{Overlap@10 and probed volume under a budget of $b$ shards (Leiden, held-out sample)}
+	\label{tab:budgets}
+	\centering
+	\small
+	\input{tables/budgets_en}
+\end{table}
+
+\subsection{Balanced Strategy against Hash}
+
+\todo{Text: at an equal number of shards \strategy{bal} beats \strategy{hash\_bal} on overlap and is cheaper in volume at every budget and under every algorithm (Figure~\ref{fig:budget-curves}, Table~\ref{tab:gains}); transfer across samples and frequent queries (Figure~\ref{fig:by-sample}, Table~\ref{tab:samples}); the distribution of the cover length (Figure~\ref{fig:fanout-ecdf}); the gain grows with connectivity and query length (Table~\ref{tab:slices}, Figure~\ref{fig:slices}). Materials: Figure~\ref{fig:budget-curves}; Table~\ref{tab:gains}; Figure~\ref{fig:by-sample}; Table~\ref{tab:samples}; Figure~\ref{fig:fanout-ecdf} (optional); Table~\ref{tab:slices}; Figure~\ref{fig:slices}.}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{overview_budget_curves.pdf}
+	\caption{\strategy{bal} against \strategy{hash\_bal} at an equal number of shards: overlap@10 (a) and probed volume (b) against the number of probed shards for the four clustering algorithms (held-out sample)}
+	\label{fig:budget-curves}
+\end{figure}
+
+\begin{table}[H]
+	\caption{Paired differences of \strategy{bal} against \strategy{hash\_bal} by clustering algorithm on the held-out and OOD samples: mean and 95\,\% confidence interval; volume in corpus fractions}
+	\label{tab:gains}
+	\centering
+	\small
+	\resizebox{\textwidth}{!}{\input{tables/gains_en}}
+\end{table}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{overview_by_sample.pdf}
+	\caption{Share of queries covered by a single shard (a) and mean cover length (b) across the seven samples: \strategy{bal} against \strategy{hash\_bal} for the four clustering algorithms; bars are 95\,\% confidence intervals}
+	\label{fig:by-sample}
+\end{figure}
+
+\begin{table}[H]
+	\caption{Seven query samples (Leiden): overlap@10 when probing one shard, share of single-shard queries and mean cover length for \strategy{bal} and \strategy{hash\_bal}}
+	\label{tab:samples}
+	\centering
+	\small
+	\resizebox{\textwidth}{!}{\input{tables/samples_en}}
+\end{table}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{overview_fanout_ecdf.pdf}
+	\caption{Empirical distribution of the number of shards in the query cover: \strategy{bal} (solid) against \strategy{hash\_bal} (dashed) for the four clustering algorithms (held-out sample)}
+	\label{fig:fanout-ecdf}
+\end{figure}
+
+\begin{table}[H]
+	\caption{Slices of the held-out sample by term connectivity (quartiles of mean NPMI, out-of-graph queries, single graph term) and by query length (Leiden)}
+	\label{tab:slices}
+	\centering
+	\small
+	\resizebox{\textwidth}{!}{\input{tables/slices_en}}
+\end{table}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{overview_slices.pdf}
+	\caption{Overlap@10 when probing one (top row) and two (bottom row) shards by slices of the held-out sample: quartiles of term connectivity (a) and query length (b); \strategy{bal} against \strategy{hash\_bal} for the four algorithms}
+	\label{fig:slices}
+\end{figure}
+
+\subsection{Correctness and Reproducibility}
+\label{sec:verification}
+
+\todo{Text: assignment recomputed from texts, cover completeness for all queries, comparison with real Whoosh shard indexes; software, seeds, DVC, repository. Materials: Table~\ref{tab:verification}.}
+
+\begin{table}[H]
+	\caption{Correctness check: computed results against real shard indexes}
+	\label{tab:verification}
+	\centering
+	\small
+	\resizebox{\textwidth}{!}{\input{tables/verification_en}}
+\end{table}
+
+\subsection{Hyperparameter Selection}
+
+\todo{Text: this is a check of the main configuration (Table~\ref{tab:configuration}), not its selection: the variants were measured after the main results on the same held-out sample and the configuration was not changed (the best variant gives Leiden +1.1~p.p. but CPM $-$2.4). Robustness of \strategy{bal} to the seed and the log size (Table~\ref{tab:sensitivity}); the algorithm's own parameter~--- the budget absorbs the resolution (Table~\ref{tab:parameters}); one setting changed at a time (Table~\ref{tab:variants}, Figure~\ref{fig:variants-overlap}): the effects on \strategy{bal} are small, the main configuration is close to the optimum. Materials: Table~\ref{tab:sensitivity}; Table~\ref{tab:parameters} (optional); Table~\ref{tab:variants}; Figure~\ref{fig:variants-overlap}.}
+
+\begin{table}[H]
+	\caption{Robustness of \strategy{bal} to the random seed (three seeds plus the main one) and to the number of training queries that build the graph}
+	\label{tab:sensitivity}
+	\centering
+	\small
+	\resizebox{\textwidth}{!}{\input{tables/sensitivity_en}}
+\end{table}
+
+\begin{table}[H]
+	\caption{The clustering algorithm's own parameter and the \strategy{bal} strategy (held-out sample)}
+	\label{tab:parameters}
+	\centering
+	\small
+	\resizebox{\textwidth}{!}{\input{tables/parameters_en}}
+\end{table}
+
+\begin{table}[H]
+	\caption{Configuration variants for \strategy{bal}: overlap@10 when probing one shard on the held-out sample and the change against the main configuration (percentage points) for the four clustering algorithms}
+	\label{tab:variants}
+	\centering
+	\small
+	\resizebox{\textwidth}{!}{\input{tables/variants_en}}
+\end{table}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.75\textwidth]{overview_variants_overlap.pdf}
+	\caption{Change of overlap@10 when probing one shard against the main configuration by configuration variant (rows) and clustering algorithm (columns), percentage points; \strategy{bal}, held-out sample}
+	\label{fig:variants-overlap}
+\end{figure}
+
+\section{Limitations}
+
+\todo{Text: the two regimes of the method; what the budget buys; comparison with selective search; tail latency; limitations (collection-wide BM25 statistics, one corpus and language, duplication of about 20, proxy costs instead of latency, synthetic samples favourable by construction, replicas under the budget not studied); future work. Materials: none.}
+
+\section{Conclusion}
+
+\todo{Text: one paragraph of problem statement, one of results with numbers (through the macros of \texttt{tables/numbers\_en.tex}), one of significance and future work. Materials: none.}
+
+\bibliographystyle{unsrt}  % placeholder: numeric in citation order; the venue style replaces it
+\bibliography{references}
+
+\end{document}

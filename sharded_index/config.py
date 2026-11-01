@@ -261,8 +261,8 @@ class FiguresConfig(_Section):
     graph_max_nodes: int = Field(gt=0)
     layout_seed: int
     focus_strategies: StrategyNames
-    ablation_strategies: StrategyNames
-    language: Literal["ru", "en"]
+    unbudgeted_strategy: str
+    languages: tuple[Literal["ru", "en"], ...] = Field(min_length=1)
     budgets: tuple[int, ...] = Field(min_length=1)
 
 
@@ -322,7 +322,11 @@ class Config(_Section):
             [Strategy.parse(name).hash_baseline for name in focus],
             strategies,
         )
-        _require("figures.ablation_strategies", self.figures.ablation_strategies, strategies)
+        unbudgeted = self.figures.unbudgeted_strategy
+        if Strategy.parse(unbudgeted).is_hash:
+            msg = "figures.unbudgeted_strategy must name a semantic strategy, not a hash baseline"
+            raise ValueError(msg)
+        _require("figures.unbudgeted_strategy", [unbudgeted], strategies)
         _require(
             "figures.budgets",
             [str(budget) for budget in self.figures.budgets],

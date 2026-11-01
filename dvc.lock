@@ -871,8 +871,8 @@ stages:
       nfiles: 3
     - path: sharded_index/partition
       hash: md5
-      md5: 64f1753deffb06a10f2bbf404441d558.dir
-      size: 23702
+      md5: 269a77aeefa04c91c4707afd908510bf.dir
+      size: 23700
       nfiles: 7
     - path: sharded_index/pipeline/build_partitions.py
       hash: md5
@@ -945,8 +945,8 @@ stages:
       nfiles: 3
     - path: sharded_index/partition
       hash: md5
-      md5: 64f1753deffb06a10f2bbf404441d558.dir
-      size: 23702
+      md5: 269a77aeefa04c91c4707afd908510bf.dir
+      size: 23700
       nfiles: 7
     - path: sharded_index/pipeline/build_partitions.py
       hash: md5
@@ -1019,8 +1019,8 @@ stages:
       nfiles: 3
     - path: sharded_index/partition
       hash: md5
-      md5: 64f1753deffb06a10f2bbf404441d558.dir
-      size: 23702
+      md5: 269a77aeefa04c91c4707afd908510bf.dir
+      size: 23700
       nfiles: 7
     - path: sharded_index/pipeline/build_partitions.py
       hash: md5
@@ -1090,8 +1090,8 @@ stages:
       nfiles: 3
     - path: sharded_index/partition
       hash: md5
-      md5: 64f1753deffb06a10f2bbf404441d558.dir
-      size: 23702
+      md5: 269a77aeefa04c91c4707afd908510bf.dir
+      size: 23700
       nfiles: 7
     - path: sharded_index/pipeline/build_partitions.py
       hash: md5
@@ -1413,8 +1413,8 @@ stages:
       size: 5717
     - path: sharded_index/partition
       hash: md5
-      md5: 64f1753deffb06a10f2bbf404441d558.dir
-      size: 23702
+      md5: 269a77aeefa04c91c4707afd908510bf.dir
+      size: 23700
       nfiles: 7
     - path: sharded_index/pipeline/evaluate.py
       hash: md5
@@ -1685,8 +1685,8 @@ stages:
       size: 5717
     - path: sharded_index/partition
       hash: md5
-      md5: 64f1753deffb06a10f2bbf404441d558.dir
-      size: 23702
+      md5: 269a77aeefa04c91c4707afd908510bf.dir
+      size: 23700
       nfiles: 7
     - path: sharded_index/pipeline/evaluate.py
       hash: md5
@@ -1957,8 +1957,8 @@ stages:
       size: 5717
     - path: sharded_index/partition
       hash: md5
-      md5: 64f1753deffb06a10f2bbf404441d558.dir
-      size: 23702
+      md5: 269a77aeefa04c91c4707afd908510bf.dir
+      size: 23700
       nfiles: 7
     - path: sharded_index/pipeline/evaluate.py
       hash: md5
@@ -2229,8 +2229,8 @@ stages:
       size: 5717
     - path: sharded_index/partition
       hash: md5
-      md5: 64f1753deffb06a10f2bbf404441d558.dir
-      size: 23702
+      md5: 269a77aeefa04c91c4707afd908510bf.dir
+      size: 23700
       nfiles: 7
     - path: sharded_index/pipeline/evaluate.py
       hash: md5
@@ -3663,8 +3663,8 @@ stages:
       size: 5717
     - path: sharded_index/partition
       hash: md5
-      md5: 64f1753deffb06a10f2bbf404441d558.dir
-      size: 23702
+      md5: 269a77aeefa04c91c4707afd908510bf.dir
+      size: 23700
       nfiles: 7
     - path: sharded_index/pipeline/sensitivity.py
       hash: md5
@@ -3997,8 +3997,8 @@ stages:
       size: 5717
     - path: sharded_index/partition
       hash: md5
-      md5: 64f1753deffb06a10f2bbf404441d558.dir
-      size: 23702
+      md5: 269a77aeefa04c91c4707afd908510bf.dir
+      size: 23700
       nfiles: 7
     - path: sharded_index/pipeline/sensitivity.py
       hash: md5
@@ -4330,8 +4330,8 @@ stages:
       size: 5717
     - path: sharded_index/partition
       hash: md5
-      md5: 64f1753deffb06a10f2bbf404441d558.dir
-      size: 23702
+      md5: 269a77aeefa04c91c4707afd908510bf.dir
+      size: 23700
       nfiles: 7
     - path: sharded_index/pipeline/sensitivity.py
       hash: md5
@@ -4655,8 +4655,8 @@ stages:
       size: 5717
     - path: sharded_index/partition
       hash: md5
-      md5: 64f1753deffb06a10f2bbf404441d558.dir
-      size: 23702
+      md5: 269a77aeefa04c91c4707afd908510bf.dir
+      size: 23700
       nfiles: 7
     - path: sharded_index/pipeline/sensitivity.py
       hash: md5
@@ -4987,8 +4987,8 @@ stages:
       size: 5717
     - path: sharded_index/partition
       hash: md5
-      md5: 64f1753deffb06a10f2bbf404441d558.dir
-      size: 23702
+      md5: 269a77aeefa04c91c4707afd908510bf.dir
+      size: 23700
       nfiles: 7
     - path: sharded_index/pipeline/ablations.py
       hash: md5
@@ -5367,8 +5367,8 @@ stages:
       size: 5717
     - path: sharded_index/partition
       hash: md5
-      md5: 64f1753deffb06a10f2bbf404441d558.dir
-      size: 23702
+      md5: 269a77aeefa04c91c4707afd908510bf.dir
+      size: 23700
       nfiles: 7
     - path: sharded_index/pipeline/ablations.py
       hash: md5
@@ -5747,8 +5747,8 @@ stages:
       size: 5717
     - path: sharded_index/partition
       hash: md5
-      md5: 64f1753deffb06a10f2bbf404441d558.dir
-      size: 23702
+      md5: 269a77aeefa04c91c4707afd908510bf.dir
+      size: 23700
       nfiles: 7
     - path: sharded_index/pipeline/ablations.py
       hash: md5
@@ -6124,8 +6124,8 @@ stages:
       size: 5717
     - path: sharded_index/partition
       hash: md5
-      md5: 64f1753deffb06a10f2bbf404441d558.dir
-      size: 23702
+      md5: 269a77aeefa04c91c4707afd908510bf.dir
+      size: 23700
       nfiles: 7
     - path: sharded_index/pipeline/ablations.py
       hash: md5
@@ -7176,24 +7176,24 @@ stages:
       size: 3271
     - path: sharded_index/pipeline/figures.py
       hash: md5
-      md5: ab23679bd371ff9430eda7fbbda925c9
-      size: 7846
+      md5: c4c8dc895ec7934a89bc6d4a595d4648
+      size: 6761
     - path: sharded_index/reporting/labels.py
       hash: md5
-      md5: f929050a974316c4d825ae02134af0e8
-      size: 6207
+      md5: 4131771dfa31dc4f4bec79d7d91d4e65
+      size: 6342
     - path: sharded_index/reporting/overview.py
       hash: md5
-      md5: 7d657eac16a15772bca34e23fc13cd1f
-      size: 19035
+      md5: 325bc241af84b7a05c59416fc00c335a
+      size: 22237
     - path: sharded_index/reporting/plots.py
       hash: md5
-      md5: 6b88083b1d9fca2a711e9f6554b10744
-      size: 19957
+      md5: 0f63f447eb61d0c498ee211daeea1d35
+      size: 10804
     - path: sharded_index/reporting/style.py
       hash: md5
-      md5: 735b17a32166ba289f9fc448c2cd9ec3
-      size: 6492
+      md5: 5698c2bc7cb776c86086b2f877c0fa9c
+      size: 6822
     - path: sharded_index/routing.py
       hash: md5
       md5: 2113d7610b4b15cf3f91d0e694557d92
@@ -7237,10 +7237,10 @@ stages:
           layout_seed: 42
           focus_strategies:
           - bal
-          ablation_strategies:
-          - bal
-          - aff
-          language: ru
+          unbudgeted_strategy: aff
+          languages:
+          - ru
+          - en
           budgets:
           - 1
           - 2
@@ -7277,6 +7277,6 @@ stages:
     outs:
     - path: reports/figures
       hash: md5
-      md5: 0a97318af287213c99fc9ae786dd265a.dir
-      size: 6071806
-      nfiles: 44
+      md5: a570374660f8e8f17e8701e2323b8272.dir
+      size: 10428480
+      nfiles: 56
