@@ -211,6 +211,7 @@ __marimo__/
 .idea
 .vscode
 *.docx
+reports/article/*.py
 
 # Data and output (anchored to the repository root: sharded_index/data is source code)
 *.txt
