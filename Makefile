@@ -47,7 +47,5 @@ clean:       ## remove caches and LaTeX by-products
 		-o -name "*.fls" -o -name "*.fdb_latexmk" -o -name "*.xdv" -o -name "*.bbl" -o -name "*.blg" \) -delete
 	rm -rf sharded_index.egg-info .mypy_cache .pytest_cache .ruff_cache
 
-article:     ## rebuild the article tables, number macros, reference lists and PDF (xelatex, NTV ITMO format)
-	$(VENV)/python reports/article/build_tables.py
-	$(VENV)/python reports/article/build_references.py
+article:     ## rebuild the article PDF (xelatex, NTV ITMO format)
 	latexmk -cd -xelatex -interaction=nonstopmode -halt-on-error reports/article/article.tex

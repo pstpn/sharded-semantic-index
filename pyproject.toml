@@ -90,8 +90,6 @@ ignore = [
 convention = "google"
 
 [tool.ruff.lint.per-file-ignores]
-"reports/article/build_tables.py" = ["ARG005", "E501", "RUF001", "RUF002", "RUF003", "T201"]
-"reports/article/build_references.py" = ["E501", "RUF001", "RUF002", "T201"]
 "tests/*" = ["D", "ARG001"]
 "sharded_index/reporting/labels.py" = ["RUF001", "RUF002"]  # Russian wording of the figures
 "tests/test_reporting.py" = ["RUF001"]

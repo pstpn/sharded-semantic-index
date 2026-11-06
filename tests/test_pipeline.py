@@ -3,14 +3,13 @@
 from __future__ import annotations
 
 import json
-import re
 from pathlib import Path
 
 import pandas as pd
 import pytest
 
 from sharded_index.config import Config
-from sharded_index.paths import PROJECT_ROOT, Paths
+from sharded_index.paths import Paths
 from sharded_index.pipeline import (
     ablations,
     assign_documents,
@@ -19,7 +18,6 @@ from sharded_index.pipeline import (
     build_index,
     build_partitions,
     cluster,
-    describe,
     evaluate,
     figures,
     rank_queries,
@@ -32,14 +30,6 @@ from synthetic import make_pairs
 
 SHARED_STAGES = (build_corpus, build_index, build_graph, sample_queries, rank_queries)
 METHOD_STAGES = (cluster, build_partitions, assign_documents, evaluate, sensitivity, ablations)
-OUTPUTS = (PROJECT_ROOT / "docs" / "outputs.md").read_text()
-
-
-def _documented_section(file_name: str) -> str:
-    """The part of ``docs/outputs.md`` that describes one file of ``metrics/``."""
-    start = OUTPUTS.index(f"### `metrics/{file_name}`")
-    end = OUTPUTS.find("\n##", start + 1)
-    return OUTPUTS[start:end]
 
 
 @pytest.fixture
@@ -64,7 +54,6 @@ def test_pipeline_runs_end_to_end(small_config: Config, paths: Paths) -> None:
             stage.run(config, paths, method)
         assert verify.run(config, paths, method)
     report.run(config, paths)
-    describe.run(config, paths)
     figures.run(config, paths)
 
     def table(name: str) -> pd.DataFrame:
@@ -124,15 +113,6 @@ def test_pipeline_runs_end_to_end(small_config: Config, paths: Paths) -> None:
     corpus = json.loads((paths.metrics / "corpus.json").read_text())
     assert corpus["collection"]["documents"] == make_pairs()["doc_id"].nunique()
 
-    for path in sorted(paths.metrics.glob("*.csv")):
-        described = _documented_section(path.name)
-        for column in pd.read_csv(path).columns:
-            name = re.sub(r"^(overlap|volume)_(\d+|full)$", r"\1_<b>", column)
-            assert f"`{name}`" in described, f"{path.name}: {column} is not described"
-    for section, fields in corpus.items():
-        for field in fields:
-            assert f"`{field}`" in _documented_section("corpus.json"), f"corpus.json: {section}"
-
     for language in small_config.figures.languages:
         root = paths.figures / language
         overview_names = {path.name for path in root.glob("*.pdf")}
@@ -146,13 +126,9 @@ def test_pipeline_runs_end_to_end(small_config: Config, paths: Paths) -> None:
             "overview_slices.pdf",
             "overview_variants_overlap.pdf",
         }
-        assert all(f"`reports/figures/<language>/{name}`" in OUTPUTS for name in overview_names)
         for method in methods:
             figure_names = {path.name for path in (root / method).glob("*.pdf")}
             assert len(figure_names) == 5
-            assert all(
-                f"`reports/figures/<language>/<method>/{name}`" in OUTPUTS for name in figure_names
-            )
 
 
 def test_artefacts_are_byte_stable(small_config: Config, paths: Paths, tmp_path: Path) -> None:

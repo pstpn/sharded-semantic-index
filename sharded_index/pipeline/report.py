@@ -11,6 +11,7 @@ from sharded_index.config import Config
 from sharded_index.evaluation.slices import connectivity_slices, term_count_slices
 from sharded_index.evaluation.statistics import bootstrap_weights
 from sharded_index.paths import Paths
+from sharded_index.pipeline import describe
 from sharded_index.pipeline.common import read_samples, setup
 from sharded_index.reporting.tables import (
     comparison_pairs,
@@ -119,6 +120,7 @@ def run(config: Config, paths: Paths) -> None:
     }
     write_table(verification_table(verification), paths.metrics / "verification.csv")
     logger.info("tables written to %s", paths.metrics)
+    describe.run(config, paths)
 
 
 if __name__ == "__main__":
