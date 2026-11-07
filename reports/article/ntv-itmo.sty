@@ -118,6 +118,7 @@
   {\par\normalsize}
 \newcommand{\abstractpart}[1]{\textbf{#1.}~}
 \newcommand{\ntvkeywords}[2]{{\small\vspace{2pt}\noindent\textbf{#1}\par\noindent #2\par}}
+\newcommand{\ntvcitation}[2]{{\small\vspace{2pt}\noindent\textbf{#1}~#2\par}}
 \newcommand{\ntvacknowledgments}[2]{{\small\vspace{2pt}\noindent\textbf{#1}\par\noindent #2\par}}
 \newcommand{\ntvcopyright}[1]{\begingroup\renewcommand{\thefootnote}{}%
   \footnotetext{\copyright~#1}\endgroup}
@@ -138,7 +139,7 @@
   {\centering\small\bfseries #1\par}\vspace{3pt}\switchcolumn
   {\centering\small\bfseries #2\par}\vspace{3pt}\switchcolumn*}
 \newenvironment{ntvreferences}
-  {\par\vspace{10pt}\setcolumnwidth{235pt,235pt}%
+  {\par\vspace{6pt}\setcolumnwidth{235pt,235pt}%
    \begin{paracol}{2}\footnotesize\setlength{\parindent}{0pt}%
    \ntv@twoheads{Литература}{References}}
   {\end{paracol}}
@@ -150,7 +151,7 @@
   \foreignlanguage{english}{\hangindent=14pt\hangafter=1\noindent\makebox[14pt][l]{\arabic{ntvref}.}#3\par}%
   \switchcolumn*}
 \newenvironment{ntvauthorsinfo}
-  {\par\vspace{12pt}\setcolumnwidth{235pt,235pt}%
+  {\par\vspace{4pt}\setcolumnwidth{235pt,235pt}%
    \begin{paracol}{2}\footnotesize\setlength{\parindent}{0pt}%
    \ntv@twoheads{Авторы}{Authors}}
   {\end{paracol}}
