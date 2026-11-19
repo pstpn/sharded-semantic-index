@@ -356,6 +356,7 @@ stages:
       - sharded_index/partition/model.py
       - sharded_index/reporting/labels.py
       - sharded_index/reporting/overview.py
+      - sharded_index/reporting/comparison.py
       - sharded_index/reporting/plots.py
       - sharded_index/reporting/style.py
       - sharded_index/routing.py

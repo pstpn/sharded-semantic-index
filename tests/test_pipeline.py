@@ -120,10 +120,8 @@ def test_pipeline_runs_end_to_end(small_config: Config, paths: Paths) -> None:
             "overview_quality_vs_cost.pdf",
             "overview_parameter_sweeps.pdf",
             "overview_variants_largest_shard.pdf",
-            "overview_budget_curves.pdf",
             "overview_by_sample.pdf",
             "overview_fanout_ecdf.pdf",
-            "overview_slices.pdf",
             "overview_variants_overlap.pdf",
         }
         for method in methods:

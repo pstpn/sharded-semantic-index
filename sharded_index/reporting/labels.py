@@ -15,13 +15,15 @@ from typing import Literal
 Language = Literal["ru", "en"]
 
 _PHRASES: dict[str, dict[str, str]] = {
+    "hash": {"ru": "хеш", "en": "hash"},
+    "no_replication": {"ru": "без репликации", "en": "no replication"},
     "overlap_at": {
-        "ru": "Overlap@{k} при опросе {shards}",
-        "en": "Overlap@{k} with {shards} probed",
+        "ru": "Качество выдачи при опросе {shards}",
+        "en": "Retrieval quality with {shards} probed",
     },
     "overlap_at_budget": {
-        "ru": "Overlap@{k} с полным индексом",
-        "en": "Overlap@{k} with the unsharded index",
+        "ru": "Качество выдачи относительно эталона",
+        "en": "Retrieval quality against the reference index",
     },
     "single_shard_share": {
         "ru": "Доля запросов, покрытых одним шардом",
@@ -69,12 +71,12 @@ _PHRASES: dict[str, dict[str, str]] = {
         "ru": "Связность слов запроса (квартиль NPMI)",
         "en": "Connectivity of the query terms (NPMI quartile)",
     },
-    "terms": {"ru": "Слов в запросе", "en": "Terms in the query"},
+    "terms": {"ru": "Различных термов в запросе", "en": "Distinct terms in the query"},
     "out_of_graph": {"ru": "вне графа", "en": "out of graph"},
     "single_term": {"ru": "одно слово", "en": "single term"},
     "delta_pp": {
-        "ru": "Δ overlap@{k} при опросе {shards}, п. п.",
-        "en": "Δ overlap@{k} with {shards} probed, p.p.",
+        "ru": "Изменение качества выдачи при опросе {shards}, п. п.",
+        "en": "Change in retrieval quality with {shards} probed, p.p.",
     },
     "cluster_size": {"ru": "Размер кластера (слов)", "en": "Cluster size (terms)"},
     "clusters": {"ru": "Кластеров", "en": "Clusters"},

@@ -25,13 +25,14 @@ from sharded_index.reporting.labels import Labels
 from sharded_index.reporting.style import (
     COLUMN_WIDTH,
     DIVERGING,
-    FAMILY_MARKERS,
     GRID_COLOR,
     INK_MUTED,
     PAGE_WIDTH,
     SEQUENTIAL,
     SURFACE,
     categorical_x,
+    comparison_legend,
+    comparison_marker,
     marker_style,
     method_colors,
     method_markers,
@@ -40,8 +41,6 @@ from sharded_index.reporting.style import (
     themed,
 )
 
-REPLICA_AREA = {1: 18, 2: 34, 3: 54}
-"""Scatter marker area by replica count: more replicas, larger marker."""
 REPLICA_SIZE = {1: 4, 2: 5.5, 3: 7}
 """The same code for legend markers, in points."""
 ERRORBAR = {"elinewidth": 0.6, "capsize": 0, "linestyle": "", "markersize": 3.5}
@@ -298,7 +297,7 @@ def plot_quality_vs_cost(
     budgets = list(points)
     first = points[budgets[0]]
     methods = list(dict.fromkeys(first["method"]))
-    colors = method_colors(methods)
+    markers = method_markers(methods)
     costs = [
         ("duplication", text("duplication_short")),
         ("fanout_mean", text("fanout_short")),
@@ -311,27 +310,17 @@ def plot_quality_vs_cost(
             axis = grid[i, j]
             for row in points[budget].itertuples(index=False):
                 strategy = Strategy.parse(row.strategy)
-                color = colors[row.method]
                 axis.scatter(
                     getattr(row, column),
                     row.overlap,
-                    s=REPLICA_AREA[min(strategy.replicas, 3)],
-                    marker=FAMILY_MARKERS[strategy.family],
-                    facecolors=SURFACE if strategy.is_hash else color,
-                    edgecolors=color,
-                    linewidths=0.8,
                     zorder=3,
+                    **comparison_marker(strategy, markers[row.method]),
                 )
             axis.set_xlim(left=0)
             if i == len(budgets) - 1:
                 axis.set_xlabel(label)
         grid[i, 0].set_ylabel(fill(text("overlap_at", k=top_k, shards=text.shards(budget)), 26))
-    strategies = list(dict.fromkeys(first["strategy"]))
-    handles = [
-        Line2D([], [], linestyle="", marker="o", color=color, markerfacecolor=color, label=name)
-        for name, color in colors.items()
-    ] + _strategy_handles(strategies)
-    figure.legend(handles=handles, loc="outside lower center", ncol=7)
+    figure.legend(handles=comparison_legend(markers, text), loc="outside lower center", ncol=5)
     save(figure, path)
 
 

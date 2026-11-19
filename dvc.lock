@@ -6955,24 +6955,28 @@ stages:
       size: 3271
     - path: sharded_index/pipeline/figures.py
       hash: md5
-      md5: c4c8dc895ec7934a89bc6d4a595d4648
-      size: 6761
+      md5: c876500d0a8d2276945a7e8aba170577
+      size: 6161
+    - path: sharded_index/reporting/comparison.py
+      hash: md5
+      md5: 8cfac97b2c5b79b73785085594fd2c36
+      size: 4206
     - path: sharded_index/reporting/labels.py
       hash: md5
-      md5: 4131771dfa31dc4f4bec79d7d91d4e65
-      size: 6342
+      md5: 5ad2598eec80b57c80b12bfd6d404f4e
+      size: 6608
     - path: sharded_index/reporting/overview.py
       hash: md5
-      md5: 325bc241af84b7a05c59416fc00c335a
-      size: 22237
+      md5: 9870581a36d2323ab409d1fac7b585bf
+      size: 21691
     - path: sharded_index/reporting/plots.py
       hash: md5
       md5: 0f63f447eb61d0c498ee211daeea1d35
       size: 10804
     - path: sharded_index/reporting/style.py
       hash: md5
-      md5: 5698c2bc7cb776c86086b2f877c0fa9c
-      size: 6822
+      md5: e7738fdfa253187d8b1c29045a1a0738
+      size: 8486
     - path: sharded_index/routing.py
       hash: md5
       md5: 2113d7610b4b15cf3f91d0e694557d92
@@ -7056,6 +7060,6 @@ stages:
     outs:
     - path: reports/figures
       hash: md5
-      md5: a570374660f8e8f17e8701e2323b8272.dir
-      size: 10428480
-      nfiles: 56
+      md5: 4e36d0ff94135be9a88b12feff4511af.dir
+      size: 10267821
+      nfiles: 52

@@ -20,8 +20,10 @@ import matplotlib as mpl
 from cycler import cycler
 from matplotlib.colors import to_rgb
 from matplotlib.figure import Figure
+from matplotlib.lines import Line2D
 
 from sharded_index.config import Strategy
+from sharded_index.reporting.labels import Labels
 
 PAGE_WIDTH = 6.5
 """Width of a full-width figure in inches: the text width of an A4 article."""
@@ -51,6 +53,9 @@ SPARE_COLORS = (CYAN, YELLOW, GREY)
 SPARE_MARKERS = ("v", "P", "X", "*")
 FAMILY_COLORS = {"base": BLUE, "aff": RED, "bal": GREEN}
 FAMILY_MARKERS = {"base": "o", "aff": "s", "bal": "^"}
+COMPARISON_COLORS = {"base": "#84283C", "aff": "#4D92B8", "bal": "#59783B"}
+COMPARISON_AREAS = {1: 13, 2: 23, 3: 36}
+METHOD_NAMES = {"leiden": "Leiden", "cpm": "CPM", "infomap": "Infomap", "metis": "METIS"}
 REPLICA_SHADE = {1: 0.0, 2: 0.25, 3: 0.5}
 """How much darker than the family hue a strategy with that many replicas is drawn."""
 
@@ -114,6 +119,46 @@ def _theme() -> dict[Any, Any]:
 
 
 THEME = _theme()
+
+
+def comparison_marker(strategy: Strategy, marker: str) -> dict[str, Any]:
+    """Encode method by shape, strategy family by hue, and replication by area."""
+    color = COMPARISON_COLORS[strategy.family]
+    return {
+        "marker": marker,
+        "s": COMPARISON_AREAS[min(strategy.replicas, 3)],
+        "facecolors": "none" if strategy.is_hash else color,
+        "edgecolors": color,
+        "linewidths": 0.7,
+    }
+
+
+def comparison_legend(markers: dict[str, str], text: Labels) -> list[Line2D]:
+    """Use the same visual key for the sample and cost comparisons."""
+    ink = "#202124"
+    handles = [
+        Line2D(
+            [], [], marker=marker, color=ink, linestyle="", label=METHOD_NAMES.get(method, method)
+        )
+        for method, marker in markers.items()
+    ]
+    handles.extend(
+        Line2D([], [], marker="s", color=color, linestyle="", label=family)
+        for family, color in COMPARISON_COLORS.items()
+    )
+    handles.append(
+        Line2D(
+            [], [], marker="o", color=ink, markerfacecolor="none", linestyle="", label=text("hash")
+        )
+    )
+    handles.extend(
+        Line2D([], [], marker="o", color=ink, markersize=area**0.5, linestyle="", label=label)
+        for area, label in zip(
+            COMPARISON_AREAS.values(), [text("no_replication"), "r2", "r3"], strict=True
+        )
+    )
+    return handles
+
 
 F = TypeVar("F", bound=Callable[..., Any])
 

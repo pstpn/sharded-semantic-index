@@ -11,7 +11,7 @@ from sharded_index.config import Config
 from sharded_index.graph.cooccurrence import node_strength
 from sharded_index.paths import Paths
 from sharded_index.pipeline.common import read_clustering, setup
-from sharded_index.reporting import overview, plots
+from sharded_index.reporting import comparison, overview, plots
 from sharded_index.reporting.labels import Labels
 
 logger = logging.getLogger(__name__)
@@ -82,8 +82,6 @@ def _overview_figures(
     settings = config.figures
     sample, top_k, budgets = settings.sample, config.evaluation.top_k, list(settings.budgets)
     focus = list(settings.focus_strategies)
-    samples = [name for name in config.queries.sample_names() if name in set(routing["sample"])]
-    counts = routing.drop_duplicates("sample").set_index("sample")["evaluated"].to_dict()
     sensitivity = pd.read_csv(paths.metrics / "sensitivity.csv")
     ablations = pd.read_csv(paths.metrics / "ablations.csv")
 
@@ -120,23 +118,7 @@ def _overview_figures(
         root / "overview_variants_largest_shard.pdf",
     )
 
-    overview.plot_budget_curves(
-        retrieval[retrieval["sample"] == sample],
-        focus,
-        top_k,
-        text,
-        root / "overview_budget_curves.pdf",
-    )
-    overview.plot_by_sample(routing, focus, samples, counts, text, root / "overview_by_sample.pdf")
     overview.plot_fanout_ecdf(fanouts, text, root / "overview_fanout_ecdf.pdf")
-    overview.plot_slices(
-        pd.read_csv(paths.metrics / "slices.csv"),
-        focus,
-        top_k,
-        budgets,
-        text,
-        root / "overview_slices.pdf",
-    )
     overview.plot_variant_heatmap(
         ablations,
         focus[0],
@@ -177,6 +159,8 @@ def run(config: Config, paths: Paths) -> None:
             )
         _overview_figures(config, paths, text, root, partitions, routing, retrieval, fanouts)
         logger.info("%s: figures written", language)
+
+    comparison.run(config, paths)
 
 
 if __name__ == "__main__":

@@ -250,10 +250,11 @@ def test_labels_exist_in_both_languages() -> None:
     russian, english = Labels("ru"), Labels("en")
     assert (
         russian("overlap_at", k=10, shards=russian.shards(1))
-        == "Overlap@10 при опросе одного шарда"
+        == "Качество выдачи при опросе одного шарда"
     )
     assert (
-        english("overlap_at", k=10, shards=english.shards(2)) == "Overlap@10 with 2 shards probed"
+        english("overlap_at", k=10, shards=english.shards(2))
+        == "Retrieval quality with 2 shards probed"
     )
     assert russian.sample("frequent_pairs") == english.sample("frequent_pairs") == "frequent pairs"
     assert english.sample("unknown_sample") == "unknown_sample"
