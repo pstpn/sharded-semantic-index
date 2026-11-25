@@ -49,7 +49,9 @@ def _method_figures(
             "label": [
                 name
                 + "\n"
-                + ", ".join(f"@{budget} {overlap.loc[name, str(budget)]:.2f}" for budget in budgets)
+                + ", ".join(
+                    f"$Q_{{{budget}}}$={overlap.loc[name, str(budget)]:.2f}" for budget in budgets
+                )
                 for name in strategies
             ],
         }

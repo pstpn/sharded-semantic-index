@@ -6955,16 +6955,16 @@ stages:
       size: 3271
     - path: sharded_index/pipeline/figures.py
       hash: md5
-      md5: c876500d0a8d2276945a7e8aba170577
-      size: 6161
+      md5: 997abea930f6793cd7c33f792c006be0
+      size: 6226
     - path: sharded_index/reporting/comparison.py
       hash: md5
       md5: 8cfac97b2c5b79b73785085594fd2c36
       size: 4206
     - path: sharded_index/reporting/labels.py
       hash: md5
-      md5: 5ad2598eec80b57c80b12bfd6d404f4e
-      size: 6608
+      md5: 14ad0b2f03ff190ecb0984131c24a43f
+      size: 6923
     - path: sharded_index/reporting/overview.py
       hash: md5
       md5: 9870581a36d2323ab409d1fac7b585bf
@@ -7060,6 +7060,6 @@ stages:
     outs:
     - path: reports/figures
       hash: md5
-      md5: 4e36d0ff94135be9a88b12feff4511af.dir
-      size: 10267821
+      md5: f7604650ba3a51453ad3ae8fdf871971.dir
+      size: 10358296
       nfiles: 52
